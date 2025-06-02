@@ -20,7 +20,7 @@ import '../presentation/Controllar/notificationModel/notificationProvider.dart';
 import '../presentation/Controllar/GetBrandProvider.dart';
 import '../presentation/Controllar/LoginProvider.dart';
 import '../presentation/Controllar/userProvider.dart';
-import '../presentation/Screens/Login.dart';
+import '../presentation/Screens/login/Login.dart';
 import '../resources/Route_Manager.dart';
 import '../resources/Theme_Manager.dart';
 

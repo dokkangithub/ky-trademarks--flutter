@@ -8,7 +8,7 @@ import 'package:kyuser/network/ErrorModel.dart';
 import '../../UserData/data/models/UserModel.dart';
 import '../../network/RestApi/Comman.dart';
 import '../../resources/StringManager.dart';
-import '../Screens/Login.dart';
+import '../Screens/login/Login.dart';
 
 class LoginProvider extends ChangeNotifier {
   TextEditingController phoneController = TextEditingController();
