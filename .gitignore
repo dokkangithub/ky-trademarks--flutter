@@ -1,0 +1,29 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+.pub-cache/
+build/
+flutter_*.png
+
+# iOS/Android/Platform
+.ios/
+.android/
+macos/
+windows/
+linux/
+
+# Web build
+web/
+
+# VSCode and IntelliJ
+.vscode/
+.idea/
+*.iml
+
+# Node
+node_modules/
+
+# Others
+.DS_Store
+*.log
+*.lock

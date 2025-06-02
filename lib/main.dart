@@ -1,0 +1,265 @@
+import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:kyuser/utilits/Local_User_Data.dart';
+import 'package:oktoast/oktoast.dart';
+import 'app/app.dart';
+import 'core/Services_locator.dart';
+import 'firebase_options.dart';
+import 'notification.dart';
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Ensure Firebase is initialized
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  
+  debugPrint('Handling a background message ${message.messageId}');
+
+  // Initialize FlutterLocalNotificationsPlugin
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  final DarwinInitializationSettings initializationSettingsIOS =
+      DarwinInitializationSettings(
+    requestAlertPermission: true,
+    requestBadgePermission: true,
+    requestSoundPermission: true,
+  );
+
+  final InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+    iOS: initializationSettingsIOS,
+  );
+
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (NotificationResponse response) {
+      debugPrint("Notification clicked: ${response.payload}");
+    },
+  );
+
+  // Define the notification channel
+  const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'high_importance_channel', // id
+    'High Importance Notifications', // title
+    description:
+        'This channel is used for important notifications.', // description
+    importance: Importance.high,
+  );
+
+  // Create the notification channel
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
+  // Display the notification
+  if (message.notification != null) {
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+
+    if (notification != null && android != null) {
+      flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            channel.id,
+            channel.name,
+            channelDescription: channel.description,
+            icon: '@mipmap/ic_launcher',
+            importance: Importance.high,
+            priority: Priority.high,
+          ),
+        ),
+        payload: message.data['data'],
+      );
+    }
+  }
+}
+
+final navigatorKey = GlobalKey<NavigatorState>();
+
+AndroidNotificationChannel channel = const AndroidNotificationChannel(
+  'high_importance_channel', // id
+  'High Importance Notifications', // title
+  description:
+      'This channel is used for important notifications.', // description
+  importance: Importance.high,
+);
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+AppLifecycleState appLifecycleState = AppLifecycleState.detached;
+const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings('@mipmap/ic_launcher');
+final DarwinInitializationSettings initializationSettingsIOS =
+    DarwinInitializationSettings(
+  requestAlertPermission: true,
+  requestBadgePermission: true,
+  requestSoundPermission: true,
+);
+
+final InitializationSettings initializationSettings = InitializationSettings(
+  android: initializationSettingsAndroid,
+  iOS: initializationSettingsIOS,
+);
+
+
+Future<FirebaseApp> initializeFirebase() async {
+  try {
+    // Return existing instance if already initialized
+    if (Firebase.apps.isNotEmpty) {
+      return Firebase.app();
+    }
+
+    // Initialize new instance if needed
+    return await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Firebase initialization error: $e');
+    // Try to return existing app if initialization fails
+    if (Firebase.apps.isNotEmpty) {
+      return Firebase.app();
+    }
+    rethrow; // Rethrow if we can't recover
+  }
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
+  await initializeFirebase();
+
+  // Initialize Easy Localization
+  await EasyLocalization.ensureInitialized();
+
+  // Initialize service locator
+  Services_locator().init();
+
+  // Initialize Flutter Local Notifications
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (NotificationResponse response) {
+      debugPrint("Notification clicked: ${response.payload}");
+      // Handle notification tap
+      if (response.payload != null) {
+        // Add your navigation logic here if needed
+      }
+    },
+  );
+
+  // Create notification channel
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
+  // Set background message handler
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // Request permissions (optional, depending on your app's requirements)
+  await FirebaseMessaging.instance.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  // Listen to foreground messages
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+
+    if (notification != null && android != null) {
+      flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            channel.id,
+            channel.name,
+            channelDescription: channel.description,
+            icon: '@mipmap/ic_launcher',
+            importance: Importance.high,
+            priority: Priority.high,
+          ),
+        ),
+        payload: message.data['data'],
+      );
+    }
+  });
+
+  // Handle when the app is opened from a notification
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    _handleMessage(message);
+  });
+
+  // Check if the app was opened from a terminated state via a notification
+  RemoteMessage? initialMessage =
+      await FirebaseMessaging.instance.getInitialMessage();
+  if (initialMessage != null) {
+    _handleMessage(initialMessage);
+  }
+
+  // Get FCM token for this device
+  String? token = await FirebaseMessaging.instance.getToken();
+  debugPrint("FCM Token: $token");
+
+  // Initialize local user data
+  await globalAccountData.init();
+
+  // Override HTTP settings if necessary
+  HttpOverrides.global = MyHttpOverrides();
+
+  runApp(EasyLocalization(
+    supportedLocales: [Locale('en', 'US'), Locale('ar', 'EG')],
+    path: 'assets/translation',
+    fallbackLocale: Locale('ar', 'EG'),
+    startLocale: Locale('ar', 'EG'),
+    child: OKToast(child: const MyApp()),
+  ));
+}
+
+void _handleMessage(RemoteMessage message) {
+  if (navigatorKey.currentContext != null) {
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+  
+    if (notification != null && android != null) {
+      showDialog(
+        context: navigatorKey.currentContext!,
+        builder: (_) {
+          return AlertDialog(
+            title: Text(notification.title ?? 'No Title'),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(notification.body ?? 'No Body'),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
+  }
+}
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}

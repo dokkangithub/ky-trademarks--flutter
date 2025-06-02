@@ -1,0 +1,134 @@
+{
+  "project_info": {
+    "project_number": "213413638616",
+    "project_id": "ky-trade-mark",
+    "storage_bucket": "ky-trade-mark.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:213413638616:android:1b272a5762450ae64502ad",
+        "android_client_info": {
+          "package_name": "com.dokkan.KYtradeMark"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "213413638616-tio96658t5606v569iski4683pkmeet6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dokkan.KYtradeMark",
+            "certificate_hash": "2d64176b932e1bd8574732e3e1a7f49ab1b4dcf8"
+          }
+        },
+        {
+          "client_id": "213413638616-2472t8h68ddhjv13d9qpbdqhjekpqsui.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOkryo3H-OaROy8kN4R3qJriRzKFjK4Uw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "213413638616-2472t8h68ddhjv13d9qpbdqhjekpqsui.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:213413638616:android:f51e2334697d65e24502ad",
+        "android_client_info": {
+          "package_name": "com.dokkan.ky"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "213413638616-2472t8h68ddhjv13d9qpbdqhjekpqsui.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOkryo3H-OaROy8kN4R3qJriRzKFjK4Uw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "213413638616-2472t8h68ddhjv13d9qpbdqhjekpqsui.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:213413638616:android:e8cfc8f8ee1d4ffc4502ad",
+        "android_client_info": {
+          "package_name": "com.dokkan.testky"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "213413638616-2472t8h68ddhjv13d9qpbdqhjekpqsui.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOkryo3H-OaROy8kN4R3qJriRzKFjK4Uw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "213413638616-2472t8h68ddhjv13d9qpbdqhjekpqsui.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:213413638616:android:59ae1202598f614a4502ad",
+        "android_client_info": {
+          "package_name": "com.kytrademarks"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "213413638616-2472t8h68ddhjv13d9qpbdqhjekpqsui.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOkryo3H-OaROy8kN4R3qJriRzKFjK4Uw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "213413638616-2472t8h68ddhjv13d9qpbdqhjekpqsui.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
