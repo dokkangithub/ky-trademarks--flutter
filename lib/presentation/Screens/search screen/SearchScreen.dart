@@ -8,14 +8,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kyuser/presentation/Controllar/GetBrandBySearchProvider.dart';
 import 'package:kyuser/presentation/Widget/BrandWidget.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
-import '../../app/RequestState/RequestState.dart';
-import '../../resources/ImagesConstant.dart';
-import '../../network/RestApi/Comman.dart';
-import '../../resources/Color_Manager.dart';
-import '../../resources/StringManager.dart';
-import '../Widget/SearchWidget/NoDataFound.dart';
-import '../Widget/SearchWidget/SearchShimmer.dart';
-import '../Widget/loading_widget.dart';
+import '../../../app/RequestState/RequestState.dart';
+import '../../../resources/ImagesConstant.dart';
+import '../../../network/RestApi/Comman.dart';
+import '../../../resources/Color_Manager.dart';
+import '../../../resources/StringManager.dart';
+import '../../Widget/SearchWidget/NoDataFound.dart';
+import '../../Widget/SearchWidget/SearchShimmer.dart';
+import '../../Widget/loading_widget.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);

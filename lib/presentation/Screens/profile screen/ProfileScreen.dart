@@ -12,14 +12,14 @@ import 'package:kyuser/resources/ImagesConstant.dart';
 import 'package:kyuser/utilits/Local_User_Data.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
-import '../../app/RequestState/RequestState.dart';
-import '../../core/Constant/Api_Constant.dart';
-import '../../data/Brand/DataSource/GetBrandRemotoData.dart';
-import '../../domain/Brand/Entities/BrandEntity.dart';
-import '../../network/RestApi/Comman.dart';
-import '../../resources/Color_Manager.dart';
-import '../Controllar/GetSuccessPartners.dart';
-import '../Controllar/userProvider.dart';
+import '../../../app/RequestState/RequestState.dart';
+import '../../../core/Constant/Api_Constant.dart';
+import '../../../data/Brand/DataSource/GetBrandRemotoData.dart';
+import '../../../domain/Brand/Entities/BrandEntity.dart';
+import '../../../network/RestApi/Comman.dart';
+import '../../../resources/Color_Manager.dart';
+import '../../Controllar/GetSuccessPartners.dart';
+import '../../Controllar/userProvider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);

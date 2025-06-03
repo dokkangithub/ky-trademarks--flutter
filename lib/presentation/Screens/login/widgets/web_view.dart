@@ -11,8 +11,8 @@ import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'dart:ui';
 import '../../add request/AddRequest.dart';
-import '../../PaymentWays.dart';
-import '../../infoAboutUs.dart';
+import '../../payment ways/PaymentWays.dart';
+import '../../info about us/infoAboutUs.dart';
 import '../../HomeScreenSplach.dart';
 import '../../add reservation/AddReservation.dart';
 

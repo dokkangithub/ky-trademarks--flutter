@@ -11,8 +11,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../resources/Color_Manager.dart';
 import 'add reservation/AddReservation.dart';
 import 'home screen/HomeScreen.dart';
-import 'ProfileScreen.dart';
-import 'SearchScreen.dart';
+import 'profile screen/ProfileScreen.dart';
+import 'search screen/SearchScreen.dart';
 import 'contacts/contacts.dart';
 
 class InnerMainTabs extends StatefulWidget {

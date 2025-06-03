@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 import 'package:kyuser/resources/Color_Manager.dart';
-import '../../resources/ImagesConstant.dart';
-import '../../resources/StringManager.dart';
+import '../../../resources/ImagesConstant.dart';
+import '../../../resources/StringManager.dart';
 
 class PaymentWays extends StatelessWidget {
   const PaymentWays({Key? key}) : super(key: key);

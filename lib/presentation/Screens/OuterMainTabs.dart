@@ -16,7 +16,7 @@ import '../../resources/StringManager.dart';
 import 'add reservation/AddReservation.dart';
 import 'HomeScreenSplach.dart';
 import 'contacts/contacts.dart';
-import 'infoAboutUs.dart';
+import 'info about us/infoAboutUs.dart';
 
 class OuterMainTabs extends StatefulWidget {
   const OuterMainTabs({super.key});

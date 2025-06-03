@@ -9,9 +9,9 @@ import 'package:kyuser/presentation/Controllar/notificationModel/notificationPro
 import 'package:kyuser/resources/Color_Manager.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../resources/ImagesConstant.dart';
-import '../../resources/StringManager.dart';
-import 'brand details/BrandDetails.dart';
+import '../../../resources/ImagesConstant.dart';
+import '../../../resources/StringManager.dart';
+import '../brand details/BrandDetails.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({Key? key}) : super(key: key);

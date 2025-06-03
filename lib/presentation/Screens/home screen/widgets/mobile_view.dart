@@ -23,8 +23,8 @@ import '../../../Widget/loading_widget.dart';
 import '../../../Widget/BrandWidget.dart';
 import '../../add request/AddRequest.dart';
 import '../../brand details/BrandDetails.dart';
-import '../../NotificationScreen.dart';
-import '../../PaymentWays.dart';
+import '../../notification screen/NotificationScreen.dart';
+import '../../payment ways/PaymentWays.dart';
 import '../../../../utilits/Local_User_Data.dart';
 
 class AppConstants {
