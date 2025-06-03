@@ -6,7 +6,7 @@ import '../../data/Brand/models/BrandDataModel.dart';
 import '../../domain/Brand/Entities/BrandEntity.dart';
 import '../../network/RestApi/Comman.dart';
 import '../../resources/StringManager.dart';
-import '../Screens/BrandDetails.dart';
+import '../Screens/brand details/BrandDetails.dart';
 
 class BrandWidget extends StatelessWidget {
   final BuildContext context;

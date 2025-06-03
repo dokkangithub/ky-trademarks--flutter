@@ -11,7 +11,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../resources/ImagesConstant.dart';
 import '../../resources/StringManager.dart';
-import 'BrandDetails.dart';
+import 'brand details/BrandDetails.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({Key? key}) : super(key: key);
