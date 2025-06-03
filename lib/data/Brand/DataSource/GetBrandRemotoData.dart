@@ -17,6 +17,8 @@ class GetBrandRemoteData extends BaseGetBrandRemoteData {
     final result = await http.get(Uri.parse(
         "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.getBrands}${globalAccountData.getId()}/$companyId?page=$page"));
     debugPrint('=======brands======');
+    print('111111${globalAccountData.getId()}');
+    print('111111${companyId}');
     debugPrint(result.request!.url.toString());
     debugPrint(result.body);
     print(Uri.parse(

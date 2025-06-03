@@ -50,7 +50,7 @@ class BrandModel extends BrandEntity {
     return BrandModel(
       id: json['id'] as int,
       brandName: json['brand_name'] as String,
-      brandNumber: json['brand_number'] as String,
+      brandNumber: json['brand_number'] ==null?'':json['brand_number'] as String,
       currentStatus: json['current_status'] as int,
       newCurrentStatus: (json['new_current'] ?? '') as String,
       country: json['country'] as int?,
