@@ -13,7 +13,7 @@ import '../../data/Brand/DataSource/GetBrandRemotoData.dart';
 import '../../resources/Color_Manager.dart';
 import '../../resources/ImagesConstant.dart';
 import '../../resources/StringManager.dart';
-import 'AddReservation.dart';
+import 'add reservation/AddReservation.dart';
 import 'HomeScreenSplach.dart';
 import 'contacts.dart';
 import 'infoAboutUs.dart';

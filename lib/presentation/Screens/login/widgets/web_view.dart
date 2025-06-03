@@ -14,7 +14,7 @@ import '../../add request/AddRequest.dart';
 import '../../PaymentWays.dart';
 import '../../infoAboutUs.dart';
 import '../../HomeScreenSplach.dart';
-import '../../AddReservation.dart';
+import '../../add reservation/AddReservation.dart';
 
 class WebLoginView extends StatefulWidget {
   final TextEditingController emailController;
