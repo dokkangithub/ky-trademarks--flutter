@@ -119,74 +119,74 @@ class _OuterMainTabsState extends State<OuterMainTabs> {
   Widget _buildWebLayout(BuildContext context, double screenWidth) {
     return Row(
       children: [
-        Container(
-          width: screenWidth * 0.18,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                ColorManager.primary,
-                ColorManager.primaryByOpacity.withValues(alpha: 0.7),
-              ],
-            ),
-          ),
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
-              Container(
-                height: 80,
-                width: 80,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Icon(
-                    IconlyBroken.work,
-                    size: 40,
-                    color: ColorManager.primary,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.zero,
-                  children: [
-                    ...List.generate(iconList.length, (index) {
-                      return _buildWebNavItem(
-                        icon: iconList[index],
-                        label: iconLabels[index],
-                        isSelected: _selectedIndex == index,
-                        onTap: () {
-                          setState(() => _selectedIndex = index);
-                        },
-                      );
-                    }),
-                    const Divider(color: Colors.white30, thickness: 1, height: 40),
-                    ...speedDialMenuItems.asMap().entries.map((entry) {
-                      int idx = entry.key + iconList.length; // Offset by main nav items
-                      SpeedDialMenuData item = entry.value;
-                      return _buildWebNavItem(
-                        icon: item.icon,
-                        label: item.label,
-                        isSelected: _selectedIndex == idx,
-                        onTap: () {
-                          if (item.isExternalLink) {
-                            _launchRateApp();
-                          } else {
-                            setState(() => _selectedIndex = idx);
-                          }
-                        },
-                      );
-                    }).toList(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+        // Container(
+        //   width: screenWidth * 0.18,
+        //   decoration: BoxDecoration(
+        //     gradient: LinearGradient(
+        //       begin: Alignment.topCenter,
+        //       end: Alignment.bottomCenter,
+        //       colors: [
+        //         ColorManager.primary,
+        //         ColorManager.primaryByOpacity.withValues(alpha: 0.7),
+        //       ],
+        //     ),
+        //   ),
+        //   child: Column(
+        //     children: [
+        //       const SizedBox(height: 40),
+        //       Container(
+        //         height: 80,
+        //         width: 80,
+        //         decoration: BoxDecoration(
+        //           color: Colors.white,
+        //           shape: BoxShape.circle,
+        //         ),
+        //         child: Center(
+        //           child: Icon(
+        //             IconlyBroken.work,
+        //             size: 40,
+        //             color: ColorManager.primary,
+        //           ),
+        //         ),
+        //       ),
+        //       const SizedBox(height: 30),
+        //       Expanded(
+        //         child: ListView(
+        //           padding: EdgeInsets.zero,
+        //           children: [
+        //             ...List.generate(iconList.length, (index) {
+        //               return _buildWebNavItem(
+        //                 icon: iconList[index],
+        //                 label: iconLabels[index],
+        //                 isSelected: _selectedIndex == index,
+        //                 onTap: () {
+        //                   setState(() => _selectedIndex = index);
+        //                 },
+        //               );
+        //             }),
+        //             const Divider(color: Colors.white30, thickness: 1, height: 40),
+        //             ...speedDialMenuItems.asMap().entries.map((entry) {
+        //               int idx = entry.key + iconList.length; // Offset by main nav items
+        //               SpeedDialMenuData item = entry.value;
+        //               return _buildWebNavItem(
+        //                 icon: item.icon,
+        //                 label: item.label,
+        //                 isSelected: _selectedIndex == idx,
+        //                 onTap: () {
+        //                   if (item.isExternalLink) {
+        //                     _launchRateApp();
+        //                   } else {
+        //                     setState(() => _selectedIndex = idx);
+        //                   }
+        //                 },
+        //               );
+        //             }).toList(),
+        //           ],
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
         Expanded(
           child: allScreens[_selectedIndex] ?? const SizedBox(), // Display selected screen
         ),
