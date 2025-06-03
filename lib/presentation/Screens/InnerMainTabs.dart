@@ -20,9 +20,14 @@ class InnerMainTabs extends StatefulWidget {
 
   @override
   _InnerMainTabsState createState() => _InnerMainTabsState();
+
+  // Method to access the state from outside
+  static _InnerMainTabsState? of(BuildContext context) {
+    return context.findAncestorStateOfType<_InnerMainTabsState>();
+  }
 }
 
-class _InnerMainTabsState extends State<InnerMainTabs> {
+class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateMixin {
   int _selectedIndex = 0;
   bool open = false;
 
@@ -56,6 +61,79 @@ class _InnerMainTabsState extends State<InnerMainTabs> {
       isExternalLink: true,
     ),
   ];
+
+  // Navigation items for the top header
+  final List<NavTabItem> _navItems = [
+    NavTabItem(
+      icon: Icons.home,
+      title: 'الرئيسية',
+      isSpecial: false,
+    ),
+    NavTabItem(
+      icon: Icons.search,
+      title: 'البحث',
+      isSpecial: false,
+    ),
+    NavTabItem(
+      icon: Icons.add_box,
+      title: 'إضافة حجز',
+      isSpecial: false,
+    ),
+    NavTabItem(
+      icon: Icons.person,
+      title: 'الملف الشخصي',
+      isSpecial: false,
+    ),
+    NavTabItem(
+      icon: Icons.contact_support,
+      title: 'تواصل معنا',
+      isSpecial: false,
+    ),
+    NavTabItem(
+      icon: Icons.android,
+      title: 'تحميل على الأندرويد',
+      isSpecial: true,
+    ),
+    NavTabItem(
+      icon: Icons.apple,
+      title: 'تحميل على الآيفون',
+      isSpecial: true,
+    ),
+  ];
+
+  // Method to change tab from outside
+  void changeTab(int index) {
+    if (mounted && index >= 0 && index < mainScreens.length + speedDialMenuItems.length) {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
+
+  void _handleTopNavTap(int index) {
+    final item = _navItems[index];
+    
+    if (item.isSpecial) {
+      // Handle special tabs (download links)
+      if (item.title.contains('أندرويد')) {
+        launch("https://play.google.com/store/apps/details?id=com.kytrademarks");
+      } else if (item.title.contains('آيفون')) {
+        launch("https://apps.apple.com/app/id1605389392");
+      }
+      return;
+    }
+
+    // Handle navigation tabs
+    if (index < mainScreens.length) {
+      setState(() {
+        _selectedIndex = index;
+      });
+    } else if (index == 4) { // تواصل معنا
+      setState(() {
+        _selectedIndex = mainScreens.length; // Index of contacts in allScreens
+      });
+    }
+  }
 
   void _launchAndroidDownload() {
     print('ssss');
@@ -95,25 +173,24 @@ class _InnerMainTabsState extends State<InnerMainTabs> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isLargeScreen = screenWidth > 800;
 
-    return WillPopScope(
-      onWillPop: () => handleWillPopScopeRoot(),
-      child: isLargeScreen
-          ? _buildWebLayout(context, screenWidth)
-          : _buildMobileLayout(),
-    );
-  }
-
-  Widget _buildMobileLayout() {
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: allScreens.map((widget) => widget ?? const SizedBox()).toList(),
+      body: Column(
+        children: [
+          // Fixed Header for web view only
+          if (isLargeScreen) _buildFixedHeader(),
+          // Content area
+          Expanded(
+            child: isLargeScreen
+                ? _buildWebContent()
+                : _buildMobileLayout(),
+          ),
+        ],
       ),
-      floatingActionButton: _buildSpeedDial(),
-      floatingActionButtonLocation: open == true
+      floatingActionButton: !isLargeScreen ? _buildSpeedDial() : null,
+      floatingActionButtonLocation: !isLargeScreen && open == true
           ? FloatingActionButtonLocation.startFloat
           : FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: AnimatedBottomNavigationBar(
+      bottomNavigationBar: !isLargeScreen ? AnimatedBottomNavigationBar(
         backgroundGradient: LinearGradient(colors: [
           ColorManager.primary,
           ColorManager.primaryByOpacity.withOpacity(0.7),
@@ -126,127 +203,187 @@ class _InnerMainTabsState extends State<InnerMainTabs> {
         gapLocation: GapLocation.center,
         notchSmoothness: NotchSmoothness.softEdge,
         onTap: (index) => setState(() => _selectedIndex = index),
+      ) : null,
+    );
+  }
+
+  Widget _buildFixedHeader() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            ColorManager.primary,
+            ColorManager.primaryByOpacity.withOpacity(0.8),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Top navigation bar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Row(
+              children: [
+                // Logo/Brand
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'KY العلامات التجارية',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: StringConstant.fontName,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                // User info
+                _buildUserInfo(),
+              ],
+            ),
+          ),
+          // Navigation tabs
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Row(
+              children: [
+                // Main navigation tabs
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: _navItems.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final item = entry.value;
+                        final isSelected = _selectedIndex == index && index < mainScreens.length;
+                        
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: InkWell(
+                            onTap: () => _handleTopNavTap(index),
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: isSelected 
+                                    ? Colors.white.withOpacity(0.2)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                                border: isSelected 
+                                    ? Border.all(color: Colors.white.withOpacity(0.3))
+                                    : null,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    item.icon,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    item.title,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      fontFamily: StringConstant.fontName,
+                                    ),
+                                  ),
+                                  if (item.isSpecial) ...[
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      Icons.open_in_new,
+                                      color: Colors.white.withOpacity(0.7),
+                                      size: 14,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildWebLayout(BuildContext context, double screenWidth) {
-    return Row(
-      children: [
-        Container(
-          width: screenWidth * 0.18,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                ColorManager.primary,
-                ColorManager.primaryByOpacity.withOpacity(0.7),
-              ],
+  Widget _buildUserInfo() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.person, color: Colors.white, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            globalAccountData.getUsername() ?? 'مستخدم',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              fontFamily: StringConstant.fontName,
             ),
           ),
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
-              Container(
-                height: 80,
-                width: 80,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Icon(
-                    IconlyBroken.work,
-                    size: 40,
-                    color: ColorManager.primary,
-                  ),
-                ),
+          const SizedBox(width: 12),
+          InkWell(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SearchScreen()),
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(6),
               ),
-              const SizedBox(height: 30),
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.zero,
-                  children: [
-                    ...List.generate(iconList.length, (index) {
-                      return _buildWebNavItem(
-                        icon: iconList[index],
-                        label: iconLabels[index],
-                        isSelected: _selectedIndex == index,
-                        onTap: () => setState(() => _selectedIndex = index),
-                      );
-                    }),
-                    const Divider(color: Colors.white30, thickness: 1, height: 40),
-                    ...speedDialMenuItems.asMap().entries.map((entry) {
-                      int idx = entry.key + iconList.length;
-                      SpeedDialMenuData item = entry.value;
-                      return _buildWebNavItem(
-                        icon: item.icon,
-                        label: item.label,
-                        isSelected: _selectedIndex == idx,
-                        onTap: () {
-                          if (item.isExternalLink) {
-                            if (item.label == 'download_for_android'.tr()) {
-                              _launchAndroidDownload();
-                            } else if (item.label == 'download_for_ios'.tr()) {
-                              _launchIOSDownload();
-                            }
-                          } else {
-                            setState(() => _selectedIndex = idx);
-                          }
-                        },
-                      );
-                    }).toList(),
-                  ],
-                ),
-              ),
-            ],
+              child: Icon(Icons.notifications, color: Colors.white, size: 18),
+            ),
           ),
-        ),
-        Expanded(
-          child: IndexedStack(
-            index: _selectedIndex,
-            children: allScreens.map((widget) => widget ?? const SizedBox()).toList(),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildWebNavItem({
-    required IconData icon,
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.white.withOpacity(0.2) : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.white, size: 22),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontFamily: StringConstant.fontName,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  decoration: TextDecoration.none,
-                ),
-                textAlign: TextAlign.right,
-              ),
-            ),
-          ],
-        ),
+  Widget _buildWebContent() {
+    return Container(
+      color: ColorManager.anotherTabBackGround,
+      child: IndexedStack(
+        index: _selectedIndex,
+        children: allScreens.map((widget) => widget ?? const SizedBox()).toList(),
+      ),
+    );
+  }
+
+  Widget _buildMobileLayout() {
+    return Scaffold(
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: allScreens.map((widget) => widget ?? const SizedBox()).toList(),
       ),
     );
   }
@@ -383,5 +520,17 @@ class SpeedDialMenuData {
     required this.label,
     this.widget,
     this.isExternalLink = false,
+  });
+}
+
+class NavTabItem {
+  final IconData icon;
+  final String title;
+  final bool isSpecial;
+
+  NavTabItem({
+    required this.icon,
+    required this.title,
+    required this.isSpecial,
   });
 }

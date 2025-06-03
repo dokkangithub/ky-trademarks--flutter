@@ -74,10 +74,25 @@ class BrandsUpdateModel extends BrandsUpdates {
   });
 
   factory BrandsUpdateModel.fromJson(Map<String, dynamic> json) {
+    // Handle both String and Map formats for date field
+    String dateString;
+    final dateValue = json['date'];
+    
+    if (dateValue is Map<String, dynamic>) {
+      // If date is a Map, extract created_at
+      dateString = dateValue['created_at'] as String;
+    } else if (dateValue is String) {
+      // If date is already a String, use it directly
+      dateString = dateValue;
+    } else {
+      // Fallback to empty string if neither
+      dateString = '';
+    }
+    
     return BrandsUpdateModel(
       brand_name: json['brand_name'] as String,
       current_status: json['current_status'] as int,
-      date: (json['date'] as Map<String, dynamic>)['created_at'] as String,
+      date: dateString,
       images: _parseImages(json['images']),
     );
   }

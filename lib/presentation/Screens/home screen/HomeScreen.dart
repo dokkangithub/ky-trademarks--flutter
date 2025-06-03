@@ -23,6 +23,7 @@ import '../../Controllar/GetCompanyProvider.dart';
 import '../../Widget/loading_widget.dart';
 import '../../Widget/BrandWidget.dart';
 import '../add request/AddRequest.dart';
+import '../add reservation/AddReservation.dart';
 import '../brand details/BrandDetails.dart';
 import '../notification screen/NotificationScreen.dart';
 import '../payment ways/PaymentWays.dart';
@@ -57,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _mainScrollController = ScrollController();
     _listScrollController = ScrollController();
 
@@ -122,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorManager.anotherTabBackGround,
-      appBar: const CustomAppBar(),
+      appBar: !_isWebView(context) ? const CustomAppBar() : null,
       body: Consumer<GetBrandProvider>(
         builder: (context, model, _) => _buildBody(context, model),
       ),
@@ -167,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 }
 
-// Custom AppBar - مبسط ومحسن
+// Custom AppBar - مبسط ومحسن للموبايل فقط
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key});
 
