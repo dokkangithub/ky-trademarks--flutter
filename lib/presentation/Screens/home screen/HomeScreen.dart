@@ -22,7 +22,7 @@ import '../../Controllar/GetBrandProvider.dart';
 import '../../Controllar/GetCompanyProvider.dart';
 import '../../Widget/loading_widget.dart';
 import '../../Widget/BrandWidget.dart';
-import '../AddRequest.dart';
+import '../add request/AddRequest.dart';
 import '../BrandDetails.dart';
 import '../NotificationScreen.dart';
 import '../PaymentWays.dart';

@@ -10,7 +10,7 @@ import 'package:kyuser/presentation/Controllar/LoginProvider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'dart:ui';
-import '../../AddRequest.dart';
+import '../../add request/AddRequest.dart';
 import '../../PaymentWays.dart';
 import '../../infoAboutUs.dart';
 import '../../HomeScreenSplach.dart';
