@@ -15,7 +15,7 @@ import '../../resources/ImagesConstant.dart';
 import '../../resources/StringManager.dart';
 import 'add reservation/AddReservation.dart';
 import 'HomeScreenSplach.dart';
-import 'contacts.dart';
+import 'contacts/contacts.dart';
 import 'infoAboutUs.dart';
 
 class OuterMainTabs extends StatefulWidget {

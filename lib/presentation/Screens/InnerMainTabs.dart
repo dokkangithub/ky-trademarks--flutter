@@ -13,7 +13,7 @@ import 'add reservation/AddReservation.dart';
 import 'home screen/HomeScreen.dart';
 import 'ProfileScreen.dart';
 import 'SearchScreen.dart';
-import 'contacts.dart';
+import 'contacts/contacts.dart';
 
 class InnerMainTabs extends StatefulWidget {
   const InnerMainTabs({Key? key}) : super(key: key);

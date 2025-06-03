@@ -7,7 +7,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:kyuser/presentation/Screens/contacts.dart';
+import 'package:kyuser/presentation/Screens/contacts/contacts.dart';
 import 'package:kyuser/resources/ImagesConstant.dart';
 import 'package:kyuser/utilits/Local_User_Data.dart';
 import 'package:url_launcher/url_launcher.dart';
