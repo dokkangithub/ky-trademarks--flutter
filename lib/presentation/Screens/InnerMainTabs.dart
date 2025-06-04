@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../resources/Color_Manager.dart';
 import 'add reservation/AddReservation.dart';
 import 'home screen/HomeScreen.dart';
+import 'notification screen/NotificationScreen.dart';
 import 'profile screen/ProfileScreen.dart';
 import 'search screen/SearchScreen.dart';
 import 'contacts/contacts.dart';
@@ -353,7 +354,7 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
           InkWell(
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const SearchScreen()),
+              MaterialPageRoute(builder: (_) => const NotificationScreen()),
             ),
             child: Container(
               padding: const EdgeInsets.all(4),
