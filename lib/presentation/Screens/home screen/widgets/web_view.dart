@@ -1157,7 +1157,7 @@ class ResponsiveBrandCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = brand.currentStatus;
     final statusColor = BrandStatusHelper.getStatusColor(status);
-    final statusText = _getStatusFromAPI();
+    final statusText = brand.state;
     final statusLightColor = BrandStatusHelper.getStatusLightColor(status);
 
     final shouldUseVerticalLayout = screenWidth <= 768;

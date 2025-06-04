@@ -38,143 +38,33 @@ class WebContactsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth >= 768 && screenWidth < 1200;
-
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            ColorManager.primary.withValues(alpha: 0.02),
-            Colors.white,
-            ColorManager.primaryByOpacity.withValues(alpha: 0.01),
+      color: const Color(0xFFF8FAFC),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Hero Section
+            _buildHeroSection(context),
+            
+            // Contact Section
+            _buildContactSection(context),
+            
+            // Footer
+            _buildFooter(context),
           ],
         ),
       ),
-      child: isTablet 
-          ? _buildTabletLayout(context)
-          : _buildDesktopLayout(context),
     );
   }
 
-  Widget _buildTabletLayout(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          // Header with Animation and Info
-          _buildTabletHeader(context),
-          const SizedBox(height: 24),
-          // Contact Grid - 2 columns for tablet
-          _buildContactGrid(context, crossAxisCount: 2),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDesktopLayout(BuildContext context) {
-    return Row(
-      children: [
-        // Left Panel - Animation and Company Info
-        Expanded(
-          flex: 2,
-          child: _buildLeftPanel(context),
-        ),
-        // Right Panel - Contact Information
-        Expanded(
-          flex: 3,
-          child: _buildRightPanel(context),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTabletHeader(BuildContext context) {
+  Widget _buildHeroSection(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Animation
-          Expanded(
-            flex: 2,
-            child: _buildAnimationWidget(context, size: 200),
-          ),
-          const SizedBox(width: 32),
-          // Company Info
-          Expanded(
-            flex: 3,
-            child: _buildCompanyInfo(context),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLeftPanel(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(20),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Animation
-          _buildAnimationCard(context),
-          const SizedBox(height: 24),
-          // Company Information
-          _buildCompanyInfoCard(context),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAnimationCard(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: _buildAnimationWidget(context, size: 280),
-    );
-  }
-
-  Widget _buildAnimationWidget(BuildContext context, {required double size}) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          colors: [
-            ColorManager.primary.withValues(alpha: 0.1),
-            ColorManager.primaryByOpacity.withValues(alpha: 0.05),
-          ],
-        ),
-      ),
+      alignment: Alignment.center,
       child: Lottie.asset(
         "assets/images/lf30_editor_liiftrlk.json",
-        width: size,
-        height: size,
-        fit: BoxFit.scaleDown,
+        width: 280,
+        height: 280,
+        fit: BoxFit.contain,
         controller: animationController,
         onLoaded: (composition) {
           animationController
@@ -185,421 +75,268 @@ class WebContactsView extends StatelessWidget {
     );
   }
 
-  Widget _buildCompanyInfoCard(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: _buildCompanyInfo(context),
-    );
-  }
-
-  Widget _buildCompanyInfo(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Company Logo/Icon
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                ColorManager.primary,
-                ColorManager.primaryByOpacity,
-              ],
-            ),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(Icons.business, color: Colors.white, size: 28),
-        ),
-        const SizedBox(height: 16),
-        
-        Text(
-          "call_us".tr(),
-          style: Theme.of(context).textTheme.displayLarge?.copyWith(
-            fontSize: 28,
-            color: ColorManager.primary,
-            fontWeight: FontWeight.w700,
-            fontFamily: StringConstant.fontName,
-          ),
-        ),
-        const SizedBox(height: 8),
-        
-        Text(
-          "نحن هنا لمساعدتك في جميع احتياجاتك المتعلقة بالعلامات التجارية",
-          style: Theme.of(context).textTheme.displayLarge?.copyWith(
-            fontSize: 16,
-            color: Colors.grey.shade600,
-            fontWeight: FontWeight.w400,
-            fontFamily: StringConstant.fontName,
-            height: 1.4,
-          ),
-        ),
-        const SizedBox(height: 20),
-        
-        // Business Hours
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: ColorManager.primary.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: ColorManager.primary.withValues(alpha: 0.1)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.access_time, color: ColorManager.primary, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Business Hours",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: ColorManager.primary,
-                      fontFamily: StringConstant.fontName,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "الأحد - الخميس: 9:00 صباحاً - 6:00 مساءً",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade700,
-                  fontFamily: StringConstant.fontName,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRightPanel(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(0, 20, 20, 20),
-      child: Column(
-        children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  ColorManager.primary.withValues(alpha: 0.1),
-                  ColorManager.primaryByOpacity.withValues(alpha: 0.05),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: ColorManager.primary.withValues(alpha: 0.2)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: ColorManager.primary,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(Icons.contact_phone, color: Colors.white, size: 24),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Contact Information",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: ColorManager.primary,
-                          fontFamily: StringConstant.fontName,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "Get in touch with us using any of the methods below",
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey.shade600,
-                          fontFamily: StringConstant.fontName,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          
-          // Contact Grid
-          Expanded(
-            child: _buildContactGrid(context, crossAxisCount: 2),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContactGrid(BuildContext context, {required int crossAxisCount}) {
-    final contactItems = [
-      {
-        'title': "address".tr(),
-        'icon': Icons.location_on_outlined,
-        'colors': [Colors.red.shade400, Colors.red.shade600],
-        'widget': _buildAddressCard(context),
-      },
-      {
-        'title': "by_phone".tr(),
-        'icon': Icons.phone_outlined,
-        'colors': [Colors.green.shade400, Colors.green.shade600],
-        'widget': _buildPhoneCard(context),
-      },
-      {
-        'title': "by_email".tr(),
-        'icon': Icons.email_outlined,
-        'colors': [Colors.blue.shade400, Colors.blue.shade600],
-        'widget': _buildEmailCard(context),
-      },
-      {
-        'title': "by_social".tr(),
-        'icon': Icons.share_outlined,
-        'colors': [Colors.purple.shade400, Colors.purple.shade600],
-        'widget': _buildSocialCard(context),
-      },
-    ];
-
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        childAspectRatio: 1.1,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-      ),
-      itemCount: contactItems.length,
-      itemBuilder: (context, index) {
-        final item = contactItems[index];
-        return _buildWebContactCard(
-          context: context,
-          title: item['title'] as String,
-          icon: item['icon'] as IconData,
-          gradientColors: item['colors'] as List<Color>,
-          child: item['widget'] as Widget,
-        );
-      },
-    );
-  }
-
-  Widget _buildWebContactCard({
-    required BuildContext context,
-    required String title,
+  Widget _buildQuickContactBtn({
     required IconData icon,
-    required List<Color> gradientColors,
-    required Widget child,
+    required String label,
+    required VoidCallback onTap,
+    bool isSecondary = false,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
+    return ElevatedButton.icon(
+      onPressed: onTap,
+      icon: Icon(icon, size: 20),
+      label: Text(
+        label,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          fontFamily: StringConstant.fontName,
+        ),
       ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSecondary ? Colors.transparent : Colors.white,
+        foregroundColor: isSecondary ? Colors.white : ColorManager.primary,
+        side: isSecondary ? const BorderSide(color: Colors.white, width: 2) : null,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: isSecondary ? 0 : 4,
+      ),
+    );
+  }
+
+  Widget _buildContactSection(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 40),
       child: Column(
         children: [
-          // Header
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: gradientColors),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
-              ),
+          // Section Title
+          Text(
+            "طرق التواصل",
+            style: TextStyle(
+              fontSize: 36,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF1E293B),
+              fontFamily: StringConstant.fontName,
             ),
-            child: Row(
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "يمكنك التواصل معنا بأي من الطرق التالية",
+            style: TextStyle(
+              fontSize: 18,
+              color: const Color(0xFF64748B),
+              fontFamily: StringConstant.fontName,
+            ),
+          ),
+          const SizedBox(height: 60),
+          
+          // Contact Cards Grid
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1200),
+            child: GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: MediaQuery.of(context).size.width > 1000 ? 3 : 2,
+              crossAxisSpacing: 24,
+              mainAxisSpacing: 24,
+              childAspectRatio: 1.1,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(icon, color: Colors.white, size: 24),
+                _buildModernContactCard(
+                  icon: Icons.location_on,
+                  title: "العنوان",
+                  content: "فيلا 193 الحي الخامس\nالتجمع الخامس\nالقاهرة الجديدة",
+                  color: const Color(0xFFEF4444),
+                  onTap: () {},
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: StringConstant.fontName,
-                    ),
-                  ),
+                _buildModernContactCard(
+                  icon: Icons.phone,
+                  title: "الهاتف",
+                  content: "+201004000856\n+0225608189",
+                  color: const Color(0xFF10B981),
+                  onTap: () => _launchPhoneCall("+201004000856"),
+                ),
+                _buildModernContactCard(
+                  icon: Icons.email,
+                  title: "البريد الإلكتروني",
+                  content: "info@kytrademarks.com",
+                  color: const Color(0xFF3B82F6),
+                  onTap: () => _launchURL('mailto:info@kytrademarks.com'),
+                ),
+                _buildModernContactCard(
+                  icon: Icons.language,
+                  title: "الموقع الإلكتروني",
+                  content: "kytrademarks.com",
+                  color: const Color(0xFF8B5CF6),
+                  onTap: () => _launchURL('https://kytrademarks.com/'),
+                ),
+                _buildModernContactCard(
+                  icon: Icons.access_time,
+                  title: "ساعات العمل",
+                  content: "الأحد - الخميس\n9:00 ص - 6:00 م",
+                  color: const Color(0xFFF59E0B),
+                  onTap: () {},
+                ),
+                _buildModernContactCard(
+                  icon: Icons.share,
+                  title: "مواقع التواصل",
+                  content: "Facebook\nInstagram",
+                  color: const Color(0xFFEC4899),
+                  onTap: () => _showSocialLinks(context),
                 ),
               ],
             ),
           ),
-          // Content
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: child,
-            ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildAddressCard(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.home, color: Colors.red.shade600, size: 32),
-        const SizedBox(height: 12),
-        Flexible(
-          child: Text(
-            "فيلا 193 الحي الخامس التجمع الخامس القاهره الجديده",
-            style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              fontSize: 14,
-              fontFamily: StringConstant.fontName,
-              height: 1.4,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPhoneCard(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildWebContactItem(
-          context: context,
-          icon: Icons.phone,
-          text: "+201004000856",
-          color: Colors.green.shade600,
-          onTap: () => _launchPhoneCall("+201004000856"),
-        ),
-        const SizedBox(height: 8),
-        _buildWebContactItem(
-          context: context,
-          icon: Icons.phone,
-          text: "+0225608189",
-          color: Colors.green.shade600,
-          onTap: () => _launchPhoneCall("+0225608189"),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEmailCard(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildWebContactItem(
-          context: context,
-          icon: Icons.email,
-          text: "info@kytrademarks.com",
-          color: Colors.blue.shade600,
-          onTap: () => _launchURL('mailto:info@kytrademarks.com'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSocialCard(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildWebContactItem(
-          context: context,
-          icon: Icons.language,
-          text: "Website",
-          color: Colors.purple.shade600,
-          onTap: () => _launchURL('https://kytrademarks.com/'),
-        ),
-        const SizedBox(height: 6),
-        _buildWebContactItem(
-          context: context,
-          icon: Icons.camera_alt,
-          text: "Instagram",
-          color: Colors.purple.shade600,
-          onTap: () => _launchURL('https://instagram.com/ky.trademarks.eg'),
-        ),
-        const SizedBox(height: 6),
-        _buildWebContactItem(
-          context: context,
-          icon: Icons.facebook,
-          text: "Facebook",
-          color: Colors.purple.shade600,
-          onTap: () => _launchURL('https://facebook.com/ky.trademarks.eg'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWebContactItem({
-    required BuildContext context,
+  Widget _buildModernContactCard({
     required IconData icon,
-    required String text,
+    required String title,
+    required String content,
     required Color color,
     required VoidCallback onTap,
   }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: color.withValues(alpha: 0.2)),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+          border: Border.all(
+            color: Colors.grey.withValues(alpha: 0.1),
+            width: 1,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: color, size: 16),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  text,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: color,
-                    fontFamily: StringConstant.fontName,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
               ),
-            ],
+              child: Icon(
+                icon,
+                color: color,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF1E293B),
+                fontFamily: StringConstant.fontName,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              content,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: const Color(0xFF64748B),
+                fontFamily: StringConstant.fontName,
+                height: 1.6,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSocialLinks(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          "مواقع التواصل الاجتماعي",
+          style: TextStyle(
+            fontFamily: StringConstant.fontName,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildSocialButton(
+              icon: Icons.facebook,
+              label: "Facebook",
+              color: const Color(0xFF1877F2),
+              onTap: () => _launchURL('https://facebook.com/ky.trademarks.eg'),
+            ),
+            const SizedBox(height: 12),
+            _buildSocialButton(
+              icon: Icons.camera_alt,
+              label: "Instagram",
+              color: const Color(0xFFE4405F),
+              onTap: () => _launchURL('https://instagram.com/ky.trademarks.eg'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSocialButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: onTap,
+        icon: Icon(icon),
+        label: Text(
+          label,
+          style: TextStyle(
+            fontFamily: StringConstant.fontName,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFooter(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(40),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+      ),
+      child: Center(
+        child: Text(
+          "© 2024 KY Trademarks. جميع الحقوق محفوظة",
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.8),
+            fontSize: 14,
+            fontFamily: StringConstant.fontName,
           ),
         ),
       ),

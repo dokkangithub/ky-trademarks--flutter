@@ -35,13 +35,13 @@ class _ContactsState extends State<Contacts> with SingleTickerProviderStateMixin
 
   // Responsive breakpoint for web view detection
   bool _isWebView(BuildContext context) {
-    return MediaQuery.of(context).size.width >= 768;
+    return MediaQuery.of(context).size.width >= 600;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: _isWebView(context)?null:_buildAppBar(context),
       body: _isWebView(context)
           ? WebContactsView(
               animationController: _animationController,
