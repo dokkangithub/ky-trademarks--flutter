@@ -18,9 +18,22 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   
-  // Responsive breakpoint for web view detection
+  // Enhanced responsive breakpoints
+  ScreenType _getScreenType(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width < 600) {
+      return ScreenType.mobile;
+    } else if (width < 1024) {
+      return ScreenType.tablet;
+    } else if (width < 1440) {
+      return ScreenType.desktop;
+    } else {
+      return ScreenType.largeDesktop;
+    }
+  }
+
   bool _isWebView(BuildContext context) {
-    return MediaQuery.of(context).size.width >= 768;
+    return MediaQuery.of(context).size.width >= 600;
   }
 
   @override
@@ -35,12 +48,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenType = _getScreenType(context);
+    
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF8FAFE),
       appBar: _buildAppBar(context),
-      body: _isWebView(context)
-          ? const WebProfileView()
-          : const MobileProfileView(),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              const Color(0xFFF8FAFE),
+              Colors.white,
+              ColorManager.primary.withOpacity(0.02),
+            ],
+          ),
+        ),
+        child: _isWebView(context)
+            ? WebProfileView(screenType: screenType)
+            : const MobileProfileView(),
+      ),
     );
   }
 
@@ -56,4 +84,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+}
+
+enum ScreenType {
+  mobile,
+  tablet,
+  desktop,
+  largeDesktop,
 }
