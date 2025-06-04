@@ -40,134 +40,115 @@ class WebAddRequestView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        _buildBackground(),
-        _buildWebContent(context),
-      ],
-    );
-  }
-
-  Widget _buildBackground() {
-    return Positioned.fill(
-      child: Opacity(
-        opacity: 0.05,
-        child: Image.asset(ImagesConstants.background, fit: BoxFit.cover),
-      ),
-    );
-  }
-
-  Widget _buildWebContent(BuildContext context) {
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 1200),
-        margin: const EdgeInsets.all(40),
-        padding: const EdgeInsets.all(40),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: _buildWebFormContent(context),
-      ),
-    );
-  }
-
-  Widget _buildWebFormContent(BuildContext context) {
-    return SingleChildScrollView(
-      child: Form(
-        key: formKey,
-        child: Column(
-          children: [
-            _buildWebHeader(context),
-            const SizedBox(height: 40),
-            Row(
+    return Container(
+      color: const Color(0xFFF8FAFC),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(32),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1200),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Left side - Form fields
-                Expanded(
-                  flex: 2,
-                  child: _buildWebTextFields(context),
+                // Header Section
+                _buildHeader(context),
+                const SizedBox(height: 40),
+                
+                // Main Content
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Left Column - Form Fields
+                    Expanded(
+                      flex: 2,
+                      child: _buildFormSection(context),
+                    ),
+                    const SizedBox(width: 40),
+                    
+                    // Right Column - Images
+                    Expanded(
+                      flex: 1,
+                      child: _buildImageSection(context),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 40),
-                // Right side - Images and Submit
-                Expanded(
-                  flex: 1,
-                  child: Column(
-                    children: [
-                      _buildWebImageSection(context),
-                      const SizedBox(height: 30),
-                      _buildWebSubmitButton(context),
-                    ],
-                  ),
-                ),
+                
+                const SizedBox(height: 40),
+                
+                // Submit Button Section
+                _buildSubmitSection(context),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildWebHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(30),
+      padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
         gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
           colors: [
-            ColorManager.primary.withValues(alpha: 0.1),
-            ColorManager.primaryByOpacity.withValues(alpha: 0.05),
+            ColorManager.primary,
+            ColorManager.primaryByOpacity,
+            ColorManager.primary.withValues(alpha: 0.8),
           ],
+          stops: const [0.0, 0.6, 1.0],
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: ColorManager.primary.withValues(alpha: 0.25),
+            blurRadius: 32,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: ColorManager.primary.withValues(alpha: 0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.3),
+                width: 1,
+              ),
             ),
-            child: Image.asset(
-              'assets/images/registration.png',
-              width: 120,
-              height: 120,
+            child: Icon(
+              Icons.assignment_add,
+              color: Colors.white,
+              size: 40,
             ),
           ),
-          const SizedBox(width: 30),
+          const SizedBox(width: 24),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "submit_request".tr(),
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  "تقديم طلب",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w700,
                     fontFamily: StringConstant.fontName,
-                    fontWeight: FontWeight.bold,
-                    color: ColorManager.primary,
+                    letterSpacing: -0.5,
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Text(
-                  "Please fill the form below",
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  "قم بملء النموذج أدناه لتقديم طلب جديد للعلامة التجارية",
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    fontSize: 16,
                     fontFamily: StringConstant.fontName,
-                    color: Colors.grey.shade600,
+                    height: 1.5,
                   ),
                 ),
               ],
@@ -178,44 +159,122 @@ class WebAddRequestView extends StatelessWidget {
     );
   }
 
-  Widget _buildWebTextFields(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Basic Information",
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontFamily: StringConstant.fontName,
-            fontWeight: FontWeight.bold,
-            color: ColorManager.primary,
-          ),
+  Widget _buildFormSection(BuildContext context) {
+    return Form(
+      key: formKey,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
-        const SizedBox(height: 20),
-        _buildWebTextField(
-          context: context,
-          controller: nameController,
-          label: "name".tr() + " *",
-          icon: Icons.person_outline,
-          validator: (val) => val!.isEmpty ? "required_field".tr() : null,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Form Header
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    ColorManager.primary.withValues(alpha: 0.1),
+                    ColorManager.primaryByOpacity.withValues(alpha: 0.05),
+                  ],
+                ),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey.shade200),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: ColorManager.primary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(Icons.edit_outlined, color: Colors.white, size: 24),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "معلومات الطلب",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF1E293B),
+                            fontFamily: StringConstant.fontName,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "أدخل البيانات الأساسية للطلب",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: const Color(0xFF64748B),
+                            fontFamily: StringConstant.fontName,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Form Fields
+            Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                children: [
+                  _buildModernTextField(
+                    context: context,
+                    controller: nameController,
+                    label: "الاسم",
+                    icon: Icons.person_outline,
+                    hint: "أدخل اسم العلامة التجارية",
+                    validator: (val) => val!.isEmpty ? "هذا الحقل مطلوب" : null,
+                  ),
+                  const SizedBox(height: 32),
+                  _buildModernTextField(
+                    context: context,
+                    controller: descriptionController,
+                    label: "وصف النشاط بالتفصيل",
+                    icon: Icons.description_outlined,
+                    hint: "أدخل وصفاً مفصلاً للنشاط التجاري",
+                    maxLines: 5,
+                    validator: (val) => val!.isEmpty ? "هذا الحقل مطلوب" : null,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 25),
-        _buildWebTextField(
-          context: context,
-          controller: descriptionController,
-          label: "activity_desc".tr(),
-          icon: Icons.description_outlined,
-          maxLines: 6,
-          validator: (val) => val!.isEmpty ? "required_field".tr() : null,
-        ),
-      ],
+      ),
     );
   }
 
-  Widget _buildWebTextField({
+  Widget _buildModernTextField({
     required BuildContext context,
     required TextEditingController controller,
     required String label,
     required IconData icon,
+    required String hint,
     int maxLines = 1,
     String? Function(String?)? validator,
   }) {
@@ -224,14 +283,31 @@ class WebAddRequestView extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(icon, color: ColorManager.primary, size: 20),
-            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: ColorManager.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: ColorManager.primary, size: 20),
+            ),
+            const SizedBox(width: 12),
             Text(
               label,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontFamily: StringConstant.fontName,
+              style: TextStyle(
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: ColorManager.primary,
+                color: const Color(0xFF1E293B),
+                fontFamily: StringConstant.fontName,
+              ),
+            ),
+            Text(
+              " *",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.red,
+                fontFamily: StringConstant.fontName,
               ),
             ),
           ],
@@ -239,11 +315,11 @@ class WebAddRequestView extends StatelessWidget {
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
             ],
@@ -252,31 +328,44 @@ class WebAddRequestView extends StatelessWidget {
             controller: controller,
             style: TextStyle(
               fontFamily: StringConstant.fontName,
-              fontSize: 16,
+              fontSize: 15,
+              height: 1.4,
             ),
             maxLines: maxLines,
             validator: validator,
             decoration: InputDecoration(
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: const Color(0xFFE2E8F0)),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: const Color(0xFFE2E8F0)),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide(color: ColorManager.primary, width: 2),
               ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-              hintText: label,
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: Colors.red.shade400, width: 1),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: Colors.red.shade400, width: 2),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                vertical: maxLines > 1 ? 20 : 18,
+                horizontal: 20,
+              ),
+              hintText: hint,
               hintStyle: TextStyle(
-                color: Colors.grey.shade400,
+                color: const Color(0xFF94A3B8),
                 fontFamily: StringConstant.fontName,
+                fontSize: 15,
               ),
               filled: true,
-              fillColor: Colors.grey.shade50,
+              fillColor: const Color(0xFFFAFBFC),
             ),
           ),
         ),
@@ -284,95 +373,167 @@ class WebAddRequestView extends StatelessWidget {
     );
   }
 
-  Widget _buildWebImageSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(Icons.photo_library_outlined, color: ColorManager.primary, size: 24),
-            const SizedBox(width: 8),
-            Text(
-              "images".tr(),
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontFamily: StringConstant.fontName,
-                fontWeight: FontWeight.w600,
-                color: ColorManager.primary,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        _buildWebImageGrid(),
-      ],
-    );
-  }
-
-  Widget _buildWebImageGrid() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(child: _buildWebImageSlot(1, 160.0)),
-            const SizedBox(width: 15),
-            Expanded(child: _buildWebImageSlot(2, 160.0)),
-          ],
-        ),
-        if (image2 != null) ...[
-          const SizedBox(height: 15),
-          Row(
-            children: [
-              Expanded(child: _buildWebImageSlot(3, 160.0)),
-              const Expanded(child: SizedBox()),
-            ],
+  Widget _buildImageSection(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
-      ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Images Header
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  ColorManager.primary.withValues(alpha: 0.1),
+                  ColorManager.primaryByOpacity.withValues(alpha: 0.05),
+                ],
+              ),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+              border: Border(
+                bottom: BorderSide(color: Colors.grey.shade200),
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: ColorManager.primary,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(Icons.photo_library_outlined, color: Colors.white, size: 24),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "الصور",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1E293B),
+                          fontFamily: StringConstant.fontName,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "أضف صور العلامة التجارية",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: const Color(0xFF64748B),
+                          fontFamily: StringConstant.fontName,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Images Grid
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                _buildImageSlot(context, 1),
+                if (image1 != null) ...[
+                  const SizedBox(height: 20),
+                  _buildImageSlot(context, 2),
+                ],
+                if (image2 != null) ...[
+                  const SizedBox(height: 20),
+                  _buildImageSlot(context, 3),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildWebImageSlot(int position, double size) {
+  Widget _buildImageSlot(BuildContext context, int position) {
     final image = position == 1 ? image1 : position == 2 ? image2 : image3;
-    return image == null
-        ? _buildWebAddImageButton(position, size)
-        : _buildWebImagePreview(image, position, size);
+    
+    return Container(
+      width: double.infinity,
+      height: 200,
+      child: image == null
+          ? _buildAddImageCard(context, position)
+          : _buildImagePreview(context, image, position),
+    );
   }
 
-  Widget _buildWebAddImageButton(int position, double size) {
-    return Builder(
-      builder: (context) => InkWell(
-        onTap: () => _showWebImagePickerDialog(context, position),
-        borderRadius: BorderRadius.circular(15),
+  Widget _buildAddImageCard(BuildContext context, int position) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _showImagePickerDialog(context, position),
+        borderRadius: BorderRadius.circular(16),
         child: DottedBorder(
           color: ColorManager.primary,
           borderType: BorderType.RRect,
-          radius: const Radius.circular(15),
+          radius: const Radius.circular(16),
           strokeWidth: 2,
-          dashPattern: const [12, 6],
+          dashPattern: const [8, 4],
           child: Container(
-            width: size,
-            height: size,
+            width: double.infinity,
+            height: 200,
             decoration: BoxDecoration(
-              color: ColorManager.primary.withValues(alpha: 0.03),
-              borderRadius: BorderRadius.circular(15),
+              color: ColorManager.primary.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.add_photo_alternate_outlined,
-                  color: ColorManager.primary,
-                  size: 40,
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: ColorManager.primary.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.add_photo_alternate_outlined,
+                    color: ColorManager.primary,
+                    size: 40,
+                  ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 Text(
-                  position == 1 ? "add_photo".tr() : "add_another_image".tr(),
-                  textAlign: TextAlign.center,
+                  position == 1 ? "إضافة صورة" : "إضافة صورة أخرى",
                   style: TextStyle(
                     color: ColorManager.primary,
                     fontFamily: StringConstant.fontName,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "اضغط لاختيار صورة",
+                  style: TextStyle(
+                    color: const Color(0xFF64748B),
+                    fontFamily: StringConstant.fontName,
                     fontSize: 14,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -383,16 +544,14 @@ class WebAddRequestView extends StatelessWidget {
     );
   }
 
-  Widget _buildWebImagePreview(dynamic image, int position, double size) {
+  Widget _buildImagePreview(BuildContext context, dynamic image, int position) {
     return Container(
-      width: size,
-      height: size,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 10,
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
@@ -400,33 +559,46 @@ class WebAddRequestView extends StatelessWidget {
       child: Stack(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(16),
             child: kIsWeb
                 ? FutureBuilder<Uint8List>(
                     future: image.readAsBytes(),
                     builder: (context, snapshot) => snapshot.hasData
-                        ? Image.memory(snapshot.data!, fit: BoxFit.cover, width: size, height: size)
+                        ? Image.memory(
+                            snapshot.data!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: 200,
+                          )
                         : Container(
-                            width: size,
-                            height: size,
+                            width: double.infinity,
+                            height: 200,
                             color: Colors.grey.shade200,
                             child: Center(
                               child: CircularProgressIndicator(color: ColorManager.primary),
                             ),
-                          ))
-                : Image.file(File(image.path), fit: BoxFit.cover, width: size, height: size),
+                          ),
+                  )
+                : Image.file(
+                    File(image.path),
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: 200,
+                  ),
           ),
+          
+          // Remove Button
           Positioned(
-            top: 8,
-            right: 8,
+            top: 12,
+            right: 12,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.red,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    blurRadius: 6,
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ],
@@ -434,8 +606,30 @@ class WebAddRequestView extends StatelessWidget {
               child: IconButton(
                 icon: const Icon(Icons.close, color: Colors.white, size: 20),
                 onPressed: () => onRemoveImage(position),
-                padding: const EdgeInsets.all(6),
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                padding: const EdgeInsets.all(8),
+                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+              ),
+            ),
+          ),
+          
+          // Image Info Overlay
+          Positioned(
+            bottom: 12,
+            left: 12,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                "صورة ${position}",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: StringConstant.fontName,
+                ),
               ),
             ),
           ),
@@ -444,100 +638,174 @@ class WebAddRequestView extends StatelessWidget {
     );
   }
 
-  Widget _buildWebSubmitButton(BuildContext context) {
+  Widget _buildSubmitSection(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.send_outlined,
+            color: ColorManager.primary,
+            size: 48,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "جاهز لإرسال الطلب؟",
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF1E293B),
+              fontFamily: StringConstant.fontName,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "تأكد من صحة جميع البيانات قبل الإرسال",
+            style: TextStyle(
+              fontSize: 16,
+              color: const Color(0xFF64748B),
+              fontFamily: StringConstant.fontName,
+            ),
+          ),
+          const SizedBox(height: 32),
+          _buildSubmitButton(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton(BuildContext context) {
     return Consumer<RequestProvider>(
       builder: (context, provider, _) => provider.state == RequestState.loading
           ? Container(
-              padding: const EdgeInsets.all(30),
-              child: LoadingWidget(),
+              padding: const EdgeInsets.all(24),
+              child: CircularProgressIndicator(color: ColorManager.primary),
             )
           : Container(
               width: double.infinity,
               height: 60,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                   colors: [
                     ColorManager.primary,
-                    ColorManager.primaryByOpacity.withValues(alpha: 0.8),
+                    ColorManager.primaryByOpacity,
+                    ColorManager.primary.withValues(alpha: 0.9),
                   ],
+                  stops: const [0.0, 0.6, 1.0],
                 ),
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
                     color: ColorManager.primary.withValues(alpha: 0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 6),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
-              child: ElevatedButton(
-                onPressed: () => onSubmitRequest(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.send_outlined, color: Colors.white, size: 24),
-                    const SizedBox(width: 12),
-                    Text(
-                      "submit_request".tr(),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: StringConstant.fontName,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => onSubmitRequest(context),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.send_rounded, color: Colors.white, size: 24),
+                      const SizedBox(width: 12),
+                      Text(
+                        "تقديم الطلب",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontFamily: StringConstant.fontName,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.3,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
     );
   }
 
-  void _showWebImagePickerDialog(BuildContext context, int position) {
+  void _showImagePickerDialog(BuildContext context, int position) {
     showDialog(
       context: context,
       builder: (_) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Container(
-          padding: const EdgeInsets.all(30),
+          padding: const EdgeInsets.all(32),
           constraints: const BoxConstraints(maxWidth: 400),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: ColorManager.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.photo_camera_outlined,
+                  color: ColorManager.primary,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 20),
               Text(
-                "Choose Image Source",
+                "اختيار مصدر الصورة",
                 style: TextStyle(
                   fontFamily: StringConstant.fontName,
                   fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: ColorManager.primary,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1E293B),
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 8),
+              Text(
+                "اختر من أين تريد إضافة الصورة",
+                style: TextStyle(
+                  fontFamily: StringConstant.fontName,
+                  fontSize: 14,
+                  color: const Color(0xFF64748B),
+                ),
+              ),
+              const SizedBox(height: 32),
               Row(
                 children: [
                   Expanded(
-                    child: _buildWebImageSourceButton(
+                    child: _buildImageSourceButton(
                       context: context,
                       icon: Icons.camera_alt_outlined,
-                      title: "Camera",
+                      title: "الكاميرا",
                       onTap: () {
                         Navigator.pop(context);
                         onPickImage(position, ImageSource.camera);
                       },
                     ),
                   ),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 16),
                   Expanded(
-                    child: _buildWebImageSourceButton(
+                    child: _buildImageSourceButton(
                       context: context,
                       icon: Icons.photo_library_outlined,
-                      title: "Gallery",
+                      title: "المعرض",
                       onTap: () {
                         Navigator.pop(context);
                         onPickImage(position, ImageSource.gallery);
@@ -546,14 +814,15 @@ class WebAddRequestView extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: Text(
-                  "Cancel",
+                  "إلغاء",
                   style: TextStyle(
                     fontFamily: StringConstant.fontName,
-                    color: Colors.grey.shade600,
+                    color: const Color(0xFF64748B),
+                    fontSize: 16,
                   ),
                 ),
               ),
@@ -564,43 +833,46 @@ class WebAddRequestView extends StatelessWidget {
     );
   }
 
-  Widget _buildWebImageSourceButton({
+  Widget _buildImageSourceButton({
     required BuildContext context,
     required IconData icon,
     required String title,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(15),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: ColorManager.primary.withValues(alpha: 0.05),
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: ColorManager.primary.withValues(alpha: 0.2)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: ColorManager.primary,
-                borderRadius: BorderRadius.circular(12),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: ColorManager.primary.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: ColorManager.primary.withValues(alpha: 0.2)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: ColorManager.primary,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: Colors.white, size: 28),
               ),
-              child: Icon(icon, color: Colors.white, size: 32),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: TextStyle(
-                fontFamily: StringConstant.fontName,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: ColorManager.primary,
+              const SizedBox(height: 16),
+              Text(
+                title,
+                style: TextStyle(
+                  fontFamily: StringConstant.fontName,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: ColorManager.primary,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
