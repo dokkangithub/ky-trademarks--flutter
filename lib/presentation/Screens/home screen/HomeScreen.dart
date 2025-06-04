@@ -116,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _isWebView(BuildContext context) {
     // تحديد ما إذا كان يجب عرض الـ web view أم الـ mobile view
     final width = MediaQuery.of(context).size.width;
-    return width > 600; // إذا كان العرض أكبر من 900 بكسل، عرض الـ web view
+    return width > 600; // إذا كان العرض أكبر من 600 بكسل، عرض الـ web view
   }
 
   @override

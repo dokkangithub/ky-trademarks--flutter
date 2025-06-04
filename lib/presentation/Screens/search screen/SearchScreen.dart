@@ -29,9 +29,17 @@ class _SearchScreenState extends State<SearchScreen> {
   TutorialCoachMark? tutorialCoachMark;
   List<TargetFocus> targetList = [];
 
-  // Responsive breakpoint for web view detection
+  // Enhanced responsive breakpoint detection
+  ScreenType _getScreenType(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 1200) return ScreenType.desktop;
+    if (width >= 900) return ScreenType.largeTablet;
+    if (width >= 600) return ScreenType.tablet;
+    return ScreenType.mobile;
+  }
+
   bool _isWebView(BuildContext context) {
-    return MediaQuery.of(context).size.width >= 768;
+    return _getScreenType(context) != ScreenType.mobile;
   }
 
   @override
@@ -62,6 +70,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenType = _getScreenType(context);
+    
     return Scaffold(
       backgroundColor: ColorManager.anotherTabBackGround.withValues(alpha: 0.1),
       appBar: _buildAppBar(context),
@@ -74,6 +84,7 @@ class _SearchScreenState extends State<SearchScreen> {
               tutorialCoachMark: tutorialCoachMark,
               onTutorialStart: _startTutorial,
               onTutorialTargetsAdd: _addTutorialTargets,
+              screenType: screenType,
             )
           : MobileSearchView(
               searchController: searchController,
@@ -171,4 +182,12 @@ class _SearchScreenState extends State<SearchScreen> {
       ]);
     });
   }
+}
+
+// Enhanced screen type enum for better responsive design
+enum ScreenType {
+  mobile,     // < 600px
+  tablet,     // 600px - 899px
+  largeTablet, // 900px - 1199px
+  desktop,    // >= 1200px
 }

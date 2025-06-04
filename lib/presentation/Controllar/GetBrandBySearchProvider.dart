@@ -15,10 +15,21 @@ class GetBrandBySearchProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get hasMoreData => _hasMoreData;
 
+  // إعادة تعيين البيانات للبحث الجديد
+  void resetSearch() {
+    brandCurrentPage = 1;
+    _hasMoreData = true;
+    _isLoading = false;
+    allBrands.clear();
+    state = RequestState.loading;
+  }
+
   Future<void> getAllBrandsBySearch({required String keyWord, int page = 1}) async {
     if (page == 1) {
       state = RequestState.loading;
       allBrands.clear();
+      _hasMoreData = true;
+      _isLoading = false;
     }
     notifyListeners();
 
@@ -26,6 +37,7 @@ class GetBrandBySearchProvider extends ChangeNotifier {
     result.fold((l) {
       state = RequestState.failed;
       _hasMoreData = false;
+      _isLoading = false;
       notifyListeners();
       return toast(l.message.toString());
     }, (r) {
@@ -37,15 +49,15 @@ class GetBrandBySearchProvider extends ChangeNotifier {
 
       _hasMoreData = r.brand.isNotEmpty;
       state = RequestState.loaded;
+      _isLoading = false;
       notifyListeners();
     });
   }
 
-
   Future<void> loadMoreBrands(String keyWord) async {
     if (_isLoading || !_hasMoreData) return;
 
-    print("Loading more brands..."); // Debug print
+    print("Loading more brands for: $keyWord, page: ${brandCurrentPage + 1}"); // Debug print
     _isLoading = true;
     notifyListeners();
 
@@ -55,5 +67,4 @@ class GetBrandBySearchProvider extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
-
 }

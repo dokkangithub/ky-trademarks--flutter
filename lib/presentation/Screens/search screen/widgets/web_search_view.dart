@@ -1,18 +1,22 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
+import 'package:simple_grid/simple_grid.dart';
 
 import '../../../../app/RequestState/RequestState.dart';
+import '../../../../core/Constant/Api_Constant.dart';
+import '../../../../domain/Brand/Entities/BrandEntity.dart';
 import '../../../../network/RestApi/Comman.dart';
 import '../../../../resources/Color_Manager.dart';
-import '../../../../resources/ImagesConstant.dart';
 import '../../../../resources/StringManager.dart';
+import '../../../../data/Brand/models/BrandDataModel.dart';
 import '../../../Controllar/GetBrandBySearchProvider.dart';
-import '../../../Widget/BrandWidget.dart';
 import '../../../Widget/SearchWidget/NoDataFound.dart';
+import '../../brand details/BrandDetails.dart';
+import '../../home screen/widgets/web_view.dart'; // Import for ResponsiveBrandCard and BrandStatusHelper
+import '../SearchScreen.dart';
 
 class WebSearchView extends StatefulWidget {
   final TextEditingController searchController;
@@ -22,6 +26,7 @@ class WebSearchView extends StatefulWidget {
   final TutorialCoachMark? tutorialCoachMark;
   final VoidCallback onTutorialStart;
   final VoidCallback onTutorialTargetsAdd;
+  final ScreenType screenType;
 
   const WebSearchView({
     super.key,
@@ -32,6 +37,7 @@ class WebSearchView extends StatefulWidget {
     required this.tutorialCoachMark,
     required this.onTutorialStart,
     required this.onTutorialTargetsAdd,
+    required this.screenType,
   });
 
   @override
@@ -40,774 +46,687 @@ class WebSearchView extends StatefulWidget {
 
 class _WebSearchViewState extends State<WebSearchView> {
   
+  // Simplified responsive values for header only
+  double get _containerWidth {
+    switch (widget.screenType) {
+      case ScreenType.desktop:
+        return 1200;
+      case ScreenType.largeTablet:
+        return 900;
+      case ScreenType.tablet:
+        return 700;
+      default:
+        return double.infinity;
+    }
+  }
+
+  double get _contentPadding {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 1200) return 40;
+    if (width >= 900) return 32;
+    if (width >= 600) return 24;
+    return 16;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // إضافة scroll listener للـ pagination
+    widget.mainScrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    widget.mainScrollController.removeListener(_onScroll);
+    super.dispose();
+  }
+
+  void _onScroll() {
+    // التحقق من الوصول لنهاية الصفحة لتحميل المزيد
+    if (widget.mainScrollController.position.pixels >=
+        widget.mainScrollController.position.maxScrollExtent - 200) {
+      final provider = Provider.of<GetBrandBySearchProvider>(context, listen: false);
+      if (provider.hasMoreData && 
+          !provider.isLoading &&
+          widget.searchController.text.trim().isNotEmpty) {
+        provider.loadMoreBrands(widget.searchController.text.trim());
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth >= 768 && screenWidth < 1200;
-
-    return Column(
-      children: [
-        // Enhanced Web Search Header
-        _buildWebSearchHeader(context, isTablet: isTablet),
-        
-        // Search Results Body
-        Expanded(
-          child: _buildWebSearchBody(context, isTablet: isTablet),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWebSearchHeader(BuildContext context, {required bool isTablet}) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            ColorManager.primaryByOpacity.withOpacity(0.9),
-            ColorManager.primary,
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: ColorManager.primary.withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(
-            isTablet ? 24 : 32,
-            isTablet ? 20 : 24,
-            isTablet ? 24 : 32,
-            isTablet ? 25 : 32,
-          ),
-          child: Column(
-            children: [
-              // Header Row with Title and Tutorial Button
-              _buildWebHeaderRow(context, isTablet: isTablet),
-              SizedBox(height: isTablet ? 20 : 24),
-              
-              // Enhanced Search Field
-              _buildWebSearchField(context, isTablet: isTablet),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWebHeaderRow(BuildContext context, {required bool isTablet}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        const SizedBox(width: 60),
-        Text(
-          "search".tr(),
-          style: Theme.of(context).textTheme.displayLarge?.copyWith(
-            fontSize: isTablet ? 24 : 28,
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-            fontFamily: StringConstant.fontName,
-          ),
-        ),
-        _buildWebTutorialButton(isTablet: isTablet),
-      ],
-    );
-  }
-
-  Widget _buildWebTutorialButton({required bool isTablet}) {
-    return InkWell(
-      onTap: () {
-        if (widget.targetList.isEmpty) {
-          widget.onTutorialTargetsAdd();
-        }
-        widget.onTutorialStart();
-      },
-      borderRadius: BorderRadius.circular(25),
-      child: Container(
-        padding: EdgeInsets.all(isTablet ? 12 : 16),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(25),
-          border: Border.all(color: Colors.white.withOpacity(0.3)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Lottie.asset(
-              ImagesConstants.infoW,
-              height: isTablet ? 28 : 32,
-              width: isTablet ? 28 : 32,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              "help".tr(),
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: isTablet ? 14 : 16,
-                fontFamily: StringConstant.fontName,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWebSearchField(BuildContext context, {required bool isTablet}) {
-    return Container(
-      constraints: BoxConstraints(
-        maxWidth: isTablet ? 600 : 800,
-      ),
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 25,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Card(
-        elevation: 0,
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(35),
-        ),
-        child: TextFormField(
-          key: widget.searchKey,
-          style: TextStyle(
-            fontFamily: StringConstant.fontName,
-            color: ColorManager.accent,
-            fontWeight: FontWeight.w600,
-            fontSize: isTablet ? 16 : 18,
-          ),
-          controller: widget.searchController,
-          validator: validateObjects(),
-          decoration: _buildWebSearchFieldDecoration(isTablet: isTablet),
-          onChanged: (val) {
-            setState(() {});
-          },
-          onFieldSubmitted: (val) {
-            _performSearch();
-          },
-        ),
-      ),
-    );
-  }
-
-  InputDecoration _buildWebSearchFieldDecoration({required bool isTablet}) {
-    return InputDecoration(
-      hintText: "search_brand_web".tr(),
-      hintStyle: TextStyle(
-        fontFamily: StringConstant.fontName,
-        color: Colors.grey.shade500,
-        fontWeight: FontWeight.w500,
-        fontSize: isTablet ? 15 : 16,
-      ),
-      prefixIcon: Container(
-        margin: EdgeInsets.all(isTablet ? 12 : 16),
-        padding: EdgeInsets.all(isTablet ? 10 : 12),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              ColorManager.primary,
-              ColorManager.primaryByOpacity,
-            ],
-          ),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Icon(
-          Icons.search,
-          color: Colors.white,
-          size: isTablet ? 20 : 24,
-        ),
-      ),
-      suffixIcon: widget.searchController.text.isNotEmpty
-          ? Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    widget.searchController.clear();
-                    setState(() {});
-                  },
-                  icon: Icon(Icons.clear, color: Colors.grey.shade600),
-                  tooltip: "clear".tr(),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(right: 8),
-                  child: ElevatedButton(
-                    onPressed: _performSearch,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ColorManager.primary,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isTablet ? 16 : 20,
-                        vertical: isTablet ? 8 : 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: Text(
-                      "search".tr(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: isTablet ? 14 : 16,
-                        fontFamily: StringConstant.fontName,
-                      ),
-                    ),
-                  ),
+    return Scaffold(
+      backgroundColor: Colors.grey.shade50,
+      body: Column(
+        children: [
+          // Simple Clean Header
+          _buildSimpleHeader(context),
+          
+          // Main Content - استخدام Expanded لأخذ المساحة الكاملة
+          Expanded(
+            child: CustomScrollView(
+              controller: widget.mainScrollController,
+              slivers: [
+                SliverToBoxAdapter(
+                  child: _buildMainContent(context),
                 ),
               ],
-            )
-          : Container(
-              margin: const EdgeInsets.only(right: 8),
-              child: ElevatedButton(
-                onPressed: _performSearch,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: ColorManager.primary,
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isTablet ? 16 : 20,
-                    vertical: isTablet ? 8 : 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSimpleHeader(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      padding: EdgeInsets.symmetric(
+        horizontal: _contentPadding,
+        vertical: _contentPadding * 0.6,
+      ),
+      child: Column(
+        children: [
+          // Title
+          Text(
+            "البحث في العلامات التجارية",
+            style: TextStyle(
+              fontSize: _getTitleFontSize(),
+              fontWeight: FontWeight.w700,
+              color: ColorManager.primary,
+              fontFamily: StringConstant.fontName,
+            ),
+          ),
+          SizedBox(height: _contentPadding * 0.8),
+          
+          // Simple Search Field
+          Center(
+            child: Container(
+              constraints: BoxConstraints(maxWidth: _getSearchFieldWidth()),
+              child: _buildSimpleSearchField(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  double _getTitleFontSize() {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 1200) return 32;
+    if (width >= 900) return 28;
+    if (width >= 600) return 24;
+    return 22;
+  }
+
+  double _getSearchFieldWidth() {
+    final width = MediaQuery.of(context).size.width;
+    if (width >= 1200) return 800;
+    if (width >= 900) return 600;
+    if (width >= 600) return 500;
+    return double.infinity;
+  }
+
+  Widget _buildSimpleSearchField() {
+    return Row(
+      children: [
+        // حقل البحث
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
                 ),
-                child: Text(
-                  "search".tr(),
+              ],
+            ),
+            child: TextFormField(
+              key: widget.searchKey,
+              controller: widget.searchController,
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: StringConstant.fontName,
+                color: Colors.grey.shade800,
+              ),
+              decoration: InputDecoration(
+                hintText: "ابحث عن اسم العلامة التجارية أو رقم التسجيل...",
+                hintStyle: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontSize: 16,
+                  fontFamily: StringConstant.fontName,
+                ),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: ColorManager.primary,
+                  size: 24,
+                ),
+                suffixIcon: widget.searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(Icons.clear, color: Colors.grey.shade400),
+                        onPressed: () {
+                          widget.searchController.clear();
+                          setState(() {});
+                        },
+                      )
+                    : null,
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+              ),
+              onFieldSubmitted: (value) => _performSearch(),
+            ),
+          ),
+        ),
+        
+        // مسافة بين حقل البحث والزر
+        const SizedBox(width: 16),
+        
+        // زر البحث منفصل
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: ColorManager.primary.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: ElevatedButton(
+            onPressed: _performSearch,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: ColorManager.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 32,
+                vertical: 18,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.search,
+                  size: 20,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "بحث",
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: isTablet ? 14 : 16,
+                    fontSize: 16,
                     fontFamily: StringConstant.fontName,
                   ),
                 ),
-              ),
-            ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(35),
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(35),
-        borderSide: BorderSide.none,
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(35),
-        borderSide: BorderSide(
-          color: ColorManager.primary.withOpacity(0.4),
-          width: 3,
-        ),
-      ),
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: EdgeInsets.symmetric(
-        horizontal: isTablet ? 24 : 28,
-        vertical: isTablet ? 16 : 20,
-      ),
-    );
-  }
-
-  Widget _buildWebSearchBody(BuildContext context, {required bool isTablet}) {
-    return widget.searchController.text.isEmpty
-        ? _buildWebEmptySearchState(isTablet: isTablet)
-        : _buildWebSearchResults(isTablet: isTablet);
-  }
-
-  Widget _buildWebEmptySearchState({required bool isTablet}) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.white,
-            ColorManager.primary.withOpacity(0.01),
-          ],
-        ),
-      ),
-      child: Center(
-        child: Container(
-          constraints: BoxConstraints(
-            maxWidth: isTablet ? 500 : 600,
-          ),
-          padding: EdgeInsets.all(isTablet ? 32 : 40),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: EdgeInsets.all(isTablet ? 32 : 40),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      ColorManager.primary.withOpacity(0.1),
-                      ColorManager.primaryByOpacity.withOpacity(0.05),
-                    ],
-                  ),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: ColorManager.primary.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.search,
-                  size: isTablet ? 80 : 100,
-                  color: ColorManager.primary.withOpacity(0.7),
-                ),
-              ),
-              SizedBox(height: isTablet ? 32 : 40),
-              Text(
-                "welcome_to_search".tr(),
-                style: TextStyle(
-                  fontFamily: StringConstant.fontName,
-                  fontSize: isTablet ? 24 : 28,
-                  fontWeight: FontWeight.w700,
-                  color: ColorManager.accent,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: isTablet ? 16 : 20),
-              Text(
-                "search_description".tr(),
-                style: TextStyle(
-                  fontFamily: StringConstant.fontName,
-                  fontSize: isTablet ? 16 : 18,
-                  color: Colors.grey.shade600,
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: isTablet ? 24 : 32),
-              _buildSearchTips(isTablet: isTablet),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSearchTips({required bool isTablet}) {
-    final tips = [
-      "tip_brand_name".tr(),
-      "tip_registration_number".tr(),
-      "tip_company_name".tr(),
-    ];
-
-    return Container(
-      padding: EdgeInsets.all(isTablet ? 20 : 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.lightbulb_outline,
-                color: ColorManager.primary,
-                size: isTablet ? 20 : 24,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                "search_tips".tr(),
-                style: TextStyle(
-                  fontFamily: StringConstant.fontName,
-                  fontSize: isTablet ? 16 : 18,
-                  fontWeight: FontWeight.w600,
-                  color: ColorManager.primary,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: isTablet ? 12 : 16),
-          ...tips.map((tip) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              children: [
-                Container(
-                  width: 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: ColorManager.primary,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    tip,
-                    style: TextStyle(
-                      fontFamily: StringConstant.fontName,
-                      fontSize: isTablet ? 14 : 15,
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
-                ),
               ],
             ),
-          )).toList(),
-        ],
-      ),
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildWebSearchResults({required bool isTablet}) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.white,
-            ColorManager.primary.withOpacity(0.01),
+  Widget _buildMainContent(BuildContext context) {
+    return widget.searchController.text.isEmpty
+        ? _buildEmptyState()
+        : _buildSearchResults();
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Container(
+        constraints: BoxConstraints(maxWidth: _containerWidth),
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: ColorManager.primary.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.search,
+                size: 60,
+                color: ColorManager.primary.withOpacity(0.6),
+              ),
+            ),
+            const SizedBox(height: 30),
+            Text(
+              "ابدأ البحث",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey.shade700,
+                fontFamily: StringConstant.fontName,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "ابحث عن العلامات التجارية باستخدام اسم العلامة أو رقم التسجيل",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade500,
+                fontFamily: StringConstant.fontName,
+                height: 1.5,
+              ),
+            ),
           ],
         ),
       ),
-      child: SingleChildScrollView(
-        controller: widget.mainScrollController,
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.all(isTablet ? 20 : 24),
-        child: Consumer<GetBrandBySearchProvider>(
-          builder: (context, model, _) {
-            return _buildWebSearchResultsContent(context, model, isTablet: isTablet);
-          },
-        ),
+    );
+  }
+
+  Widget _buildSearchResults() {
+    return Container(
+      width: double.infinity, // أخذ العرض الكامل
+      padding: EdgeInsets.all(_contentPadding),
+      child: Consumer<GetBrandBySearchProvider>(
+        builder: (context, model, _) {
+          if (model.state == RequestState.loading && model.allBrands.isEmpty) {
+            return _buildLoadingState();
+          } else if (model.state == RequestState.failed) {
+            return _buildErrorState();
+          } else if (model.state == RequestState.loaded || model.allBrands.isNotEmpty) {
+            if (model.allBrands.isEmpty) {
+              return _buildNoResultsState();
+            } else {
+              return _buildResultsGrid(model);
+            }
+          }
+          return Container();
+        },
       ),
     );
   }
 
-  Widget _buildWebSearchResultsContent(
-    BuildContext context,
-    GetBrandBySearchProvider model, {
-    required bool isTablet,
-  }) {
-    if (model.state == RequestState.loading) {
-      return _buildWebLoadingState(isTablet: isTablet);
-    } else if (model.state == RequestState.failed) {
-      return _buildWebErrorState(isTablet: isTablet);
-    } else if (model.state == RequestState.loaded) {
-      if (model.allBrands.isEmpty) {
-        return _buildWebNoResultsState(isTablet: isTablet);
-      } else {
-        return _buildWebResultsGrid(model, isTablet: isTablet);
-      }
-    }
-    return Container();
-  }
-
-  Widget _buildWebLoadingState({required bool isTablet}) {
+  Widget _buildLoadingState() {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.symmetric(
-            vertical: isTablet ? 16 : 20,
-            horizontal: isTablet ? 20 : 24,
-          ),
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: ColorManager.primary.withOpacity(0.1),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade200),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
-                width: isTablet ? 24 : 28,
-                height: isTablet ? 24 : 28,
+                width: 28,
+                height: 28,
                 child: CircularProgressIndicator(
                   strokeWidth: 3,
                   valueColor: AlwaysStoppedAnimation<Color>(ColorManager.primary),
                 ),
               ),
-              SizedBox(width: isTablet ? 16 : 20),
+              const SizedBox(width: 20),
               Text(
-                "searching_brands".tr(),
+                "جاري البحث...",
                 style: TextStyle(
-                  fontFamily: StringConstant.fontName,
-                  color: ColorManager.primary,
+                  fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  fontSize: isTablet ? 16 : 18,
+                  color: ColorManager.primary,
+                  fontFamily: StringConstant.fontName,
                 ),
               ),
             ],
           ),
         ),
-        SizedBox(height: isTablet ? 24 : 32),
-        _buildWebShimmerGrid(isTablet: isTablet),
+        SizedBox(height: _getSpacing(MediaQuery.of(context).size.width) * 1.5),
+        _buildShimmerGrid(),
       ],
     );
   }
 
-  Widget _buildWebShimmerGrid({required bool isTablet}) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: isTablet ? 2 : 3,
-        childAspectRatio: isTablet ? 3.5 : 4.0,
-        crossAxisSpacing: isTablet ? 16 : 20,
-        mainAxisSpacing: isTablet ? 16 : 20,
+  Widget _buildShimmerGrid() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    return SpGrid(
+      width: double.infinity, // أخذ العرض الكامل
+      gridSize: SpGridSize(
+        xs: 0,       // موبايل صغير
+        sm: 480,     // موبايل كبير  
+        md: 768,     // تابلت صغير
+        lg: 1024,    // تابلت كبير / لابتوب صغير
+        xl: 1440,    // شاشة كبيرة
       ),
-      itemCount: isTablet ? 6 : 9,
-      itemBuilder: (context, index) => Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+      spacing: _getSpacing(screenWidth),
+      runSpacing: _getSpacing(screenWidth),
+      children: List.generate(6, (index) {
+        // تحديد الارتفاع بناءً على نوع التخطيط
+        final shouldUseVerticalLayout = screenWidth <= 768;
+        
+        double cardHeight;
+        if (shouldUseVerticalLayout) {
+          cardHeight = screenWidth <= 480 ? 320.0 : 300.0;
+        } else {
+          if (screenWidth > 1440) {
+            cardHeight = 180.0;
+          } else if (screenWidth > 1024) {
+            cardHeight = 200.0;
+          } else {
+            cardHeight = 220.0;
+          }
+        }
+
+        return SpGridItem(
+          // تخطيط responsive تنازلي: 4 ← 3 ← 2 ← 1
+          xs: 12,      // 1 عنصر للموبايل الصغير (< 480px)
+          sm: 12,      // 1 عنصر للموبايل الكبير (480-768px)
+          md: 6,       // 2 عنصر للتابلت الصغير (768-1024px)
+          lg: 4,       // 3 عناصر للتابلت الكبير (1024-1440px)
+          xl: 3,       // 4 عناصر للشاشات الكبيرة (> 1440px)
+
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            child: Container(
+              height: cardHeight,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 
-  Widget _buildWebErrorState({required bool isTablet}) {
+  Widget _buildErrorState() {
     return Container(
-      constraints: BoxConstraints(
-        maxWidth: isTablet ? 500 : 600,
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: EdgeInsets.all(isTablet ? 32 : 40),
+      width: double.infinity,
+      padding: EdgeInsets.all(_contentPadding),
       decoration: BoxDecoration(
-        color: Colors.red.shade50,
-        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.red.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          Icon(
-            Icons.error_outline,
-            color: Colors.red.shade600,
-            size: isTablet ? 64 : 80,
-          ),
-          SizedBox(height: isTablet ? 20 : 24),
-          Text(
-            "search_error".tr(),
-            style: TextStyle(
-              fontFamily: StringConstant.fontName,
-              color: Colors.red.shade700,
-              fontSize: isTablet ? 20 : 24,
-              fontWeight: FontWeight.w700,
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              shape: BoxShape.circle,
             ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: isTablet ? 12 : 16),
-          Text(
-            "search_error_description".tr(),
-            style: TextStyle(
-              fontFamily: StringConstant.fontName,
+            child: Icon(
+              Icons.error_outline_rounded,
               color: Colors.red.shade600,
-              fontSize: isTablet ? 14 : 16,
+              size: 48,
             ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            "حدث خطأ في البحث",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.red.shade700,
+              fontFamily: StringConstant.fontName,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "يرجى المحاولة مرة أخرى أو التحقق من اتصال الإنترنت",
             textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade600,
+              fontFamily: StringConstant.fontName,
+              height: 1.4,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildWebNoResultsState({required bool isTablet}) {
+  Widget _buildNoResultsState() {
     return Container(
-      constraints: BoxConstraints(
-        maxWidth: isTablet ? 500 : 600,
-      ),
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: EdgeInsets.all(isTablet ? 32 : 40),
+      width: double.infinity,
+      padding: EdgeInsets.all(_contentPadding),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         children: [
           NoDataFound(),
-          SizedBox(height: isTablet ? 24 : 32),
+          const SizedBox(height: 24),
           Text(
-            "no_results_found".tr(),
+            "لا توجد نتائج",
             style: TextStyle(
-              fontFamily: StringConstant.fontName,
-              color: ColorManager.accent,
-              fontSize: isTablet ? 20 : 24,
+              fontSize: 20,
               fontWeight: FontWeight.w700,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: isTablet ? 12 : 16),
-          Text(
-            "try_different_search".tr(),
-            style: TextStyle(
+              color: Colors.grey.shade700,
               fontFamily: StringConstant.fontName,
-              color: Colors.grey.shade600,
-              fontSize: isTablet ? 14 : 16,
             ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "جرب البحث بكلمات مختلفة أو تأكد من كتابة اسم العلامة التجارية بشكل صحيح",
             textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade500,
+              fontFamily: StringConstant.fontName,
+              height: 1.4,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildWebResultsGrid(GetBrandBySearchProvider model, {required bool isTablet}) {
-    final crossAxisCount = _getCrossAxisCount(MediaQuery.of(context).size.width);
-    final childAspectRatio = _getChildAspectRatio(MediaQuery.of(context).size.width);
-
+  Widget _buildResultsGrid(GetBrandBySearchProvider model) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Results Header
-        _buildWebResultsHeader(model, isTablet: isTablet),
-        SizedBox(height: isTablet ? 20 : 24),
-        
-        // Results Grid
-        GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            childAspectRatio: childAspectRatio,
-            crossAxisSpacing: isTablet ? 16 : 20,
-            mainAxisSpacing: isTablet ? 16 : 20,
+        // Advanced Responsive Results Grid using SpGrid
+        SpGrid(
+          width: double.infinity, // أخذ العرض الكامل
+          gridSize: SpGridSize(
+            xs: 0,       // موبايل صغير
+            sm: 480,     // موبايل كبير  
+            md: 768,     // تابلت صغير
+            lg: 1024,    // تابلت كبير / لابتوب صغير
+            xl: 1440,    // شاشة كبيرة
           ),
-          itemBuilder: (context, index) {
-            if (index == model.allBrands.length &&
-                model.hasMoreData &&
-                model.allBrands.length >= 6) {
-              return _buildWebLoadingItem(isTablet: isTablet);
-            }
-            
-            return _buildWebBrandCard(context, model, index, isTablet: isTablet);
-          },
-          itemCount: model.allBrands.length +
-              (model.hasMoreData && model.allBrands.length >= 6 ? 1 : 0),
+          spacing: _getSpacing(screenWidth),
+          runSpacing: _getSpacing(screenWidth),
+          children: [
+            // إضافة عناصر نتائج البحث مع تخطيط متقدم
+            ...model.allBrands.asMap().entries.map((entry) {
+              final index = entry.key;
+              final brand = entry.value;
+
+              return SpGridItem(
+                // تخطيط responsive تنازلي: 4 ← 3 ← 2 ← 1
+                xs: 12,      // 1 عنصر للموبايل الصغير (< 480px)
+                sm: 12,      // 1 عنصر للموبايل الكبير (480-768px)
+                md: 6,       // 2 عنصر للتابلت الصغير (768-1024px)
+                lg: 4,       // 3 عناصر للتابلت الكبير (1024-1440px)
+                xl: 3,       // 4 عناصر للشاشات الكبيرة (> 1440px)
+
+                // ترتيب طبيعي لجميع الشاشات
+                order: SpOrder(
+                  xs: index,
+                  sm: index,
+                  md: index,
+                  lg: index,
+                  xl: index,
+                ),
+
+                child: ResponsiveBrandCard(
+                  brand: brand,
+                  isLargeScreen: screenWidth > 1200,
+                  screenWidth: screenWidth,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => BranDetails(brandId: brand.id),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ],
         ),
+        
+        // مؤشر التحميل للمزيد من البيانات
+        if (model.isLoading && model.allBrands.isNotEmpty)
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(_contentPadding),
+            child: Center(
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: AlwaysStoppedAnimation<Color>(ColorManager.primary),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "جاري تحميل المزيد من النتائج...",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: ColorManager.primary,
+                      fontFamily: StringConstant.fontName,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        
+        // مساحة إضافية في النهاية
+        const SizedBox(height: 100),
       ],
     );
   }
 
-  Widget _buildWebResultsHeader(GetBrandBySearchProvider model, {required bool isTablet}) {
-    return Container(
-      padding: EdgeInsets.all(isTablet ? 20 : 24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            ColorManager.primary.withOpacity(0.1),
-            ColorManager.primaryByOpacity.withOpacity(0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: ColorManager.primary.withOpacity(0.2)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(isTablet ? 10 : 12),
-            decoration: BoxDecoration(
-              color: ColorManager.primary,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              Icons.search_outlined,
-              color: Colors.white,
-              size: isTablet ? 20 : 24,
-            ),
-          ),
-          SizedBox(width: isTablet ? 16 : 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "${model.allBrands.length} ${"results_found".tr()}",
-                  style: TextStyle(
-                    fontFamily: StringConstant.fontName,
-                    color: ColorManager.primary,
-                    fontWeight: FontWeight.w700,
-                    fontSize: isTablet ? 18 : 20,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "${"for".tr()} \"${widget.searchController.text}\"",
-                  style: TextStyle(
-                    fontFamily: StringConstant.fontName,
-                    color: Colors.grey.shade600,
-                    fontSize: isTablet ? 14 : 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (model.hasMoreData)
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: isTablet ? 12 : 16,
-                vertical: isTablet ? 6 : 8,
-              ),
-              decoration: BoxDecoration(
-                color: ColorManager.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                "more_available".tr(),
-                style: TextStyle(
-                  fontFamily: StringConstant.fontName,
-                  color: ColorManager.primary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: isTablet ? 12 : 14,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
+  double _getSpacing(double screenWidth) {
+    if (screenWidth > 1800) {
+      return 24;
+    } else if (screenWidth > 1440) {
+      return 20;
+    } else if (screenWidth > 1200) {
+      return 16;
+    } else {
+      return 12;
+    }
   }
 
-  Widget _buildWebLoadingItem({required bool isTablet}) {
+  Widget _buildBrandCard(
+    BuildContext context,
+    GetBrandBySearchProvider model,
+    int index,
+  ) {
+    // هذه الدالة لم تعد مُستخدمة، استُبدلت بـ ResponsiveBrandCard في SpGrid
+    return Container();
+  }
+
+  Widget _buildAdvancedLoadingItem(double screenWidth) {
+    // تحديد الارتفاع بناءً على نوع التخطيط
+    final shouldUseVerticalLayout = screenWidth <= 768;
+    
+    double cardHeight;
+    if (shouldUseVerticalLayout) {
+      cardHeight = screenWidth <= 480 ? 320.0 : 300.0;
+    } else {
+      if (screenWidth > 1440) {
+        cardHeight = 180.0;
+      } else if (screenWidth > 1024) {
+        cardHeight = 200.0;
+      } else {
+        cardHeight = 220.0;
+      }
+    }
+
     return Container(
+      height: cardHeight,
       decoration: BoxDecoration(
-        color: ColorManager.primary.withOpacity(0.1),
+        color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(ColorManager.primary),
+            SizedBox(
+              width: screenWidth > 1200 ? 28 : 24,
+              height: screenWidth > 1200 ? 28 : 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                valueColor: AlwaysStoppedAnimation<Color>(ColorManager.primary),
+              ),
             ),
-            SizedBox(height: isTablet ? 12 : 16),
+            SizedBox(height: screenWidth > 1200 ? 16 : 12),
             Text(
-              "loading_more".tr(),
+              "تحميل المزيد...",
               style: TextStyle(
-                fontFamily: StringConstant.fontName,
+                fontSize: screenWidth > 1200 ? 14 : 13,
+                fontWeight: FontWeight.w500,
                 color: ColorManager.primary,
-                fontWeight: FontWeight.w600,
-                fontSize: isTablet ? 12 : 14,
+                fontFamily: StringConstant.fontName,
               ),
             ),
           ],
@@ -816,65 +735,51 @@ class _WebSearchViewState extends State<WebSearchView> {
     );
   }
 
-  Widget _buildWebBrandCard(
-    BuildContext context,
-    GetBrandBySearchProvider model,
-    int index, {
-    required bool isTablet,
-  }) {
+  Widget _buildLoadingItem() {
+    // دالة قديمة، تم استبدالها بـ _buildAdvancedLoadingItem
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-            spreadRadius: 1,
-          ),
-        ],
-        border: Border.all(
-          color: ColorManager.primary.withOpacity(0.1),
-          width: 1,
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                valueColor: AlwaysStoppedAnimation<Color>(ColorManager.primary),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "تحميل المزيد...",
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: ColorManager.primary,
+                fontFamily: StringConstant.fontName,
+              ),
+            ),
+          ],
         ),
       ),
-      child: BrandWidget(
-        context: context,
-        index: index,
-        model: model,
-        isSearch: true,
-      ),
     );
-  }
-
-  // Responsive grid calculations
-  int _getCrossAxisCount(double width) {
-    if (width > 1200) return 3;
-    if (width > 900) return 2;
-    return 1;
-  }
-
-  double _getChildAspectRatio(double width) {
-    if (width > 1400) return 4.1;
-    if (width > 1200) return 3.2;
-    if (width > 1000) return 4.0;
-    if (width > 900) return 3.5;
-    if (width > 800) return 6.5;
-    if (width > 700) return 5.5;
-    if (width > 600) return 4.5;
-    return 4.0;
   }
 
   void _performSearch() {
     if (widget.searchController.text.trim().isEmpty) return;
     
-    Provider.of<GetBrandBySearchProvider>(context, listen: false)
-        .getAllBrandsBySearch(keyWord: widget.searchController.text.trim());
+    final provider = Provider.of<GetBrandBySearchProvider>(context, listen: false);
+    // إعادة تعيين البيانات للبحث الجديد
+    provider.resetSearch();
+    provider.getAllBrandsBySearch(keyWord: widget.searchController.text.trim());
     
-    // Hide keyboard
     FocusScope.of(context).unfocus();
-    
     setState(() {});
   }
 } 

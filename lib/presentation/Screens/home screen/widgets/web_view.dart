@@ -1370,7 +1370,7 @@ class ResponsiveBrandCard extends StatelessWidget {
     }
 
     // تحديد ما إذا كان النص طويل ويحتاج مساحة أكثر
-    final isLongStatusText = statusText.length > 15;
+    final isLongStatusText = statusText.length > 12; // تقليل الحد للنصوص العربية
     final shouldShowIndicators = (!isVertical || screenWidth > 400) &&
         !(screenWidth > 1440 && !isVertical && isLongStatusText);
 
@@ -1454,7 +1454,7 @@ class ResponsiveBrandCard extends StatelessWidget {
         // مؤشر الحالة - مع تحسين للنصوص الطويلة
         SizedBox(height: isVertical ? 6 : 8),
         Flexible(
-          flex: isLongStatusText ? 2 : 1,
+          flex: isLongStatusText ? 3 : 2,
           child: _buildStatusIndicator(
             statusText: statusText,
             statusColor: statusColor,
@@ -1510,21 +1510,23 @@ class ResponsiveBrandCard extends StatelessWidget {
     required bool isCompact,
     required bool isVertical,
   }) {
-    // تحديد عدد السطور بناءً على طول النص ونوع التخطيط
+    // تحسين منطق تحديد عدد السطور بناءً على طول النص ونوع التخطيط
     int maxLines;
-    if (statusText.length > 20) {
-      maxLines = isVertical ? 2 : (isCompact ? 2 : 3);
-    } else if (statusText.length > 10) {
-      maxLines = isCompact ? 1 : 2;
+    if (statusText.length > 25) {
+      maxLines = isVertical ? 3 : 2; // نصوص طويلة جداً
+    } else if (statusText.length > 15) {
+      maxLines = isVertical ? 2 : 2; // نصوص متوسطة الطول مثل "تحت الفحص الفني"
+    } else if (statusText.length > 8) {
+      maxLines = 2; // نصوص قصيرة نسبياً
     } else {
-      maxLines = 1;
+      maxLines = 1; // نصوص قصيرة
     }
 
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(
-        horizontal: 6,
-        vertical: maxLines > 1 ? 8 : 6,
+        horizontal: 8, // زيادة المسافة الجانبية
+        vertical: maxLines > 1 ? 10 : 8, // زيادة المسافة العمودية
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -1540,22 +1542,22 @@ class ResponsiveBrandCard extends StatelessWidget {
         ),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center, // تغيير المحاذاة للوسط
         children: [
           // أيقونة الحالة
           Container(
-            padding: const EdgeInsets.all(2),
+            padding: const EdgeInsets.all(3), // زيادة padding الأيقونة
             decoration: BoxDecoration(
               color: statusColor.withOpacity(0.2),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Icon(
               Icons.info_outline,
-              size: fontSize + 1,
+              size: fontSize + 2, // زيادة حجم الأيقونة قليلاً
               color: statusColor,
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8), // زيادة المسافة بين الأيقونة والنص
 
           // نص الحالة مع تحسين للنصوص الطويلة
           Expanded(
@@ -1564,9 +1566,9 @@ class ResponsiveBrandCard extends StatelessWidget {
               style: TextStyle(
                 color: statusColor,
                 fontSize: fontSize,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600, // تقليل سماكة الخط قليلاً
                 fontFamily: StringConstant.fontName,
-                height: 1.3, // تحسين المسافة بين السطور
+                height: 1.4, // تحسين المسافة بين السطور
               ),
               maxLines: maxLines,
               overflow: TextOverflow.ellipsis,

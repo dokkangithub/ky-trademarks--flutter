@@ -16,7 +16,9 @@ class BrandDataModel extends BrandDataEntity {
       message: json['message'] as String,
       brand: _parseBrands(json['brand']),
       updates: _parseUpdates(json['updates']),
-      total: json['brand']['total'] as int ??0,
+      total: json['brand'] != null 
+          ? (json['brand']['total'] as int? ?? 0)
+          : 0,
     );
   }
 
