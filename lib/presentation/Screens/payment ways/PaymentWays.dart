@@ -19,7 +19,7 @@ class PaymentWays extends StatelessWidget {
       appBar: _buildAppBar(context),
       body: Column(
         children: [
-          _buildHeaderImage(context),
+          _isWebView(context)?SizedBox.shrink():_buildHeaderImage(context),
           Expanded(
             child: _isWebView(context)
                 ? const WebPaymentView()
