@@ -203,7 +203,7 @@ OutlineInputBorder borderStyle = OutlineInputBorder(
 validateObjects() {
   return (val) {
     if (val == null || val == "") {
-      return "هذة الحقل مطلوب";
+      return "هذا الحقل مطلوب";
     } else {
       return null;
     }

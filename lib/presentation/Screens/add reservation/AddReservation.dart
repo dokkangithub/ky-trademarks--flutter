@@ -189,14 +189,14 @@ class _AddReservationState extends State<AddReservation> {
   }
 
   bool _isWebView(BuildContext context) {
-    return MediaQuery.of(context).size.width > 900;
+    return MediaQuery.of(context).size.width > 600;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: _buildAppBar(),
+      appBar: _isWebView(context)?null:_buildAppBar(),
       body: _isWebView(context)
           ? WebReservationView(
         formKey: _formKey,
