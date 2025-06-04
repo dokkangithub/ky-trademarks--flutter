@@ -111,6 +111,26 @@ final InitializationSettings initializationSettings = InitializationSettings(
   iOS: initializationSettingsIOS,
 );
 
+// Function to request notifications permissions without blocking the app startup
+Future<void> _requestNotificationPermissions() async {
+  try {
+    // Only request permissions on mobile platforms
+    if (!kIsWeb) {
+      final settings = await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      debugPrint('Notification permission status: ${settings.authorizationStatus}');
+    } else {
+      // For web, we handle it differently and don't wait for user response
+      debugPrint('Running on web - notification permissions handled by browser');
+    }
+  } catch (e) {
+    debugPrint('Error requesting notification permissions: $e');
+    // Don't let permission errors stop the app
+  }
+}
 
 Future<FirebaseApp> initializeFirebase() async {
   try {
@@ -145,80 +165,89 @@ void main() async {
   // Initialize service locator
   Services_locator().init();
 
-  // Initialize Flutter Local Notifications
-  await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
-    onDidReceiveNotificationResponse: (NotificationResponse response) {
-      debugPrint("Notification clicked: ${response.payload}");
-      // Handle notification tap
-      if (response.payload != null) {
-        // Add your navigation logic here if needed
-      }
-    },
-  );
+  // Initialize Flutter Local Notifications (only on mobile)
+  if (!kIsWeb) {
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        debugPrint("Notification clicked: ${response.payload}");
+        // Handle notification tap
+        if (response.payload != null) {
+          // Add your navigation logic here if needed
+        }
+      },
+    );
 
-  // Create notification channel
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
+    // Create notification channel (only on Android)
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
 
-  // Set background message handler
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-  // Request permissions (optional, depending on your app's requirements)
-  await FirebaseMessaging.instance.requestPermission(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
-
-  // Listen to foreground messages
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-    RemoteNotification? notification = message.notification;
-    AndroidNotification? android = message.notification?.android;
-
-    if (notification != null && android != null) {
-      flutterLocalNotificationsPlugin.show(
-        notification.hashCode,
-        notification.title,
-        notification.body,
-        NotificationDetails(
-          android: AndroidNotificationDetails(
-            channel.id,
-            channel.name,
-            channelDescription: channel.description,
-            icon: '@mipmap/ic_launcher',
-            importance: Importance.high,
-            priority: Priority.high,
-          ),
-        ),
-        payload: message.data['data'],
-      );
-    }
-  });
-
-  // Handle when the app is opened from a notification
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    _handleMessage(message);
-  });
-
-  // Check if the app was opened from a terminated state via a notification
-  RemoteMessage? initialMessage =
-      await FirebaseMessaging.instance.getInitialMessage();
-  if (initialMessage != null) {
-    _handleMessage(initialMessage);
+    // Set background message handler
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
 
-  // Get FCM token for this device
-  String? token = await FirebaseMessaging.instance.getToken();
-  debugPrint("FCM Token: $token");
+  // Request permissions in the background (non-blocking)
+  _requestNotificationPermissions();
+
+  // Listen to foreground messages (only on mobile)
+  if (!kIsWeb) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+
+      if (notification != null && android != null) {
+        flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              channelDescription: channel.description,
+              icon: '@mipmap/ic_launcher',
+              importance: Importance.high,
+              priority: Priority.high,
+            ),
+          ),
+          payload: message.data['data'],
+        );
+      }
+    });
+
+    // Handle when the app is opened from a notification
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      _handleMessage(message);
+    });
+
+    // Check if the app was opened from a terminated state via a notification
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+  }
+
+  // Get FCM token for this device (in background to avoid blocking)
+  try {
+    FirebaseMessaging.instance.getToken().then((token) {
+      debugPrint("FCM Token: $token");
+    }).catchError((error) {
+      debugPrint("Error getting FCM token: $error");
+    });
+  } catch (e) {
+    debugPrint("Error setting up FCM token: $e");
+  }
 
   // Initialize local user data
   await globalAccountData.init();
 
-  // Override HTTP settings if necessary
-  HttpOverrides.global = MyHttpOverrides();
+  // Override HTTP settings if necessary (only on mobile)
+  if (!kIsWeb) {
+    HttpOverrides.global = MyHttpOverrides();
+  }
 
   runApp(EasyLocalization(
     supportedLocales: [Locale('en', 'US'), Locale('ar', 'EG')],
