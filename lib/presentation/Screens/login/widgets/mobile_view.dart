@@ -42,12 +42,10 @@ class _MobileLoginViewState extends State<MobileLoginView> {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xff00acc8), Color(0xff155e7d)],
-          stops: [0.25, 0.8],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(ImagesConstants.kyLogin),
+          fit: BoxFit.cover,
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),

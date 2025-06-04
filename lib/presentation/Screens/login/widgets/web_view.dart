@@ -7,8 +7,6 @@ import 'package:url_launcher/url_launcher.dart' as launcher;
 import '../../../../resources/StringManager.dart';
 import 'package:provider/provider.dart';
 import 'package:kyuser/presentation/Controllar/LoginProvider.dart';
-import 'package:video_player/video_player.dart';
-import 'package:chewie/chewie.dart';
 import 'dart:ui';
 import '../../add request/AddRequest.dart';
 import '../../payment ways/PaymentWays.dart';
@@ -41,9 +39,6 @@ class WebLoginView extends StatefulWidget {
 }
 
 class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderStateMixin {
-  late VideoPlayerController _videoPlayerController;
-  ChewieController? _chewieController;
-  bool _isVideoInitialized = false;
   int _selectedIndex = 0;
 
   final List<String> _menuItems = [
@@ -68,38 +63,6 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _initializeVideo();
-  }
-
-  Future<void> _initializeVideo() async {
-    _videoPlayerController = VideoPlayerController.asset('assets/ky_video.mp4');
-    await _videoPlayerController.initialize();
-
-    _chewieController = ChewieController(
-      videoPlayerController: _videoPlayerController,
-      autoPlay: true,
-      looping: true,
-      showControls: false,
-      aspectRatio: _videoPlayerController.value.aspectRatio,
-    );
-
-    setState(() {
-      _isVideoInitialized = true;
-    });
-
-    _videoPlayerController.play();
-  }
-
-  @override
-  void dispose() {
-    _videoPlayerController.dispose();
-    _chewieController?.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isLargeScreen = size.width > 1200;
@@ -109,19 +72,17 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
 
     return Stack(
       children: [
-        // Background Video
-        _isVideoInitialized
-            ? SizedBox.expand(
-          child: FittedBox(
-            fit: BoxFit.cover,
-            child: SizedBox(
-              width: _videoPlayerController.value.size.width,
-              height: _videoPlayerController.value.size.height,
-              child: Chewie(controller: _chewieController!),
+        // Background Image instead of Video
+        Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(ImagesConstants.kyLogin),
+              fit: BoxFit.cover,
             ),
           ),
-        )
-            : Expanded(child: Image(image: AssetImage(ImagesConstants.appIcon),fit: BoxFit.cover,)),
+        ),
 
         // Top Navigation Menu
         Positioned(
