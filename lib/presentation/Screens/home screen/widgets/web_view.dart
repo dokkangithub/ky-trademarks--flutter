@@ -10,6 +10,7 @@ import 'package:flutter/foundation.dart';
 import 'dart:ui_web' as ui;
 import 'dart:html' as html;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:simple_grid/simple_grid.dart';
 
 import '../../../../app/RequestState/RequestState.dart';
 import '../../../../core/Constant/Api_Constant.dart';
@@ -39,37 +40,63 @@ class WebAppConstants {
 class BrandStatusHelper {
   static String getStatusText(int status) {
     switch (status) {
-      case 1: return 'تحت الفحص الفني';
-      case 2: return 'قبول';
-      case 3: return 'رفض';
-      case 4: return 'تظلم';
-      case 5: return 'قرار لجنه التظلمات';
-      case 6: return 'مجددة';
-      case 7: return 'الطعن ضد التظلم';
-      case 8: return 'قبول مشترط';
-      case 9: return 'تنازل';
-      case 10: return 'طعن في تسجيل العلامة';
-      case 11: return 'تقرير';
-      case 12: return 'معارضات';
-      default: return 'غير محدد';
+      case 1:
+        return 'تحت الفحص الفني';
+      case 2:
+        return 'قبول';
+      case 3:
+        return 'رفض';
+      case 4:
+        return 'تظلم';
+      case 5:
+        return 'قرار لجنه التظلمات';
+      case 6:
+        return 'مجددة';
+      case 7:
+        return 'الطعن ضد التظلم';
+      case 8:
+        return 'قبول مشترط';
+      case 9:
+        return 'تنازل';
+      case 10:
+        return 'طعن في تسجيل العلامة';
+      case 11:
+        return 'تقرير';
+      case 12:
+        return 'معارضات';
+      default:
+        return 'غير محدد';
     }
   }
 
   static Color getStatusColor(int status) {
     switch (status) {
-      case 1: return Colors.orange.shade600;
-      case 2: return Colors.green.shade600;
-      case 3: return Colors.red.shade600;
-      case 4: return Colors.blue.shade600;
-      case 5: return Colors.purple.shade600;
-      case 6: return Colors.teal.shade600;
-      case 7: return Colors.indigo.shade600;
-      case 8: return Colors.amber.shade600;
-      case 9: return Colors.brown.shade600;
-      case 10: return Colors.pink.shade600;
-      case 11: return Colors.cyan.shade600;
-      case 12: return Colors.deepOrange.shade600;
-      default: return Colors.grey.shade600;
+      case 1:
+        return Colors.orange.shade600;
+      case 2:
+        return Colors.green.shade600;
+      case 3:
+        return Colors.red.shade600;
+      case 4:
+        return Colors.blue.shade600;
+      case 5:
+        return Colors.purple.shade600;
+      case 6:
+        return Colors.teal.shade600;
+      case 7:
+        return Colors.indigo.shade600;
+      case 8:
+        return Colors.amber.shade600;
+      case 9:
+        return Colors.brown.shade600;
+      case 10:
+        return Colors.pink.shade600;
+      case 11:
+        return Colors.cyan.shade600;
+      case 12:
+        return Colors.deepOrange.shade600;
+      default:
+        return Colors.grey.shade600;
     }
   }
 
@@ -106,7 +133,7 @@ class WebView extends StatelessWidget {
     final isLargeScreen = screenWidth > 1200;
     final isTablet = screenWidth > 768 && screenWidth <= 1200;
     final isMobile = screenWidth <= 768;
-    
+
     return Container(
       color: Colors.white,
       child: CustomScrollView(
@@ -115,7 +142,8 @@ class WebView extends StatelessWidget {
           // Enhanced Control Panel
           SliverToBoxAdapter(
             child: Container(
-              padding: EdgeInsets.all(isLargeScreen ? 24 : (isTablet ? 20 : 16)),
+              padding:
+                  EdgeInsets.all(isLargeScreen ? 24 : (isTablet ? 20 : 16)),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
@@ -130,23 +158,25 @@ class WebView extends StatelessWidget {
               child: Column(
                 children: [
                   // Top Row: Statistics (full width)
-                  Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(bottom: 20),
-                    child: _buildQuickStats(provider),
-                  ),
-                  
+                  // Container(
+                  //   width: double.infinity,
+                  //   margin: const EdgeInsets.only(bottom: 20),
+                  //   child: _buildQuickStats(provider),
+                  // ),
+
                   // Second Row: Responsive Layout
-                  isMobile 
+                  isMobile
                       ? _buildMobileLayout(provider, companyProvider, context)
-                      : (isTablet 
-                          ? _buildTabletLayout(provider, companyProvider, context)
-                          : _buildDesktopLayout(provider, companyProvider, context)),
+                      : (isTablet
+                          ? _buildTabletLayout(
+                              provider, companyProvider, context)
+                          : _buildDesktopLayout(
+                              provider, companyProvider, context)),
                 ],
               ),
             ),
           ),
-          
+
           // Brand content area
           SliverFillRemaining(
             child: TabBarView(
@@ -157,7 +187,7 @@ class WebView extends StatelessWidget {
                       _buildTabContent(provider.allBrands, 'marks'.tr(), 0),
                       _buildTabContent(provider.allBrands, 'models'.tr(), 1),
                       _buildRecentUpdatesTab(provider.allBrands),
-              ],
+                    ],
             ),
           ),
         ],
@@ -165,11 +195,11 @@ class WebView extends StatelessWidget {
     );
   }
 
-  Widget _buildTabContent(List<BrandEntity> allBrands, String tabType, int markOrModelFilter) {
-    final filteredData = allBrands
-        .where((brand) => _filterBrands(brand, tabType))
-        .toList();
-    
+  Widget _buildTabContent(
+      List<BrandEntity> allBrands, String tabType, int markOrModelFilter) {
+    final filteredData =
+        allBrands.where((brand) => _filterBrands(brand, tabType)).toList();
+
     return filteredData.isEmpty
         ? _WebNoDataView()
         : ImprovedBrandDataView(
@@ -184,10 +214,10 @@ class WebView extends StatelessWidget {
     // نستخدم id كبديل للترتيب (الأرقام الأعلى = الأحدث)
     final recentlyUpdated = [...allBrands];
     recentlyUpdated.sort((a, b) => b.id.compareTo(a.id)); // الأحدث أولاً
-    
+
     // أخذ آخر 50 عنصر محدث
     final recentItems = recentlyUpdated.take(50).toList();
-    
+
     return recentItems.isEmpty
         ? _WebNoDataView()
         : ImprovedBrandDataView(
@@ -199,15 +229,16 @@ class WebView extends StatelessWidget {
   }
 
   // Desktop Layout: Horizontal arrangement
-  Widget _buildDesktopLayout(GetBrandProvider provider, GetCompanyProvider companyProvider, BuildContext context) {
+  Widget _buildDesktopLayout(GetBrandProvider provider,
+      GetCompanyProvider companyProvider, BuildContext context) {
     return Row(
-          children: [
+      children: [
         // TabBar - Flexible width
         Flexible(
           flex: 3,
           child: Container(
             constraints: const BoxConstraints(minWidth: 300, maxWidth: 400),
-              decoration: BoxDecoration(
+            decoration: BoxDecoration(
               color: ColorManager.primary,
               borderRadius: BorderRadius.circular(12),
             ),
@@ -216,34 +247,43 @@ class WebView extends StatelessWidget {
               labelColor: Colors.white,
               unselectedLabelColor: Colors.white.withOpacity(0.7),
               indicatorColor: Colors.white,
-              labelStyle: TextStyle(fontSize: 14, fontFamily: StringConstant.fontName),
+              labelStyle:
+                  TextStyle(fontSize: 14, fontFamily: StringConstant.fontName),
               tabs: [
-                Tab(child: Text('علامات', style: TextStyle(fontFamily: StringConstant.fontName))),
-                Tab(child: Text('نماذج', style: TextStyle(fontFamily: StringConstant.fontName))),
-                Tab(child: Text('آخر تحديث', style: TextStyle(fontFamily: StringConstant.fontName))),
-                  ],
-                ),
-              ),
+                Tab(
+                    child: Text('علامات',
+                        style: TextStyle(fontFamily: StringConstant.fontName))),
+                Tab(
+                    child: Text('نماذج',
+                        style: TextStyle(fontFamily: StringConstant.fontName))),
+                Tab(
+                    child: Text('آخر تحديث',
+                        style: TextStyle(fontFamily: StringConstant.fontName))),
+              ],
             ),
-        
+          ),
+        ),
+
         const SizedBox(width: 20),
-        
+
         // Filters - Flexible width
         Flexible(
           flex: 2,
           child: Row(
-              children: [
+            children: [
               // Company Dropdown
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade300),
                     borderRadius: BorderRadius.circular(8),
                     color: Colors.grey.shade50,
                   ),
                   child: companyProvider.state == RequestState.loading
-                      ? const Center(child: SizedBox(
+                      ? const Center(
+                          child: SizedBox(
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
@@ -251,13 +291,14 @@ class WebView extends StatelessWidget {
                       : _buildCompanyDropdown(companyProvider, context),
                 ),
               ),
-              
+
               const SizedBox(width: 12),
-              
+
               // Filter Dropdown
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade300),
                     borderRadius: BorderRadius.circular(8),
@@ -273,45 +314,55 @@ class WebView extends StatelessWidget {
     );
   }
 
-  // Tablet Layout: Mixed arrangement  
-  Widget _buildTabletLayout(GetBrandProvider provider, GetCompanyProvider companyProvider, BuildContext context) {
+  // Tablet Layout: Mixed arrangement
+  Widget _buildTabletLayout(GetBrandProvider provider,
+      GetCompanyProvider companyProvider, BuildContext context) {
     return Column(
-                    children: [
+      children: [
         // TabBar - Full width
         Container(
           decoration: BoxDecoration(
             color: ColorManager.primary,
             borderRadius: BorderRadius.circular(12),
           ),
-                        child: TabBar(
-                          controller: tabController,
+          child: TabBar(
+            controller: tabController,
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white.withOpacity(0.7),
             indicatorColor: Colors.white,
-            labelStyle: TextStyle(fontSize: 15, fontFamily: StringConstant.fontName),
-                          tabs: [
-              Tab(child: Text('علامات', style: TextStyle(fontFamily: StringConstant.fontName))),
-              Tab(child: Text('نماذج', style: TextStyle(fontFamily: StringConstant.fontName))),
-              Tab(child: Text('آخر تحديث', style: TextStyle(fontFamily: StringConstant.fontName))),
-                          ],
-                        ),
-                      ),
-        
+            labelStyle:
+                TextStyle(fontSize: 15, fontFamily: StringConstant.fontName),
+            tabs: [
+              Tab(
+                  child: Text('علامات',
+                      style: TextStyle(fontFamily: StringConstant.fontName))),
+              Tab(
+                  child: Text('نماذج',
+                      style: TextStyle(fontFamily: StringConstant.fontName))),
+              Tab(
+                  child: Text('آخر تحديث',
+                      style: TextStyle(fontFamily: StringConstant.fontName))),
+            ],
+          ),
+        ),
+
         const SizedBox(height: 16),
-        
+
         // Filters Row
-                      Row(
-                        children: [
+        Row(
+          children: [
             Expanded(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
                   color: Colors.grey.shade50,
                 ),
                 child: companyProvider.state == RequestState.loading
-                    ? const Center(child: SizedBox(
+                    ? const Center(
+                        child: SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
@@ -322,7 +373,8 @@ class WebView extends StatelessWidget {
             const SizedBox(width: 16),
             Expanded(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
@@ -338,7 +390,8 @@ class WebView extends StatelessWidget {
   }
 
   // Mobile Layout: Vertical arrangement
-  Widget _buildMobileLayout(GetBrandProvider provider, GetCompanyProvider companyProvider, BuildContext context) {
+  Widget _buildMobileLayout(GetBrandProvider provider,
+      GetCompanyProvider companyProvider, BuildContext context) {
     return Column(
       children: [
         // TabBar
@@ -352,19 +405,26 @@ class WebView extends StatelessWidget {
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white.withOpacity(0.7),
             indicatorColor: Colors.white,
-            labelStyle: TextStyle(fontSize: 12, fontFamily: StringConstant.fontName),
+            labelStyle:
+                TextStyle(fontSize: 12, fontFamily: StringConstant.fontName),
             tabs: [
-              Tab(child: Text('علامات', style: TextStyle(fontFamily: StringConstant.fontName))),
-              Tab(child: Text('نماذج', style: TextStyle(fontFamily: StringConstant.fontName))),
-              Tab(child: Text('تحديث', style: TextStyle(fontFamily: StringConstant.fontName))),
+              Tab(
+                  child: Text('علامات',
+                      style: TextStyle(fontFamily: StringConstant.fontName))),
+              Tab(
+                  child: Text('نماذج',
+                      style: TextStyle(fontFamily: StringConstant.fontName))),
+              Tab(
+                  child: Text('تحديث',
+                      style: TextStyle(fontFamily: StringConstant.fontName))),
             ],
           ),
         ),
-        
+
         const SizedBox(height: 16),
-        
-                          // Company Dropdown
-                          Container(
+
+        // Company Dropdown
+        Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
@@ -372,17 +432,18 @@ class WebView extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             color: Colors.grey.shade50,
           ),
-                            child: companyProvider.state == RequestState.loading
-              ? const Center(child: SizedBox(
+          child: companyProvider.state == RequestState.loading
+              ? const Center(
+                  child: SizedBox(
                   height: 20,
                   width: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ))
               : _buildCompanyDropdown(companyProvider, context),
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Filter Dropdown
         Container(
           width: double.infinity,
@@ -401,7 +462,8 @@ class WebView extends StatelessWidget {
   Widget _buildQuickStats(GetBrandProvider provider) {
     final statusStats = <int, int>{};
     for (var brand in provider.allBrands) {
-      statusStats[brand.currentStatus] = (statusStats[brand.currentStatus] ?? 0) + 1;
+      statusStats[brand.currentStatus] =
+          (statusStats[brand.currentStatus] ?? 0) + 1;
     }
 
     return Container(
@@ -434,7 +496,7 @@ class WebView extends StatelessWidget {
           final isLarge = screenWidth > 1200;
           final isTablet = screenWidth > 768 && screenWidth <= 1200;
           final isMobile = screenWidth <= 768;
-          
+
           return Column(
             children: [
               // Header with total count
@@ -449,7 +511,7 @@ class WebView extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.assessment_outlined,
-                                          color: ColorManager.primary,
+                      color: ColorManager.primary,
                       size: isLarge ? 28 : (isTablet ? 24 : 20),
                     ),
                   ),
@@ -468,8 +530,8 @@ class WebView extends StatelessWidget {
                       ),
                       Text(
                         '${provider.totalMarks}',
-                                    style: TextStyle(
-                                        color: ColorManager.primary, 
+                        style: TextStyle(
+                          color: ColorManager.primary,
                           fontSize: isLarge ? 28 : (isTablet ? 24 : 20),
                           fontWeight: FontWeight.bold,
                           fontFamily: StringConstant.fontName,
@@ -479,10 +541,10 @@ class WebView extends StatelessWidget {
                   ),
                 ],
               ),
-              
+
               if (statusStats.isNotEmpty) ...[
                 const SizedBox(height: 16),
-                
+
                 // Divider
                 Container(
                   height: 1,
@@ -497,9 +559,9 @@ class WebView extends StatelessWidget {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Status indicators
                 isMobile
                     ? _buildMobileStatsGrid(statusStats, isLarge)
@@ -518,11 +580,15 @@ class WebView extends StatelessWidget {
       runSpacing: 8,
       alignment: WrapAlignment.center,
       children: [
-        _buildEnhancedStatusIndicator(2, statusStats[2] ?? 0, "مقبولة", Colors.green, Icons.check_circle),
-        _buildEnhancedStatusIndicator(1, statusStats[1] ?? 0, "تحت الفحص", Colors.orange, Icons.hourglass_empty),
-        _buildEnhancedStatusIndicator(3, statusStats[3] ?? 0, "مرفوضة", Colors.red, Icons.cancel),
+        _buildEnhancedStatusIndicator(
+            2, statusStats[2] ?? 0, "مقبولة", Colors.green, Icons.check_circle),
+        _buildEnhancedStatusIndicator(1, statusStats[1] ?? 0, "تحت الفحص",
+            Colors.orange, Icons.hourglass_empty),
+        _buildEnhancedStatusIndicator(
+            3, statusStats[3] ?? 0, "مرفوضة", Colors.red, Icons.cancel),
         if (statusStats[4] != null && statusStats[4]! > 0)
-          _buildEnhancedStatusIndicator(4, statusStats[4]!, "تظلم", Colors.blue, Icons.gavel),
+          _buildEnhancedStatusIndicator(
+              4, statusStats[4]!, "تظلم", Colors.blue, Icons.gavel),
       ],
     );
   }
@@ -531,14 +597,18 @@ class WebView extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _buildEnhancedStatusIndicator(2, statusStats[2] ?? 0, "مقبولة", Colors.green, Icons.check_circle),
+        _buildEnhancedStatusIndicator(
+            2, statusStats[2] ?? 0, "مقبولة", Colors.green, Icons.check_circle),
         _buildVerticalDivider(),
-        _buildEnhancedStatusIndicator(1, statusStats[1] ?? 0, "تحت الفحص", Colors.orange, Icons.hourglass_empty),
+        _buildEnhancedStatusIndicator(1, statusStats[1] ?? 0, "تحت الفحص",
+            Colors.orange, Icons.hourglass_empty),
         _buildVerticalDivider(),
-        _buildEnhancedStatusIndicator(3, statusStats[3] ?? 0, "مرفوضة", Colors.red, Icons.cancel),
+        _buildEnhancedStatusIndicator(
+            3, statusStats[3] ?? 0, "مرفوضة", Colors.red, Icons.cancel),
         if (statusStats[4] != null && statusStats[4]! > 0) ...[
           _buildVerticalDivider(),
-          _buildEnhancedStatusIndicator(4, statusStats[4]!, "تظلم", Colors.blue, Icons.gavel),
+          _buildEnhancedStatusIndicator(
+              4, statusStats[4]!, "تظلم", Colors.blue, Icons.gavel),
         ],
       ],
     );
@@ -562,7 +632,8 @@ class WebView extends StatelessWidget {
     );
   }
 
-  Widget _buildEnhancedStatusIndicator(int status, int count, String label, Color color, IconData icon) {
+  Widget _buildEnhancedStatusIndicator(
+      int status, int count, String label, Color color, IconData icon) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -606,7 +677,7 @@ class WebView extends StatelessWidget {
                 count.toString(),
                 style: TextStyle(
                   color: color,
-                                        fontSize: 16,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                   fontFamily: StringConstant.fontName,
                 ),
@@ -646,20 +717,19 @@ class WebView extends StatelessWidget {
         fontFamily: StringConstant.fontName,
       ),
       icon: Icon(Icons.keyboard_arrow_down, color: ColorManager.primary),
-                                    underline: Container(),
+      underline: Container(),
       isExpanded: true,
-                                    onChanged: (CompanyEntity? newValue) {
-                                      if (newValue != null) {
-                                        companyProvider.setSelectedCompany(newValue);
-                                        Provider.of<GetBrandProvider>(context, listen: false)
-                                            .getAllBrandsWidget(companyId: newValue.id);
-                                      }
-                                    },
-                                    items: companyProvider.allCompanies
-                                        .map<DropdownMenuItem<CompanyEntity>>(
-                                      (CompanyEntity company) {
-                                        return DropdownMenuItem<CompanyEntity>(
-                                          value: company,
+      onChanged: (CompanyEntity? newValue) {
+        if (newValue != null) {
+          companyProvider.setSelectedCompany(newValue);
+          Provider.of<GetBrandProvider>(context, listen: false)
+              .getAllBrandsWidget(companyId: newValue.id);
+        }
+      },
+      items: companyProvider.allCompanies.map<DropdownMenuItem<CompanyEntity>>(
+        (CompanyEntity company) {
+          return DropdownMenuItem<CompanyEntity>(
+            value: company,
             child: Row(
               children: [
                 Container(
@@ -672,9 +742,9 @@ class WebView extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                                          child: Text(
-                                            company.companyName,
-                                            style: TextStyle(
+                  child: Text(
+                    company.companyName,
+                    style: TextStyle(
                       fontSize: 14,
                       fontFamily: StringConstant.fontName,
                       color: Colors.black87,
@@ -683,14 +753,15 @@ class WebView extends StatelessWidget {
                   ),
                 ),
               ],
-                                          ),
-                                        );
-                                      },
-                                    ).toList(),
-                                    selectedItemBuilder: (BuildContext context) {
-        return companyProvider.allCompanies.map<Widget>((CompanyEntity company) {
-                                        return Row(
-                                          children: [
+            ),
+          );
+        },
+      ).toList(),
+      selectedItemBuilder: (BuildContext context) {
+        return companyProvider.allCompanies
+            .map<Widget>((CompanyEntity company) {
+          return Row(
+            children: [
               Icon(
                 Icons.business,
                 color: ColorManager.primary,
@@ -699,25 +770,25 @@ class WebView extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                                              company.companyName,
-                                              style: TextStyle(
-                                                  color: ColorManager.primary,
+                  company.companyName,
+                  style: TextStyle(
+                    color: ColorManager.primary,
                     fontFamily: StringConstant.fontName,
                     fontWeight: FontWeight.w600,
                   ),
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                            ),
-                                          ],
-                                        );
-                                      }).toList();
-                                    },
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          );
+        }).toList();
+      },
     );
   }
 
   Widget _buildFilterDropdown() {
     return DropdownButton<String>(
-                              value: byStatus.isEmpty ? null : byStatus,
+      value: byStatus.isEmpty ? null : byStatus,
       hint: Row(
         children: [
           Icon(
@@ -727,8 +798,8 @@ class WebView extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Text(
-                                'brands_filter'.tr(),
-                                style: TextStyle(
+            'brands_filter'.tr(),
+            style: TextStyle(
               color: Colors.grey.shade600,
               fontSize: 14,
               fontFamily: StringConstant.fontName,
@@ -737,22 +808,22 @@ class WebView extends StatelessWidget {
         ],
       ),
       dropdownColor: Colors.white,
-                              style: TextStyle(
+      style: TextStyle(
         color: Colors.black,
         fontSize: 14,
         fontFamily: StringConstant.fontName,
       ),
       icon: Icon(Icons.keyboard_arrow_down, color: ColorManager.primary),
-                              underline: Container(),
+      underline: Container(),
       isExpanded: true,
-                              onChanged: (String? newValue) {
-                                if (newValue != null) {
-                                  onFilterChanged(newValue);
-                                }
-                              },
-                              items: [
-                                DropdownMenuItem(
-                                  value: StringConstant.inEgypt,
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          onFilterChanged(newValue);
+        }
+      },
+      items: [
+        DropdownMenuItem(
+          value: StringConstant.inEgypt,
           child: Row(
             children: [
               Icon(
@@ -762,18 +833,18 @@ class WebView extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                                    'in_egypt'.tr(),
-                                    style: TextStyle(
+                'in_egypt'.tr(),
+                style: TextStyle(
                   fontSize: 14,
                   fontFamily: StringConstant.fontName,
                   color: Colors.black87,
                 ),
               ),
             ],
-                                  ),
-                                ),
-                                DropdownMenuItem(
-                                  value: StringConstant.outsideEgypt,
+          ),
+        ),
+        DropdownMenuItem(
+          value: StringConstant.outsideEgypt,
           child: Row(
             children: [
               Icon(
@@ -783,23 +854,33 @@ class WebView extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                                    'out_egypt'.tr(),
-                                    style: TextStyle(
+                'out_egypt'.tr(),
+                style: TextStyle(
                   fontSize: 14,
                   fontFamily: StringConstant.fontName,
                   color: Colors.black87,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
       selectedItemBuilder: (BuildContext context) {
         final items = [
-          {'value': StringConstant.inEgypt, 'text': 'in_egypt'.tr(), 'icon': Icons.flag, 'color': Colors.green.shade600},
-          {'value': StringConstant.outsideEgypt, 'text': 'out_egypt'.tr(), 'icon': Icons.public, 'color': Colors.orange.shade600},
+          {
+            'value': StringConstant.inEgypt,
+            'text': 'in_egypt'.tr(),
+            'icon': Icons.flag,
+            'color': Colors.green.shade600
+          },
+          {
+            'value': StringConstant.outsideEgypt,
+            'text': 'out_egypt'.tr(),
+            'icon': Icons.public,
+            'color': Colors.orange.shade600
+          },
         ];
-        
+
         return items.map<Widget>((item) {
           return Row(
             children: [
@@ -865,12 +946,13 @@ class ImprovedBrandDataView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          // Enhanced Header
-          Container(
+
+    return CustomScrollView(
+      controller: listScrollController,
+      slivers: [
+        // Enhanced Header
+        SliverToBoxAdapter(
+          child: Container(
             padding: const EdgeInsets.all(20),
             color: Colors.grey.shade50,
             child: Row(
@@ -880,8 +962,11 @@ class ImprovedBrandDataView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      tabType == 'marks'.tr() ? 'العلامات التجارية' :
-                      tabType == 'models'.tr() ? 'النماذج الصناعية' : tabType,
+                      tabType == 'marks'.tr()
+                          ? 'العلامات التجارية'
+                          : tabType == 'models'.tr()
+                              ? 'النماذج الصناعية'
+                              : tabType,
                       style: TextStyle(
                         fontSize: screenWidth > 1200 ? 24 : 20,
                         fontWeight: FontWeight.bold,
@@ -901,7 +986,8 @@ class ImprovedBrandDataView extends StatelessWidget {
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: ColorManager.primary,
                     borderRadius: BorderRadius.circular(20),
@@ -912,7 +998,7 @@ class ImprovedBrandDataView extends StatelessWidget {
                       Icon(Icons.list, color: Colors.white, size: 16),
                       const SizedBox(width: 6),
                       Text(
-                        'إجمالي: ${brands.length}',
+                        'إجمالي: ${Provider.of<GetBrandProvider>(context,listen: false).totalMarks}',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -926,79 +1012,128 @@ class ImprovedBrandDataView extends StatelessWidget {
               ],
             ),
           ),
-          // Responsive Brands Grid
-          Container(
+        ),
+
+        // Responsive Brands Grid as Sliver
+        SliverToBoxAdapter(
+          child: Container(
             color: Colors.grey.shade50,
             padding: EdgeInsets.symmetric(
               horizontal: screenWidth > 1200 ? 20 : 16,
               vertical: 10,
             ),
-            child: GridView.builder(
-              physics: const NeverScrollableScrollPhysics(), // إزالة scroll منفصل
-              shrinkWrap: true, // ليأخذ المساحة المطلوبة فقط
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: _getCrossAxisCount(screenWidth), // 4 عناصر للشاشات الكبيرة
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: _getChildAspectRatio(screenWidth), // نسبة محسنة
+            child: SpGrid(
+              width: MediaQuery.of(context).size.width -
+                  (screenWidth > 1200 ? 40 : 32),
+              gridSize: SpGridSize(
+                xs: 0,
+                // موبايل صغير
+                sm: 480,
+                // موبايل كبير
+                md: 768,
+                // تابلت صغير
+                lg: 1024,
+                // تابلت كبير / لابتوب صغير
+                xl: 1440, // شاشة كبيرة
               ),
-              itemCount: brands.length + (isLoadingMore ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == brands.length) {
-                  return Container(
-                    padding: const EdgeInsets.all(20),
-                    child: Center(child: LoadingWidget()),
-                  );
-                }
+              spacing: _getSpacing(screenWidth),
+              runSpacing: _getSpacing(screenWidth),
+              children: [
+                // إضافة عناصر العلامات التجارية مع تخطيط متقدم
+                ...brands.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final brand = entry.value;
 
-                return ResponsiveBrandCard(
-                  brand: brands[index],
-                  isLargeScreen: screenWidth > 1200,
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => BranDetails(brandId: brands[index].id),
+                  return SpGridItem(
+                    // تخطيط responsive تنازلي: 4 ← 3 ← 2 ← 1
+                    xs: 12,
+                    // 1 عنصر للموبايل الصغير (< 480px)
+                    sm: 12,
+                    // 1 عنصر للموبايل الكبير (480-768px)
+                    md: 6,
+                    // 2 عنصر للتابلت الصغير (768-1024px)
+                    lg: 4,
+                    // 3 عناصر للتابلت الكبير (1024-1440px)
+                    xl: 3,
+                    // 4 عناصر للشاشات الكبيرة (> 1440px)
+
+                    // إضافة ترتيب مخصص للشاشات المختلفة
+                    order: SpOrder(
+                      xs: index,
+                      // ترتيب طبيعي للموبايل
+                      sm: index,
+                      // ترتيب طبيعي للموبايل الكبير
+                      md: index,
+                      // ترتيب طبيعي للتابلت
+                      lg: index,
+                      // ترتيب طبيعي للابتوب
+                      xl: index, // ترتيب طبيعي للشاشة الكبيرة
                     ),
-                  ),
-                );
-              },
+
+                    child: ResponsiveBrandCard(
+                      brand: brand,
+                      isLargeScreen: screenWidth > 1200,
+                      screenWidth: screenWidth, // إضافة عرض الشاشة للكارد
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => BranDetails(brandId: brand.id),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+
+        // عنصر التحميل كـ Sliver منفصل
+        if (isLoadingMore)
+          SliverToBoxAdapter(
+            child: Container(
+              padding: EdgeInsets.all(screenWidth > 1200 ? 24 : 20),
+              color: Colors.grey.shade50,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    LoadingWidget(),
+                    const SizedBox(height: 12),
+                    Text(
+                      'جاري تحميل المزيد...',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 14,
+                        fontFamily: StringConstant.fontName,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+        // إضافة مساحة إضافية في النهاية لضمان عمل pagination بشكل صحيح
+        SliverToBoxAdapter(
+          child: Container(
+            height: 50,
+            // مساحة إضافية لضمان إمكانية التمرير والوصول لنهاية القائمة
+            color: Colors.grey.shade50,
+          ),
+        ),
+      ],
     );
   }
-  
-  // تحديد عدد الأعمدة حسب حجم الشاشة
-  int _getCrossAxisCount(double screenWidth) {
-    if (screenWidth > 1400) {
-      return 4; // 4 عناصر للشاشات الكبيرة جداً
+
+  double _getSpacing(double screenWidth) {
+    if (screenWidth > 1800) {
+      return 24;
+    } else if (screenWidth > 1440) {
+      return 20;
     } else if (screenWidth > 1200) {
-      return 4; // 4 عناصر للشاشات الكبيرة
-    } else if (screenWidth > 900) {
-      return 3; // 3 عناصر للشاشات المتوسطة
-    } else if (screenWidth > 600) {
-      return 2; // عنصرين للتابلت
+      return 16;
     } else {
-      return 1; // عنصر واحد للموبايل
-    }
-  }
-  
-  // تحديد نسبة العرض للارتفاع حسب حجم الشاشة
-  double _getChildAspectRatio(double screenWidth) {
-    if (screenWidth > 600) {
-      // التخطيط الأفقي للشاشات الكبيرة
-      if (screenWidth > 1400) {
-        return 2.8; // نسبة أوسع للشاشات الكبيرة جداً مع التخطيط الأفقي
-      } else if (screenWidth > 1200) {
-        return 2.5; // نسبة أوسع للشاشات الكبيرة مع 4 عناصر والتخطيط الأفقي
-      } else if (screenWidth > 900) {
-        return 2.6; // نسبة للشاشات المتوسطة مع التخطيط الأفقي
-      } else {
-        return 2.8; // نسبة للتابلت مع التخطيط الأفقي
-      }
-    } else {
-      // التخطيط العمودي للشاشات الصغيرة
-      return 1.8; // نسبة مناسبة للتخطيط العمودي
+      return 12;
     }
   }
 }
@@ -1007,11 +1142,13 @@ class ImprovedBrandDataView extends StatelessWidget {
 class ResponsiveBrandCard extends StatelessWidget {
   final BrandEntity brand;
   final bool isLargeScreen;
+  final double screenWidth;
   final VoidCallback onTap;
 
   const ResponsiveBrandCard({
     required this.brand,
     required this.isLargeScreen,
+    required this.screenWidth,
     required this.onTap,
     super.key,
   });
@@ -1020,18 +1157,32 @@ class ResponsiveBrandCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = brand.currentStatus;
     final statusColor = BrandStatusHelper.getStatusColor(status);
-    final statusText = _getStatusFromAPI(); // استخدام النص من الـ API
+    final statusText = _getStatusFromAPI();
     final statusLightColor = BrandStatusHelper.getStatusLightColor(status);
-    final screenWidth = MediaQuery.of(context).size.width;
-    final shouldUseHorizontalLayout = screenWidth > 600; // أفقي للشاشات أكبر من 600px
-    
-    // Safe image handling
+
+    final shouldUseVerticalLayout = screenWidth <= 768;
+
+    double cardHeight;
+    if (shouldUseVerticalLayout) {
+      cardHeight = screenWidth <= 480 ? 320.0 : 300.0;
+    } else {
+      if (screenWidth > 1440) {
+        cardHeight = 180.0;
+      } else if (screenWidth > 1024) {
+        cardHeight = 200.0;
+      } else {
+        cardHeight = 220.0;
+      }
+    }
+
     ImagesModel? mainImage;
     try {
       if (brand.images.isNotEmpty) {
-        final imagesWithoutCondition = brand.images.whereType<ImagesModel>().where((img) => 
-          img.conditionId == null).toList();
-        
+        final imagesWithoutCondition = brand.images
+            .whereType<ImagesModel>()
+            .where((img) => img.conditionId == null)
+            .toList();
+
         if (imagesWithoutCondition.isNotEmpty) {
           mainImage = imagesWithoutCondition.first;
         } else {
@@ -1047,6 +1198,7 @@ class ResponsiveBrandCard extends StatelessWidget {
     }
 
     return Container(
+      height: cardHeight,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
@@ -1056,31 +1208,36 @@ class ResponsiveBrandCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: Colors.grey.withOpacity(0.15),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+                spreadRadius: 1,
               ),
             ],
             border: Border.all(
-              color: statusColor.withOpacity(0.2),
-              width: 1,
+              color: statusColor.withOpacity(0.3),
+              width: 1.5,
             ),
           ),
-          child: shouldUseHorizontalLayout 
-              ? _buildHorizontalLayout(mainImage, statusColor, statusLightColor, statusText, screenWidth)
-              : _buildVerticalLayout(mainImage, statusColor, statusLightColor, statusText, screenWidth),
+          child: shouldUseVerticalLayout
+              ? _buildVerticalLayout(mainImage, statusColor, statusLightColor,
+                  statusText, screenWidth)
+              : _buildHorizontalLayout(mainImage, statusColor, statusLightColor,
+                  statusText, screenWidth),
         ),
       ),
     );
   }
 
-  Widget _buildHorizontalLayout(ImagesModel? image, Color statusColor, Color statusLightColor, String statusText, double screenWidth) {
-    // تخطيط أفقي يناسب الـ 4 عناصر في السطر
+  Widget _buildHorizontalLayout(ImagesModel? image, Color statusColor,
+      Color statusLightColor, String statusText, double screenWidth) {
+    final imageFlexRatio = screenWidth > 1600 ? 4 : 5;
+    final contentFlexRatio = screenWidth > 1600 ? 8 : 7;
+
     return Row(
       children: [
-        // صورة العلامة - تأخذ الجانب الأيمن
         Expanded(
-          flex: 2,
+          flex: imageFlexRatio,
           child: ClipRRect(
             borderRadius: const BorderRadius.only(
               topRight: Radius.circular(16),
@@ -1089,26 +1246,29 @@ class ResponsiveBrandCard extends StatelessWidget {
             child: _buildFullSizeImage(image, statusColor, statusLightColor),
           ),
         ),
-        // تفاصيل العلامة - تأخذ الجانب الأيسر
         Expanded(
-          flex: 3,
+          flex: contentFlexRatio,
           child: Container(
             height: double.infinity,
-            padding: EdgeInsets.all(screenWidth > 1200 ? 12 : 8),
-            child: _buildCompactBrandDetails(statusColor, statusText, screenWidth),
+            padding: EdgeInsets.all(
+                screenWidth > 1600 ? 18 : (screenWidth > 1200 ? 16 : 12)),
+            child:
+                _buildBrandDetails(statusColor, statusText, screenWidth, false),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildVerticalLayout(ImagesModel? image, Color statusColor, Color statusLightColor, String statusText, double screenWidth) {
-    // تخطيط عمودي يناسب الـ 4 عناصر في السطر
+  Widget _buildVerticalLayout(ImagesModel? image, Color statusColor,
+      Color statusLightColor, String statusText, double screenWidth) {
+    final imageFlexRatio = screenWidth <= 480 ? 3 : 3;
+    final contentFlexRatio = screenWidth <= 480 ? 2 : 2;
+
     return Column(
       children: [
-        // صورة العلامة - تأخذ الجانب الأعلى
         Expanded(
-          flex: 2,
+          flex: imageFlexRatio,
           child: ClipRRect(
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(16),
@@ -1117,23 +1277,24 @@ class ResponsiveBrandCard extends StatelessWidget {
             child: _buildFullSizeImage(image, statusColor, statusLightColor),
           ),
         ),
-        // تفاصيل العلامة - تأخذ الجانب الأسفل
         Expanded(
-          flex: 3,
+          flex: contentFlexRatio,
           child: Container(
-            height: double.infinity,
-            padding: EdgeInsets.all(screenWidth > 1200 ? 12 : 8),
-            child: _buildCompactBrandDetails(statusColor, statusText, screenWidth),
+            width: double.infinity,
+            padding: EdgeInsets.all(screenWidth > 600 ? 14 : 10),
+            child:
+                _buildBrandDetails(statusColor, statusText, screenWidth, true),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildFullSizeImage(ImagesModel? image, Color statusColor, Color statusLightColor) {
+  Widget _buildFullSizeImage(
+      ImagesModel? image, Color statusColor, Color statusLightColor) {
     if (image != null && image.image.isNotEmpty) {
       String imageUrl = ApiConstant.imagePath + image.image;
-      
+
       return Container(
         width: double.infinity,
         height: double.infinity,
@@ -1144,26 +1305,42 @@ class ResponsiveBrandCard extends StatelessWidget {
         ),
       );
     }
-    
+
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: statusLightColor,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            statusLightColor,
+            statusColor.withOpacity(0.05),
+          ],
+        ),
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.image_not_supported,
-            color: statusColor,
-            size: 32,
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: statusColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              Icons.image_not_supported_outlined,
+              color: statusColor,
+              size: 36,
+            ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           Text(
             'لا توجد صورة',
             style: TextStyle(
               color: statusColor,
-              fontSize: 10,
-              fontWeight: FontWeight.w500,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
               fontFamily: StringConstant.fontName,
             ),
           ),
@@ -1172,84 +1349,135 @@ class ResponsiveBrandCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCompactBrandDetails(Color statusColor, String statusText, double screenWidth) {
+  Widget _buildBrandDetails(Color statusColor, String statusText,
+      double screenWidth, bool isVertical) {
+    // تحسين أحجام الخط بناءً على عرض الشاشة وطول النص
+    double fontSize;
+    double smallFontSize;
+
+    if (screenWidth > 1440) {
+      fontSize = 13.0;
+      smallFontSize = 11.0;
+    } else if (screenWidth > 1024) {
+      fontSize = 14.0;
+      smallFontSize = 12.0;
+    } else if (screenWidth > 768) {
+      fontSize = 15.0;
+      smallFontSize = 13.0;
+    } else {
+      fontSize = 16.0;
+      smallFontSize = 14.0;
+    }
+
+    // تحديد ما إذا كان النص طويل ويحتاج مساحة أكثر
+    final isLongStatusText = statusText.length > 15;
+    final shouldShowIndicators = (!isVertical || screenWidth > 400) &&
+        !(screenWidth > 1440 && !isVertical && isLongStatusText);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: isVertical
+          ? MainAxisAlignment.spaceEvenly
+          : MainAxisAlignment.spaceBetween,
       children: [
-        // اسم العلامة ورقمها
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              brand.brandName ?? 'اسم غير محدد',
-              style: TextStyle(
-                fontSize: screenWidth > 1200 ? 14 : 12,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-                fontFamily: StringConstant.fontName,
+        // قسم اسم العلامة ورقمها
+        Flexible(
+          flex: isVertical ? 2 : 3,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // اسم العلامة
+              Text(
+                brand.brandName ?? 'اسم غير محدد',
+                style: TextStyle(
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                  fontFamily: StringConstant.fontName,
+                  height: 1.2,
+                ),
+                maxLines: isVertical ? 2 : (screenWidth > 1600 ? 1 : 2),
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              '#${brand.brandNumber ?? 'غير محدد'}',
-              style: TextStyle(
-                color: Colors.blue.shade700,
-                fontSize: screenWidth > 1200 ? 11 : 10,
-                fontWeight: FontWeight.bold,
-                fontFamily: StringConstant.fontName,
+              const SizedBox(height: 4),
+
+              // رقم العلامة
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.blue.shade200, width: 0.5),
+                ),
+                child: Text(
+                  '#${brand.brandNumber ?? 'غير محدد'}',
+                  style: TextStyle(
+                    color: Colors.blue.shade700,
+                    fontSize: smallFontSize,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: StringConstant.fontName,
+                  ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-        
-        // المؤشرات المضغوطة
-        Wrap(
-          spacing: 4,
-          runSpacing: 4,
-          children: [
-            // Country indicator
-            _buildCompactIndicator(
-              icon: brand.country == 0 ? Icons.flag : Icons.public,
-              color: brand.country == 0 ? Colors.green : Colors.orange,
-              fontSize: screenWidth > 1200 ? 10 : 9,
-              text: brand.country == 0 ? 'مصر' : 'خارج مصر',
+
+        // مؤشرات البلد والنوع - مع إدارة أفضل للمساحة
+        if (shouldShowIndicators) ...[
+          SizedBox(height: isVertical ? 6 : 8),
+          Flexible(
+            flex: 1,
+            child: Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              children: [
+                _buildIndicator(
+                  icon: brand.country == 0 ? Icons.flag : Icons.public,
+                  color: brand.country == 0 ? Colors.green : Colors.orange,
+                  text: brand.country == 0 ? 'مصر' : 'خارجي',
+                  fontSize: smallFontSize,
+                ),
+                _buildIndicator(
+                  icon: brand.markOrModel == 0
+                      ? Icons.verified
+                      : Icons.precision_manufacturing,
+                  color: brand.markOrModel == 0 ? Colors.purple : Colors.teal,
+                  text: brand.markOrModel == 0 ? 'علامة' : 'نموذج',
+                  fontSize: smallFontSize,
+                ),
+              ],
             ),
-            // Type indicator
-            _buildCompactIndicator(
-              icon: brand.markOrModel == 0 ? Icons.verified : Icons.precision_manufacturing,
-              color: brand.markOrModel == 0 ? Colors.purple : Colors.teal,
-              fontSize: screenWidth > 1200 ? 10 : 9,
-              text: brand.markOrModel == 0 ? 'علامة' : 'نموذج',
-            ),
-          ],
-        ),
-        
-        // Status indicator مضغوط
-        _buildCompactStatusIndicator(
-          statusText: statusText,
-          statusColor: statusColor,
-          fontSize: screenWidth > 1200 ? 10 : 9,
+          ),
+        ],
+
+        // مؤشر الحالة - مع تحسين للنصوص الطويلة
+        SizedBox(height: isVertical ? 6 : 8),
+        Flexible(
+          flex: isLongStatusText ? 2 : 1,
+          child: _buildStatusIndicator(
+            statusText: statusText,
+            statusColor: statusColor,
+            fontSize: smallFontSize,
+            isCompact: !isLongStatusText && (isVertical || screenWidth > 1440),
+            isVertical: isVertical,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildCompactIndicator({
+  Widget _buildIndicator({
     required IconData icon,
     required Color color,
+    required String text,
     required double fontSize,
-    String? text,
   }) {
-    final darkColor = Color.lerp(color, Colors.black, 0.3) ?? color;
-    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color.withOpacity(0.3), width: 0.5),
       ),
       child: Row(
@@ -1257,63 +1485,92 @@ class ResponsiveBrandCard extends StatelessWidget {
         children: [
           Icon(
             icon,
-            size: fontSize + 3,
-            color: darkColor,
+            size: fontSize + 1,
+            color: color,
           ),
-          if (text != null) ...[
-            const SizedBox(width: 4),
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: fontSize,
-                color: darkColor,
-                fontWeight: FontWeight.w600,
-                fontFamily: StringConstant.fontName,
-              ),
+          const SizedBox(width: 3),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: fontSize,
+              color: color,
+              fontWeight: FontWeight.w600,
+              fontFamily: StringConstant.fontName,
             ),
-          ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildCompactStatusIndicator({
+  Widget _buildStatusIndicator({
     required String statusText,
     required Color statusColor,
     required double fontSize,
+    required bool isCompact,
+    required bool isVertical,
   }) {
-    // اختصار النص بحكمة أكثر للتخطيط الأفقي
-    
+    // تحديد عدد السطور بناءً على طول النص ونوع التخطيط
+    int maxLines;
+    if (statusText.length > 20) {
+      maxLines = isVertical ? 2 : (isCompact ? 2 : 3);
+    } else if (statusText.length > 10) {
+      maxLines = isCompact ? 1 : 2;
+    } else {
+      maxLines = 1;
+    }
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      padding: EdgeInsets.symmetric(
+        horizontal: 6,
+        vertical: maxLines > 1 ? 8 : 6,
+      ),
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(6),
+        gradient: LinearGradient(
+          colors: [
+            statusColor.withOpacity(0.1),
+            statusColor.withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: statusColor.withOpacity(0.3),
-          width: 0.5,
+          color: statusColor.withOpacity(0.4),
+          width: 1,
         ),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.info_outline,
-            size: fontSize + 2,
-            color: statusColor,
+          // أيقونة الحالة
+          Container(
+            padding: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              color: statusColor.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Icon(
+              Icons.info_outline,
+              size: fontSize + 1,
+              color: statusColor,
+            ),
           ),
-          const SizedBox(width: 4),
-          Flexible(
+          const SizedBox(width: 6),
+
+          // نص الحالة مع تحسين للنصوص الطويلة
+          Expanded(
             child: Text(
               statusText,
               style: TextStyle(
                 color: statusColor,
                 fontSize: fontSize,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 fontFamily: StringConstant.fontName,
+                height: 1.3, // تحسين المسافة بين السطور
               ),
+              maxLines: maxLines,
               overflow: TextOverflow.ellipsis,
-              maxLines: 2,
+              textAlign: TextAlign.start,
             ),
           ),
         ],
@@ -1322,7 +1579,6 @@ class ResponsiveBrandCard extends StatelessWidget {
   }
 
   String _getStatusFromAPI() {
-    // استخدام النص من newCurrentStatus إذا كان متوفر، وإلا استخدام الحالة الافتراضية
     if (brand.newCurrentStatus.isNotEmpty) {
       return brand.newCurrentStatus;
     }
@@ -1339,7 +1595,8 @@ class _WebNoDataView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: 60),
-          Lottie.asset(ImagesConstants.noData, fit: BoxFit.contain, height: 200),
+          Lottie.asset(ImagesConstants.noData,
+              fit: BoxFit.contain, height: 200),
           Text(
             'no_data'.tr(),
             style: TextStyle(
@@ -1361,50 +1618,50 @@ class WebLoadingShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        color: Colors.white,
-        child: Column(
-          children: [
+      color: Colors.white,
+      child: Column(
+        children: [
           // Header shimmer
           Container(
             padding: const EdgeInsets.all(20),
             child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Shimmer.fromColors(
-          baseColor: Colors.grey.shade300,
-          highlightColor: Colors.grey.shade100,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Shimmer.fromColors(
+                  baseColor: Colors.grey.shade300,
+                  highlightColor: Colors.grey.shade100,
                   child: Container(
                     width: 250,
                     height: 40,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        ),
+                    ),
+                  ),
+                ),
                 Row(
                   children: [
-        Shimmer.fromColors(
-          baseColor: Colors.grey.shade300,
-          highlightColor: Colors.grey.shade100,
-          child: Container(
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Container(
                         width: 150,
                         height: 40,
                         decoration: BoxDecoration(
-            color: Colors.white,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                     ),
                     const SizedBox(width: 20),
-        Shimmer.fromColors(
-          baseColor: Colors.grey.shade300,
-          highlightColor: Colors.grey.shade100,
-          child: Container(
+                    Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Container(
                         width: 200,
                         height: 40,
                         decoration: BoxDecoration(
-            color: Colors.white,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
@@ -1419,21 +1676,21 @@ class WebLoadingShimmer extends StatelessWidget {
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               itemCount: 8,
-      itemBuilder: (context, index) => Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
-        child: Container(
+              itemBuilder: (context, index) => Shimmer.fromColors(
+                baseColor: Colors.grey.shade300,
+                highlightColor: Colors.grey.shade100,
+                child: Container(
                   height: 160,
                   margin: const EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
               ),
-                ),
-              ),
-            ],
+            ),
+          ),
+        ],
       ),
     );
   }

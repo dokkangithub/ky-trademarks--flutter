@@ -62,22 +62,24 @@ class _WebProfileViewState extends State<WebProfileView> {
           const SizedBox(height: 24),
           
           // Help Center and Partners Row
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Help Center
-              Expanded(
-                flex: 2,
-                child: _buildWebHelpCenter(context, isTablet: true),
-              ),
-              const SizedBox(width: 20),
-              
-              // Partners Section
-              Expanded(
-                flex: 3,
-                child: _buildWebPartnersSection(context, isTablet: true),
-              ),
-            ],
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Help Center
+                Expanded(
+                  flex: 2,
+                  child: _buildWebHelpCenter(context, isTablet: true),
+                ),
+                const SizedBox(width: 20),
+                
+                // Partners Section
+                Expanded(
+                  flex: 3,
+                  child: _buildWebPartnersSection(context, isTablet: true),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -144,7 +146,7 @@ class _WebProfileViewState extends State<WebProfileView> {
           const SizedBox(height: 24),
           
           // Help Center
-          Expanded(
+          Flexible(
             child: _buildWebHelpCenter(context, isTablet: false),
           ),
         ],
@@ -162,7 +164,7 @@ class _WebProfileViewState extends State<WebProfileView> {
           const SizedBox(height: 24),
           
           // Partners Section
-          Expanded(
+          Flexible(
             child: _buildWebPartnersSection(context, isTablet: false),
           ),
         ],
@@ -526,6 +528,7 @@ class _WebProfileViewState extends State<WebProfileView> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Header
           Container(
@@ -567,52 +570,51 @@ class _WebProfileViewState extends State<WebProfileView> {
           ),
           
           // Help Options
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(isTablet ? 16 : 20),
-              child: Column(
-                children: [
-                  _buildWebHelpOption(
-                    context,
-                    title: 'help'.tr(),
-                    subtitle: 'تواصل معنا للحصول على المساعدة',
-                    icon: Icons.support_agent,
-                    color: Colors.blue.shade600,
-                    onTap: _handleContactUs,
-                    isTablet: isTablet,
-                  ),
-                  SizedBox(height: isTablet ? 12 : 16),
-                  _buildWebHelpOption(
-                    context,
-                    title: 'rate_us'.tr(),
-                    subtitle: 'قيم تجربتك معنا',
-                    icon: Icons.star_rate,
-                    color: Colors.orange.shade600,
-                    onTap: _launchRateApp,
-                    isTablet: isTablet,
-                  ),
-                  SizedBox(height: isTablet ? 12 : 16),
-                  _buildWebHelpOption(
-                    context,
-                    title: 'contact_us'.tr(),
-                    subtitle: 'طرق التواصل المختلفة',
-                    icon: Icons.contact_phone,
-                    color: Colors.green.shade600,
-                    onTap: _handleContactUsTap,
-                    isTablet: isTablet,
-                  ),
-                  SizedBox(height: isTablet ? 12 : 16),
-                  _buildWebHelpOption(
-                    context,
-                    title: 'logout'.tr(),
-                    subtitle: 'تسجيل الخروج من الحساب',
-                    icon: Icons.logout,
-                    color: Colors.red.shade600,
-                    onTap: _handleLogoutTap,
-                    isTablet: isTablet,
-                  ),
-                ],
-              ),
+          Padding(
+            padding: EdgeInsets.all(isTablet ? 16 : 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildWebHelpOption(
+                  context,
+                  title: 'help'.tr(),
+                  subtitle: 'تواصل معنا للحصول على المساعدة',
+                  icon: Icons.support_agent,
+                  color: Colors.blue.shade600,
+                  onTap: _handleContactUs,
+                  isTablet: isTablet,
+                ),
+                SizedBox(height: isTablet ? 12 : 16),
+                _buildWebHelpOption(
+                  context,
+                  title: 'rate_us'.tr(),
+                  subtitle: 'قيم تجربتك معنا',
+                  icon: Icons.star_rate,
+                  color: Colors.orange.shade600,
+                  onTap: _launchRateApp,
+                  isTablet: isTablet,
+                ),
+                SizedBox(height: isTablet ? 12 : 16),
+                _buildWebHelpOption(
+                  context,
+                  title: 'contact_us'.tr(),
+                  subtitle: 'طرق التواصل المختلفة',
+                  icon: Icons.contact_phone,
+                  color: Colors.green.shade600,
+                  onTap: _handleContactUsTap,
+                  isTablet: isTablet,
+                ),
+                SizedBox(height: isTablet ? 12 : 16),
+                _buildWebHelpOption(
+                  context,
+                  title: 'logout'.tr(),
+                  subtitle: 'تسجيل الخروج من الحساب',
+                  icon: Icons.logout,
+                  color: Colors.red.shade600,
+                  onTap: _handleLogoutTap,
+                  isTablet: isTablet,
+                ),
+              ],
             ),
           ),
         ],
@@ -712,16 +714,16 @@ class _WebProfileViewState extends State<WebProfileView> {
         ],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Partners Header
           _buildWebPartnersHeader(context, model, isTablet: isTablet),
           
           // Partners Grid
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(isTablet ? 16 : 20),
-              child: _buildPartnersGrid(context, model.allPartnerSuccess!, isTablet: isTablet),
-            ),
+          Container(
+            height: isTablet ? 300 : 400,
+            padding: EdgeInsets.all(isTablet ? 16 : 20),
+            child: _buildPartnersGrid(context, model.allPartnerSuccess!, isTablet: isTablet),
           ),
         ],
       ),
@@ -823,6 +825,7 @@ class _WebProfileViewState extends State<WebProfileView> {
         ],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Header shimmer
           Shimmer.fromColors(
@@ -839,7 +842,8 @@ class _WebProfileViewState extends State<WebProfileView> {
           const SizedBox(height: 20),
           
           // Grid shimmer
-          Expanded(
+          Container(
+            height: isTablet ? 300 : 400,
             child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: isTablet ? 5 : 7,
