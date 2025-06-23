@@ -95,6 +95,8 @@
   "brand_category":"فئة العلامة",
   "brand_status":"حالة العلامة",
   "search_brand": "قم بالبحث في علاماتك الخاصة",
+  "search_brands_hint": "بحث عن علامات ",
+  "type_brand_name": "اسم البراند",
   "attachments": "المرفقات",
   "no_Attachments": "لا يوجد مرفقات",
   "brand_name": "أسم العلامة",
