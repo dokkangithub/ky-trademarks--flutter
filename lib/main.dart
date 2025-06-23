@@ -114,6 +114,12 @@ final InitializationSettings initializationSettings = InitializationSettings(
 // Function to request notifications permissions without blocking the app startup
 Future<void> _requestNotificationPermissions() async {
   try {
+    // Skip notification permissions on iOS web browsers as they handle it differently
+    if (kIsWeb) {
+      debugPrint('Running on web - skipping notification permission request');
+      return;
+    }
+    
     // Only request permissions on mobile platforms
     if (!kIsWeb) {
       final settings = await FirebaseMessaging.instance.requestPermission(
@@ -231,14 +237,19 @@ void main() async {
   }
 
   // Get FCM token for this device (in background to avoid blocking)
-  try {
-    FirebaseMessaging.instance.getToken().then((token) {
-      debugPrint("FCM Token: $token");
-    }).catchError((error) {
-      debugPrint("Error getting FCM token: $error");
-    });
-  } catch (e) {
-    debugPrint("Error setting up FCM token: $e");
+  // Skip FCM operations on iOS Safari as they might cause issues
+  if (!kIsWeb) {
+    try {
+      FirebaseMessaging.instance.getToken().then((token) {
+        debugPrint("FCM Token: $token");
+      }).catchError((error) {
+        debugPrint("Error getting FCM token: $error");
+      });
+    } catch (e) {
+      debugPrint("Error setting up FCM token: $e");
+    }
+  } else {
+    debugPrint("Skipping FCM token on web - handled by browser");
   }
 
   // Initialize local user data

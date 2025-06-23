@@ -143,7 +143,7 @@ class WebView extends StatelessWidget {
           SliverToBoxAdapter(
             child: Container(
               padding:
-                  EdgeInsets.all(isLargeScreen ? 24 : (isTablet ? 20 : 16)),
+              EdgeInsets.all(isLargeScreen ? 24 : (isTablet ? 20 : 16)),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
@@ -168,10 +168,14 @@ class WebView extends StatelessWidget {
                   isMobile
                       ? _buildMobileLayout(provider, companyProvider, context)
                       : (isTablet
-                          ? _buildTabletLayout(
-                              provider, companyProvider, context)
-                          : _buildDesktopLayout(
-                              provider, companyProvider, context)),
+                      ? _buildTabletLayout(
+                      provider, companyProvider, context)
+                      : _buildDesktopLayout(
+                      provider, companyProvider, context)),
+
+                  // Download PDF Button Section
+                  const SizedBox(height: 16),
+                  _buildWebDownloadButton(context, isLargeScreen),
                 ],
               ),
             ),
@@ -184,10 +188,10 @@ class WebView extends StatelessWidget {
               children: provider.allBrands.isEmpty
                   ? List.generate(3, (_) => _WebNoDataView())
                   : [
-                      _buildTabContent(provider.allBrands, 'marks'.tr(), 0),
-                      _buildTabContent(provider.allBrands, 'models'.tr(), 1),
-                      _buildRecentUpdatesTab(provider.allBrands),
-                    ],
+                _buildTabContent(provider.allBrands, 'marks'.tr(), 0),
+                _buildTabContent(provider.allBrands, 'models'.tr(), 1),
+                _buildRecentUpdatesTab(provider.allBrands),
+              ],
             ),
           ),
         ],
@@ -198,16 +202,16 @@ class WebView extends StatelessWidget {
   Widget _buildTabContent(
       List<BrandEntity> allBrands, String tabType, int markOrModelFilter) {
     final filteredData =
-        allBrands.where((brand) => _filterBrands(brand, tabType)).toList();
+    allBrands.where((brand) => _filterBrands(brand, tabType)).toList();
 
     return filteredData.isEmpty
         ? _WebNoDataView()
         : ImprovedBrandDataView(
-            brands: filteredData,
-            tabType: tabType,
-            listScrollController: listScrollController,
-            isLoadingMore: isLoadingMore,
-          );
+      brands: filteredData,
+      tabType: tabType,
+      listScrollController: listScrollController,
+      isLoadingMore: isLoadingMore,
+    );
   }
 
   Widget _buildRecentUpdatesTab(List<BrandEntity> allBrands) {
@@ -221,11 +225,11 @@ class WebView extends StatelessWidget {
     return recentItems.isEmpty
         ? _WebNoDataView()
         : ImprovedBrandDataView(
-            brands: recentItems,
-            tabType: 'آخر تحديث',
-            listScrollController: listScrollController,
-            isLoadingMore: isLoadingMore,
-          );
+      brands: recentItems,
+      tabType: 'آخر تحديث',
+      listScrollController: listScrollController,
+      isLoadingMore: isLoadingMore,
+    );
   }
 
   // Desktop Layout: Horizontal arrangement
@@ -248,7 +252,7 @@ class WebView extends StatelessWidget {
               unselectedLabelColor: Colors.white.withOpacity(0.7),
               indicatorColor: Colors.white,
               labelStyle:
-                  TextStyle(fontSize: 14, fontFamily: StringConstant.fontName),
+              TextStyle(fontSize: 14, fontFamily: StringConstant.fontName),
               tabs: [
                 Tab(
                     child: Text('علامات',
@@ -275,7 +279,7 @@ class WebView extends StatelessWidget {
               Expanded(
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade300),
                     borderRadius: BorderRadius.circular(8),
@@ -283,11 +287,11 @@ class WebView extends StatelessWidget {
                   ),
                   child: companyProvider.state == RequestState.loading
                       ? const Center(
-                          child: SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ))
+                      child: SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ))
                       : _buildCompanyDropdown(companyProvider, context),
                 ),
               ),
@@ -298,7 +302,7 @@ class WebView extends StatelessWidget {
               Expanded(
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade300),
                     borderRadius: BorderRadius.circular(8),
@@ -331,7 +335,7 @@ class WebView extends StatelessWidget {
             unselectedLabelColor: Colors.white.withOpacity(0.7),
             indicatorColor: Colors.white,
             labelStyle:
-                TextStyle(fontSize: 15, fontFamily: StringConstant.fontName),
+            TextStyle(fontSize: 15, fontFamily: StringConstant.fontName),
             tabs: [
               Tab(
                   child: Text('علامات',
@@ -354,7 +358,7 @@ class WebView extends StatelessWidget {
             Expanded(
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
@@ -362,11 +366,11 @@ class WebView extends StatelessWidget {
                 ),
                 child: companyProvider.state == RequestState.loading
                     ? const Center(
-                        child: SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ))
+                    child: SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ))
                     : _buildCompanyDropdown(companyProvider, context),
               ),
             ),
@@ -374,7 +378,7 @@ class WebView extends StatelessWidget {
             Expanded(
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
@@ -406,7 +410,7 @@ class WebView extends StatelessWidget {
             unselectedLabelColor: Colors.white.withOpacity(0.7),
             indicatorColor: Colors.white,
             labelStyle:
-                TextStyle(fontSize: 12, fontFamily: StringConstant.fontName),
+            TextStyle(fontSize: 12, fontFamily: StringConstant.fontName),
             tabs: [
               Tab(
                   child: Text('علامات',
@@ -434,11 +438,11 @@ class WebView extends StatelessWidget {
           ),
           child: companyProvider.state == RequestState.loading
               ? const Center(
-                  child: SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ))
+              child: SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ))
               : _buildCompanyDropdown(companyProvider, context),
         ),
 
@@ -727,7 +731,7 @@ class WebView extends StatelessWidget {
         }
       },
       items: companyProvider.allCompanies.map<DropdownMenuItem<CompanyEntity>>(
-        (CompanyEntity company) {
+            (CompanyEntity company) {
           return DropdownMenuItem<CompanyEntity>(
             value: company,
             child: Row(
@@ -926,6 +930,45 @@ class WebView extends StatelessWidget {
     }
     return false;
   }
+
+  Widget _buildWebDownloadButton(BuildContext context, bool isLargeScreen) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: ElevatedButton.icon(
+        onPressed: () => launch(
+          "${ApiConstant.baseUrl}pdfAll/${globalAccountData.getId()}?download=pdf",
+        ),
+        icon: Icon(
+          Icons.download,
+          color: Colors.white,
+          size: isLargeScreen ? 20 : 18,
+        ),
+        label: Text(
+          "download_full_pdf".tr(),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: isLargeScreen ? 16 : 14,
+            fontWeight: FontWeight.w600,
+            fontFamily: StringConstant.fontName,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: ColorManager.primary,
+          foregroundColor: Colors.white,
+          padding: EdgeInsets.symmetric(
+            horizontal: isLargeScreen ? 32 : 24,
+            vertical: isLargeScreen ? 16 : 12,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 2,
+          shadowColor: ColorManager.primary.withOpacity(0.3),
+        ),
+      ),
+    );
+  }
 }
 
 // Improved Brand Data View with better scrolling and responsive grid
@@ -965,8 +1008,8 @@ class ImprovedBrandDataView extends StatelessWidget {
                       tabType == 'marks'.tr()
                           ? 'العلامات التجارية'
                           : tabType == 'models'.tr()
-                              ? 'النماذج الصناعية'
-                              : tabType,
+                          ? 'النماذج الصناعية'
+                          : tabType,
                       style: TextStyle(
                         fontSize: screenWidth > 1200 ? 24 : 20,
                         fontWeight: FontWeight.bold,
@@ -987,7 +1030,7 @@ class ImprovedBrandDataView extends StatelessWidget {
                 ),
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: ColorManager.primary,
                     borderRadius: BorderRadius.circular(20),
@@ -1221,9 +1264,9 @@ class ResponsiveBrandCard extends StatelessWidget {
           ),
           child: shouldUseVerticalLayout
               ? _buildVerticalLayout(mainImage, statusColor, statusLightColor,
-                  statusText, screenWidth)
+              statusText, screenWidth)
               : _buildHorizontalLayout(mainImage, statusColor, statusLightColor,
-                  statusText, screenWidth),
+              statusText, screenWidth),
         ),
       ),
     );
@@ -1253,7 +1296,7 @@ class ResponsiveBrandCard extends StatelessWidget {
             padding: EdgeInsets.all(
                 screenWidth > 1600 ? 18 : (screenWidth > 1200 ? 16 : 12)),
             child:
-                _buildBrandDetails(statusColor, statusText, screenWidth, false),
+            _buildBrandDetails(statusColor, statusText, screenWidth, false),
           ),
         ),
       ],
@@ -1283,7 +1326,7 @@ class ResponsiveBrandCard extends StatelessWidget {
             width: double.infinity,
             padding: EdgeInsets.all(screenWidth > 600 ? 14 : 10),
             child:
-                _buildBrandDetails(statusColor, statusText, screenWidth, true),
+            _buildBrandDetails(statusColor, statusText, screenWidth, true),
           ),
         ),
       ],
