@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Future<void> _fetchInitialData() async {
     GetCompanyProvider companyProvider =
-        Provider.of<GetCompanyProvider>(context, listen: false);
+    Provider.of<GetCompanyProvider>(context, listen: false);
     await Provider.of<GetCompanyProvider>(context, listen: false)
         .getAllCompanies();
     await Provider.of<GetBrandProvider>(context, listen: false)
@@ -96,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Future<void> _loadMoreData() async {
     GetCompanyProvider companyProvider =
-        Provider.of<GetCompanyProvider>(context, listen: false);
+    Provider.of<GetCompanyProvider>(context, listen: false);
     final provider = Provider.of<GetBrandProvider>(context, listen: false);
     if (!provider.isLoading && provider.hasMoreData && !_isLoadingMore) {
       setState(() => _isLoadingMore = true);
@@ -133,35 +133,35 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   Widget _buildBody(BuildContext context, GetBrandProvider model) {
     switch (model.state) {
       case RequestState.loading:
-        return _isWebView(context) 
+        return _isWebView(context)
             ? const WebLoadingShimmer()
             : const MobileLoadingShimmer();
       case RequestState.loaded:
         return _isWebView(context)
             ? WebView(
-                tabController: _tabController,
-                byStatus: _byStatus,
-                onFilterChanged: (value) => setState(() => _byStatus = value),
-                mainScrollController: _mainScrollController,
-                listScrollController: _listScrollController,
-                isLoadingMore: _isLoadingMore,
-              )
+          tabController: _tabController,
+          byStatus: _byStatus,
+          onFilterChanged: (value) => setState(() => _byStatus = value),
+          mainScrollController: _mainScrollController,
+          listScrollController: _listScrollController,
+          isLoadingMore: _isLoadingMore,
+        )
             : MobileView(
-                tabController: _tabController,
-                byStatus: _byStatus,
-                onFilterChanged: (value) => setState(() => _byStatus = value),
-                mainScrollController: _mainScrollController,
-                listScrollController: _listScrollController,
-                isLoadingMore: _isLoadingMore,
-              );
+          tabController: _tabController,
+          byStatus: _byStatus,
+          onFilterChanged: (value) => setState(() => _byStatus = value),
+          mainScrollController: _mainScrollController,
+          listScrollController: _listScrollController,
+          isLoadingMore: _isLoadingMore,
+        );
       case RequestState.failed:
         return Center(
             child: Text(
-          "There are Error",
-          style: TextStyle(fontFamily: StringConstant.fontName),
-        ));
+              "There are Error",
+              style: TextStyle(fontFamily: StringConstant.fontName),
+            ));
       default:
-        return _isWebView(context) 
+        return _isWebView(context)
             ? const WebLoadingShimmer()
             : const MobileLoadingShimmer();
     }
@@ -198,4 +198,3 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(10);
 }
-

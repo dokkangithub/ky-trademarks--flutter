@@ -3,12 +3,12 @@ import 'package:equatable/equatable.dart';
 class UserDataEntity extends Equatable {
   final int status;
   final String message;
-  final UserEntity user;
+  final UserEntity? user;
 
   const UserDataEntity({
     required this.status,
     required this.message,
-    required this.user
+    this.user
   });
 
   @override

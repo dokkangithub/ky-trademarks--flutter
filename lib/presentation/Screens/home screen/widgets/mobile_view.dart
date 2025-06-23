@@ -112,7 +112,7 @@ class MobileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<GetBrandProvider>(context);
     final companyProvider = Provider.of<GetCompanyProvider>(context);
-    
+
     return Stack(
       children: [
         Container(
@@ -160,61 +160,61 @@ class MobileHeader extends StatelessWidget {
                         child: companyProvider.state == RequestState.loading
                             ? const CircularProgressIndicator()
                             : DropdownButton<CompanyEntity>(
-                                value: companyProvider.selectedCompany,
-                                hint: Text(
-                                  'select_company'.tr(),
-                                  style: TextStyle(
-                                      color: ColorManager.primary,
-                                      fontFamily: StringConstant.fontName),
+                          value: companyProvider.selectedCompany,
+                          hint: Text(
+                            'select_company'.tr(),
+                            style: TextStyle(
+                                color: ColorManager.primary,
+                                fontFamily: StringConstant.fontName),
+                          ),
+                          dropdownColor: ColorManager.chartColor,
+                          style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName),
+                          icon: const SizedBox.shrink(),
+                          underline: Container(),
+                          isExpanded: true,
+                          onChanged: (CompanyEntity? newValue) {
+                            if (newValue != null) {
+                              companyProvider.setSelectedCompany(newValue);
+                              Provider.of<GetBrandProvider>(context, listen: false)
+                                  .getAllBrandsWidget(companyId: newValue.id);
+                            }
+                          },
+                          items: companyProvider.allCompanies
+                              .map<DropdownMenuItem<CompanyEntity>>(
+                                (CompanyEntity company) {
+                              return DropdownMenuItem<CompanyEntity>(
+                                value: company,
+                                child: Text(
+                                  company.companyName,
+                                  style: TextStyle(fontFamily: StringConstant.fontName),
                                 ),
-                                dropdownColor: ColorManager.chartColor,
-                                style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName),
-                                icon: const SizedBox.shrink(),
-                                underline: Container(),
-                                isExpanded: true,
-                                onChanged: (CompanyEntity? newValue) {
-                                  if (newValue != null) {
-                                    companyProvider.setSelectedCompany(newValue);
-                                    Provider.of<GetBrandProvider>(context, listen: false)
-                                        .getAllBrandsWidget(companyId: newValue.id);
-                                  }
-                                },
-                                items: companyProvider.allCompanies
-                                    .map<DropdownMenuItem<CompanyEntity>>(
-                                  (CompanyEntity company) {
-                                    return DropdownMenuItem<CompanyEntity>(
-                                      value: company,
-                                      child: Text(
-                                        company.companyName,
-                                        style: TextStyle(fontFamily: StringConstant.fontName),
-                                      ),
-                                    );
-                                  },
-                                ).toList(),
-                                selectedItemBuilder: (BuildContext context) {
-                                  return companyProvider.allCompanies
-                                      .map<Widget>((CompanyEntity company) {
-                                    return Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            company.companyName,
-                                            style: TextStyle(
-                                                color: ColorManager.primary,
-                                                fontFamily: StringConstant.fontName),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        Icon(
-                                          Icons.arrow_drop_down,
+                              );
+                            },
+                          ).toList(),
+                          selectedItemBuilder: (BuildContext context) {
+                            return companyProvider.allCompanies
+                                .map<Widget>((CompanyEntity company) {
+                              return Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      company.companyName,
+                                      style: TextStyle(
                                           color: ColorManager.primary,
-                                        ),
-                                      ],
-                                    );
-                                  }).toList();
-                                },
-                              ),
+                                          fontFamily: StringConstant.fontName),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_drop_down,
+                                    color: ColorManager.primary,
+                                  ),
+                                ],
+                              );
+                            }).toList();
+                          },
+                        ),
                       ),
                       const SizedBox(height: 10),
                       // Filter Dropdown
@@ -288,13 +288,13 @@ class MobileHeader extends StatelessWidget {
                 children: provider.allBrands.isEmpty
                     ? List.generate(2, (_) => _NoDataView())
                     : ['marks'.tr(), 'models'.tr()].map((tab) {
-                        final filteredData = provider.allBrands
-                            .where((brand) => _filterBrands(brand, tab))
-                            .toList();
-                        return filteredData.isEmpty
-                            ? _NoDataView()
-                            : MobileListContent(brands: filteredData);
-                      }).toList(),
+                  final filteredData = provider.allBrands
+                      .where((brand) => _filterBrands(brand, tab))
+                      .toList();
+                  return filteredData.isEmpty
+                      ? _NoDataView()
+                      : MobileListContent(brands: filteredData);
+                }).toList(),
               ),
             ),
           ],
@@ -481,11 +481,11 @@ class MobileActionRows extends StatelessWidget {
                         child: Text(
                           "payment methods".tr(),
                           style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: ColorManager.primary,
-                                fontFamily: StringConstant.fontName,
-                              ),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: ColorManager.primary,
+                            fontFamily: StringConstant.fontName,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -497,8 +497,8 @@ class MobileActionRows extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (_) => const AddRequest(
-                                  canBack: true,
-                                )),
+                              canBack: true,
+                            )),
                       ),
                       child: Container(
                         margin: EdgeInsets.symmetric(horizontal: 4),
@@ -509,11 +509,11 @@ class MobileActionRows extends StatelessWidget {
                         child: Text(
                           "new_ask".tr(),
                           style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w900,
-                                color: ColorManager.primary,
-                                fontFamily: StringConstant.fontName,
-                              ),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: ColorManager.primary,
+                            fontFamily: StringConstant.fontName,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -556,11 +556,11 @@ class MobileDownloadButton extends StatelessWidget {
           child: Text(
             "download_full_pdf".tr(),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: StringConstant.fontName,
-                ),
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              fontFamily: StringConstant.fontName,
+            ),
           ),
         ),
       ),
@@ -583,12 +583,12 @@ class MobileListContent extends StatelessWidget {
       itemBuilder: (context, index) => index == brands.length
           ? Center(child: LoadingWidget())
           : BrandWidget(
-              context: context,
-              model: provider,
-              index: index,
-              isFromHomeFiltering: true,
-              brandsList: brands,
-            ),
+        context: context,
+        model: provider,
+        index: index,
+        isFromHomeFiltering: true,
+        brandsList: brands,
+      ),
     );
   }
 }
@@ -659,9 +659,9 @@ class BrandUpdateItem extends StatelessWidget {
     final update = provider.allBrandUpdates[index];
     final filteredImage = brand.images.isNotEmpty
         ? brand.images.firstWhere(
-            (img) => img.conditionId == null,
-            orElse: () => ImagesModel(image: '', conditionId: '', type: ''),
-          )
+          (img) => img.conditionId == null,
+      orElse: () => ImagesModel(image: '', conditionId: '', type: ''),
+    )
         : null;
 
     return Card(
@@ -708,9 +708,9 @@ class BrandUpdateItem extends StatelessWidget {
                             child: Text(
                               brand.brandName,
                               style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                                    fontSize: 15,
-                                    fontFamily: StringConstant.fontName,
-                                  ),
+                                fontSize: 15,
+                                fontFamily: StringConstant.fontName,
+                              ),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 2,
                             ),
@@ -719,18 +719,18 @@ class BrandUpdateItem extends StatelessWidget {
                           Text(
                             convertStateBrandNumberToString(brand.currentStatus),
                             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                                  color: Colors.grey.withValues(alpha: 0.9),
-                                  fontSize: 14,
-                                  fontFamily: StringConstant.fontName,
-                                ),
+                              color: Colors.grey.withValues(alpha: 0.9),
+                              fontSize: 14,
+                              fontFamily: StringConstant.fontName,
+                            ),
                           ),
                           Text(
                             "${s.DateFormat('EEEE').format(DateTime.parse(update.date))} الموافق: ${s.DateFormat('yyyy-MM-dd').format(DateTime.parse(update.date))}",
                             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                                  color: Colors.grey.withValues(alpha: 0.9),
-                                  fontSize: 12,
-                                  fontFamily: StringConstant.fontName,
-                                ),
+                              color: Colors.grey.withValues(alpha: 0.9),
+                              fontSize: 12,
+                              fontFamily: StringConstant.fontName,
+                            ),
                           ),
                         ],
                       ),
@@ -744,8 +744,8 @@ class BrandUpdateItem extends StatelessWidget {
                   brand.currentStatus == 2
                       ? "assets/images/accept.svg"
                       : brand.currentStatus == 3
-                          ? "assets/images/refused.svg"
-                          : "assets/images/proccessing.svg",
+                      ? "assets/images/refused.svg"
+                      : "assets/images/proccessing.svg",
                   width: 25,
                   height: 25,
                   color: ColorManager.primaryByOpacity,
@@ -903,7 +903,7 @@ class _MobileShimmerStack extends StatelessWidget {
         Column(
           children: List.generate(
             isSecond ? 2 : 3,
-            (index) => Padding(
+                (index) => Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
               child: Row(
                 children: [

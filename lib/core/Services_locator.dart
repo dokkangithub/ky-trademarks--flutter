@@ -23,16 +23,27 @@ import '../data/Brand/DataSourceRepositery/BrandRepositpry.dart';
 import '../data/BrandDetails/DataSourceRepositery/BrandDetailsRepositpry.dart';
 import '../data/Company/DataSource/GetCompanyRemoteData.dart';
 import '../data/Company/DataSourceRepositery/CompanyRepository.dart';
+import '../data/Issues/DataSource/GetIssuesRemoteData.dart';
+import '../data/Issues/DataSourceRepositery/IssuesRepository.dart';
 import '../data/Request/DataSource/SendRequestRemotoData.dart';
 import '../data/Request/DataSourceRepositery/SendRequestRepositpry.dart';
 import '../data/userData/DataSource/GetUserDataRemotoData.dart';
 import '../data/userData/DataSourceRepositery/UserDataRepository.dart';
 import '../domain/Company/DominRepositery/BaseCompanyRepositery.dart';
 import '../domain/Company/UseCase/GetAllCompaniesUseCase.dart';
+import '../domain/Issues/DominRepositery/BaseIssuesRepository.dart';
+import '../domain/Issues/UseCase/GetIssueDetailsUseCase.dart';
+import '../domain/Issues/UseCase/GetIssuesUseCase.dart';
+import '../domain/Issues/UseCase/GetIssuesSummaryUseCase.dart';
+import '../domain/Issues/UseCase/SearchIssuesUseCase.dart';
 import '../domain/Request/UseCase/PostRequestUseCase.dart';
 import '../domain/Reservation/DominRepositery/BaseReservationRepositery.dart';
 import '../domain/User/DominRepositery/BaseUserRepositery.dart';
 import '../presentation/Controllar/GetCompanyProvider.dart';
+import '../presentation/Controllar/Issues/GetIssueDetailsProvider.dart';
+import '../presentation/Controllar/Issues/GetIssuesProvider.dart';
+import '../presentation/Controllar/Issues/GetIssuesSummaryProvider.dart';
+import '../presentation/Controllar/Issues/SearchIssuesProvider.dart';
 final sl = GetIt.instance;
 class Services_locator {
   void init() {
@@ -44,6 +55,7 @@ class Services_locator {
     sl.registerLazySingleton<BaseBrandGettingBySearchRepository>(() => BrandBySearchRepository(baseGetBrandBySearchRemoteData: sl()));
     sl.registerLazySingleton<BaseSuccessPartnersRepository>(() => SuccessPartnerRepositey(baseGetSuccessPartnerRemoteData: sl()));
     sl.registerLazySingleton<BaseUserRepository>(() => UserRepository(baseGetUserRemoteData: sl()));
+    sl.registerLazySingleton<BaseIssuesRepository>(() => IssuesRepository(baseGetIssuesRemoteData: sl()));
 
     sl.registerLazySingleton<BaseGetCompanyRemoteData>(() => GetCompanyRemoteData());
     sl.registerLazySingleton<BaseCompanyRepository>(() => CompanyRepository(baseGetCompanyRemoteData: sl()));
@@ -57,6 +69,7 @@ class Services_locator {
     sl.registerLazySingleton<BaseSendRequestRemotoData>(() => SendRequestToRemoteData());
     sl.registerLazySingleton<BaseGetSuccessPartnerRemoteData>(() => GetSuccessPartnerRemotoData());
     sl.registerLazySingleton<BaseGetUserRemoteData>(() => GetUserRemoteData());
+    sl.registerLazySingleton<BaseGetIssuesRemoteData>(() => GetIssuesRemoteData());
     /// USECASE
     sl.registerLazySingleton(() => GetAllBrandsUseCase(sl()));
     sl.registerLazySingleton(() => GetSuccessPartnersUseCase(sl()));
@@ -64,5 +77,15 @@ class Services_locator {
     sl.registerLazySingleton(() => GetAllBrandsBySearchUseCase(sl()));
     sl.registerLazySingleton(() => PostReservationUseCase(sl()));
     sl.registerLazySingleton(() => PostRequestUseCase(sl()));
+    sl.registerLazySingleton(() => GetIssuesUseCase(sl()));
+    sl.registerLazySingleton(() => GetIssueDetailsUseCase(sl()));
+    sl.registerLazySingleton(() => GetIssuesSummaryUseCase(sl()));
+    sl.registerLazySingleton(() => SearchIssuesUseCase(sl()));
+
+    /// PROVIDERS
+    sl.registerFactory(() => GetIssuesProvider());
+    sl.registerFactory(() => GetIssueDetailsProvider());
+    sl.registerFactory(() => GetIssuesSummaryProvider());
+    sl.registerFactory(() => SearchIssuesProvider());
   }
 }

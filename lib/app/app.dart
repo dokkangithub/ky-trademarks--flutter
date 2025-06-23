@@ -17,9 +17,11 @@ import '../presentation/Controllar/LoginProvider.dart';
 import '../presentation/Controllar/RequestProvider.dart';
 import '../presentation/Controllar/ReservationProvider.dart';
 import '../presentation/Controllar/notificationModel/notificationProvider.dart';
-import '../presentation/Controllar/GetBrandProvider.dart';
-import '../presentation/Controllar/LoginProvider.dart';
 import '../presentation/Controllar/userProvider.dart';
+import '../presentation/Controllar/Issues/GetIssuesProvider.dart';
+import '../presentation/Controllar/Issues/GetIssueDetailsProvider.dart';
+import '../presentation/Controllar/Issues/GetIssuesSummaryProvider.dart';
+import '../presentation/Controllar/Issues/SearchIssuesProvider.dart';
 import '../presentation/Screens/login/Login.dart';
 import '../resources/Route_Manager.dart';
 import '../resources/Theme_Manager.dart';
@@ -193,6 +195,14 @@ class _MyAppState extends State<MyApp> {
               create: (_) => GetUserProvider()),
           ListenableProvider<GetCompanyProvider>(
               create: (_) => GetCompanyProvider()),
+          ListenableProvider<GetIssuesProvider>(
+              create: (_) => GetIssuesProvider()),
+          ListenableProvider<GetIssueDetailsProvider>(
+              create: (_) => GetIssueDetailsProvider()),
+          ListenableProvider<GetIssuesSummaryProvider>(
+              create: (_) => GetIssuesSummaryProvider()),
+          ListenableProvider<SearchIssuesProvider>(
+              create: (_) => SearchIssuesProvider()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,

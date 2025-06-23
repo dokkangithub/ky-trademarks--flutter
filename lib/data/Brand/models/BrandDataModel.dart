@@ -12,8 +12,8 @@ class BrandDataModel extends BrandDataEntity {
 
   factory BrandDataModel.fromJson(Map<String, dynamic> json) {
     return BrandDataModel(
-      status: json['status'] as int,
-      message: json['message'] as String,
+      status: json['status'] as int? ?? 0,
+      message: (json['message'] as String?) ?? '',
       brand: _parseBrands(json['brand']),
       updates: _parseUpdates(json['updates']),
       total: json['brand'] != null 
@@ -50,14 +50,14 @@ class BrandModel extends BrandEntity {
 
   factory BrandModel.fromJson(Map<String, dynamic> json) {
     return BrandModel(
-      id: json['id'] as int,
-      brandName: json['brand_name'] as String,
-      brandNumber: json['brand_number'] ==null?'':json['brand_number'] as String,
-      currentStatus: json['current_status'] as int,
-      newCurrentStatus: (json['new_current'] ?? '') as String,
+      id: json['id'] as int? ?? 0,
+      brandName: (json['brand_name'] as String?) ?? 'غير محدد',
+      brandNumber: (json['brand_number'] as String?) ?? '',
+      currentStatus: json['current_status'] as int? ?? 0,
+      newCurrentStatus: (json['new_current'] as String?) ?? '',
       country: json['country'] as int?,
-      markOrModel: json['mark_or_model'] as int,
-      state: (json['state'] ?? '') as String,
+      markOrModel: json['mark_or_model'] as int? ?? 0,
+      state: (json['state'] as String?) ?? '',
       images: _parseImages(json['images']),
     );
   }
@@ -92,8 +92,8 @@ class BrandsUpdateModel extends BrandsUpdates {
     }
     
     return BrandsUpdateModel(
-      brand_name: json['brand_name'] as String,
-      current_status: json['current_status'] as int,
+      brand_name: (json['brand_name'] as String?) ?? 'غير محدد',
+      current_status: json['current_status'] as int? ?? 0,
       date: dateString,
       images: _parseImages(json['images']),
     );
@@ -115,9 +115,9 @@ class ImagesModel extends BrandImages {
 
   factory ImagesModel.fromJson(Map<String, dynamic> json) {
     return ImagesModel(
-      image: json['image'] as String,
+      image: (json['image'] as String?) ?? '',
       conditionId: json['condition_id'],
-      type: (json['type'] ?? '') as String,
+      type: (json['type'] as String?) ?? '',
     );
   }
 }

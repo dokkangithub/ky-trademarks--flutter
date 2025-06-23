@@ -15,7 +15,6 @@ import '../../../../data/Brand/models/BrandDataModel.dart';
 import '../../../Controllar/GetBrandBySearchProvider.dart';
 import '../../../Widget/SearchWidget/NoDataFound.dart';
 import '../../brand details/BrandDetails.dart';
-import '../../home screen/widgets/web_view.dart'; // Import for ResponsiveBrandCard and BrandStatusHelper
 import '../SearchScreen.dart';
 
 class WebSearchView extends StatefulWidget {
@@ -603,7 +602,7 @@ class _WebSearchViewState extends State<WebSearchView> {
                   xl: index,
                 ),
 
-                child: ResponsiveBrandCard(
+                child: SearchBrandCard(
                   brand: brand,
                   isLargeScreen: screenWidth > 1200,
                   screenWidth: screenWidth,
@@ -781,5 +780,403 @@ class _WebSearchViewState extends State<WebSearchView> {
     
     FocusScope.of(context).unfocus();
     setState(() {});
+  }
+}
+
+// Search Brand Card Widget for Search Results
+class SearchBrandCard extends StatelessWidget {
+  final BrandEntity brand;
+  final bool isLargeScreen;
+  final double screenWidth;
+  final VoidCallback onTap;
+
+  const SearchBrandCard({
+    required this.brand,
+    required this.isLargeScreen,
+    required this.screenWidth,
+    required this.onTap,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final shouldUseVerticalLayout = screenWidth <= 768;
+    
+    double cardHeight;
+    if (shouldUseVerticalLayout) {
+      cardHeight = screenWidth <= 480 ? 320.0 : 300.0;
+    } else {
+      if (screenWidth > 1440) {
+        cardHeight = 180.0;
+      } else if (screenWidth > 1024) {
+        cardHeight = 200.0;
+      } else {
+        cardHeight = 220.0;
+      }
+    }
+
+    // Get main image
+    ImagesModel? mainImage;
+    try {
+      if (brand.images.isNotEmpty) {
+        final imagesWithoutCondition = brand.images
+            .whereType<ImagesModel>()
+            .where((img) => img.conditionId == null)
+            .toList();
+
+        if (imagesWithoutCondition.isNotEmpty) {
+          mainImage = imagesWithoutCondition.first;
+        } else {
+          final firstImage = brand.images.first;
+          if (firstImage is ImagesModel) {
+            mainImage = firstImage;
+          }
+        }
+      }
+    } catch (e) {
+      mainImage = null;
+    }
+
+    final statusColor = _getStatusColor(brand.currentStatus);
+    final statusText = convertStateBrandNumberToString(brand.currentStatus);
+
+    return Container(
+      height: cardHeight,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.15),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+                spreadRadius: 1,
+              ),
+            ],
+            border: Border.all(
+              color: statusColor.withOpacity(0.3),
+              width: 1.5,
+            ),
+          ),
+          child: shouldUseVerticalLayout
+              ? _buildVerticalLayout(mainImage, statusColor, statusText)
+              : _buildHorizontalLayout(mainImage, statusColor, statusText),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHorizontalLayout(ImagesModel? image, Color statusColor, String statusText) {
+    final imageFlexRatio = screenWidth > 1600 ? 4 : 5;
+    final contentFlexRatio = screenWidth > 1600 ? 8 : 7;
+
+    return Row(
+      children: [
+        Expanded(
+          flex: imageFlexRatio,
+          child: ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topRight: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+            ),
+            child: _buildImage(image, statusColor),
+          ),
+        ),
+        Expanded(
+          flex: contentFlexRatio,
+          child: Container(
+            height: double.infinity,
+            padding: EdgeInsets.all(
+                screenWidth > 1600 ? 18 : (screenWidth > 1200 ? 16 : 12)),
+            child: _buildBrandDetails(statusColor, statusText, false),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVerticalLayout(ImagesModel? image, Color statusColor, String statusText) {
+    return Column(
+      children: [
+        Expanded(
+          flex: 3,
+          child: ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+            child: _buildImage(image, statusColor),
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(screenWidth > 600 ? 14 : 10),
+            child: _buildBrandDetails(statusColor, statusText, true),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImage(ImagesModel? image, Color statusColor) {
+    if (image != null && image.image.isNotEmpty) {
+      String imageUrl = ApiConstant.imagePath + image.image;
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        child: cachedImage(
+          imageUrl,
+          fit: BoxFit.cover,
+          placeHolderFit: BoxFit.cover,
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            statusColor.withOpacity(0.1),
+            statusColor.withOpacity(0.05),
+          ],
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: statusColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              Icons.image_not_supported_outlined,
+              color: statusColor,
+              size: 36,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'لا توجد صورة',
+            style: TextStyle(
+              color: statusColor,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              fontFamily: StringConstant.fontName,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBrandDetails(Color statusColor, String statusText, bool isVertical) {
+    double fontSize = screenWidth > 1440 ? 13.0 : 14.0;
+    double smallFontSize = screenWidth > 1440 ? 11.0 : 12.0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: isVertical
+          ? MainAxisAlignment.spaceEvenly
+          : MainAxisAlignment.spaceBetween,
+      children: [
+        // Brand name and number
+        Flexible(
+          flex: isVertical ? 2 : 3,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                brand.brandName ?? 'اسم غير محدد',
+                style: TextStyle(
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                  fontFamily: StringConstant.fontName,
+                  height: 1.2,
+                ),
+                maxLines: isVertical ? 2 : 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.blue.shade200, width: 0.5),
+                ),
+                child: Text(
+                  '#${brand.brandNumber ?? 'غير محدد'}',
+                  style: TextStyle(
+                    color: Colors.blue.shade700,
+                    fontSize: smallFontSize,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: StringConstant.fontName,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Country and type indicators
+        if (!isVertical || screenWidth > 400) ...[
+          SizedBox(height: isVertical ? 6 : 8),
+          Flexible(
+            flex: 1,
+            child: Wrap(
+              spacing: 4,
+              runSpacing: 4,
+              children: [
+                _buildIndicator(
+                  icon: brand.country == 0 ? Icons.flag : Icons.public,
+                  color: brand.country == 0 ? Colors.green : Colors.orange,
+                  text: brand.country == 0 ? 'مصر' : 'خارجي',
+                  fontSize: smallFontSize,
+                ),
+                _buildIndicator(
+                  icon: brand.markOrModel == 0
+                      ? Icons.verified
+                      : Icons.precision_manufacturing,
+                  color: brand.markOrModel == 0 ? Colors.purple : Colors.teal,
+                  text: brand.markOrModel == 0 ? 'علامة' : 'نموذج',
+                  fontSize: smallFontSize,
+                ),
+              ],
+            ),
+          ),
+        ],
+
+        // Status indicator
+        SizedBox(height: isVertical ? 6 : 8),
+        Flexible(
+          flex: 2,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  statusColor.withOpacity(0.1),
+                  statusColor.withOpacity(0.05),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: statusColor.withOpacity(0.4),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Icon(
+                    _getStatusIcon(brand.currentStatus),
+                    size: smallFontSize + 2,
+                    color: statusColor,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    statusText,
+                    style: TextStyle(
+                      color: statusColor,
+                      fontSize: smallFontSize,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: StringConstant.fontName,
+                      height: 1.4,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildIndicator({
+    required IconData icon,
+    required Color color,
+    required String text,
+    required double fontSize,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withOpacity(0.3), width: 0.5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: fontSize + 1,
+            color: color,
+          ),
+          const SizedBox(width: 3),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: fontSize,
+              color: color,
+              fontWeight: FontWeight.w600,
+              fontFamily: StringConstant.fontName,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getStatusColor(int status) {
+    switch (status) {
+      case 2:
+        return Colors.green.shade600;
+      case 3:
+        return Colors.red.shade600;
+      case 1:
+        return Colors.orange.shade600;
+      default:
+        return Colors.grey.shade600;
+    }
+  }
+
+  IconData _getStatusIcon(int status) {
+    switch (status) {
+      case 2:
+        return Icons.check_circle;
+      case 3:
+        return Icons.cancel;
+      case 1:
+        return Icons.hourglass_empty;
+      default:
+        return Icons.help_outline;
+    }
   }
 } 

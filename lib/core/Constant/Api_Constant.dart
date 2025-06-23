@@ -20,6 +20,12 @@ class ApiConstant {
   static const productDetails = "api/v1/products/show/";
   static const contacts = "contacts";
   static const partenrs = "partenrs";
+  
+  // Issues endpoints
+  static const issues = "issues";
+  static const issuesSummary = "issues/summary";
+  static const issuesSearch = "issues/search";
+  
   static const myLocation = "/location";
   static const increaseQuantity = "cart_increase";
   static const deleteCart = "delete_cart";

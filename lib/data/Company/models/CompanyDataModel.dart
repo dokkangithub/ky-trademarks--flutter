@@ -10,8 +10,8 @@ class CompanyDataModel extends CompanyDataEntity {
 
   factory CompanyDataModel.fromJson(Map<String, dynamic> json) {
     return CompanyDataModel(
-      status: json['status'] as int,
-      message: json['message'] as String,
+      status: json['status'] as int? ?? 0,
+      message: (json['message'] as String?) ?? '',
       company: _parseCompanies(json['company']),
     );
   }
@@ -31,10 +31,10 @@ class CompanyModel extends CompanyEntity {
 
   factory CompanyModel.fromJson(Map<String, dynamic> json) {
     return CompanyModel(
-      id: json['id'] as int,
+      id: json['id'] as int? ?? 0,
       avatar: json['avatar'] as String?,
-      companyName: json['company_name'] as String,
-      address: json['address'] as String,
+      companyName: (json['company_name'] as String?) ?? 'غير محدد',
+      address: (json['address'] as String?) ?? 'غير محدد',
     );
   }
 }

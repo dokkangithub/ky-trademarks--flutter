@@ -4,14 +4,14 @@ class UserDataModel extends UserDataEntity {
   const UserDataModel({
     required super.status,
     required super.message,
-    required super.user,
+    super.user,
   });
 
   factory UserDataModel.fromJson(Map<String, dynamic> json) {
     return UserDataModel(
-      status: json['status'] as int,
-      message: json['message'] as String,
-      user: UserModel.fromJson(json['user']),
+      status: json['status'] as int? ?? 0,
+      message: json['message'] as String? ?? '',
+      user: json['user'] != null ? UserModel.fromJson(json['user'] as Map<String, dynamic>) : null,
     );
   }
 }
@@ -27,25 +27,25 @@ class UserModel extends UserEntity {
     required super.printReport,
     required super.token,
     required super.pinCode,
-    required super.address,
+    super.address,
     required super.createdAt,
     required super.updatedAt,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['id'] as int,
-      avatar: json['avatar'] as String,
-      name: json['name'] as String,
-      phone: json['phone'] as String,
-      email: json['email'] as String,
-      status: json['status'] as int,
-      printReport: json['print_report'] as String,
-      token: json['token'] as String,
-      pinCode: json['pin_code'] as int,
+      id: json['id'] as int? ?? 0,
+      avatar: json['avatar'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      phone: json['phone'] as String? ?? '',
+      email: json['email'] as String? ?? '',
+      status: json['status'] as int? ?? 0,
+      printReport: json['print_report'] as String? ?? '',
+      token: json['token'] as String? ?? '',
+      pinCode: json['pin_code'] as int? ?? 0,
       address: json['address'] as String?,
-      createdAt: json['created_at'] as String,
-      updatedAt: json['updated_at'] as String,
+      createdAt: json['created_at'] as String? ?? '',
+      updatedAt: json['updated_at'] as String? ?? '',
     );
   }
 }
