@@ -7,8 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:ui_web' as ui;
-import 'dart:html' as html;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:simple_grid/simple_grid.dart';
 

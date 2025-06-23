@@ -73,11 +73,11 @@ class MobileReservationView extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             _buildMobileHeader(),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             _buildMobileForm(context),
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -86,8 +86,8 @@ class MobileReservationView extends StatelessWidget {
 
   Widget _buildMobileHeader() {
     return Container(
-      height: 200,
-      padding: const EdgeInsets.all(20),
+      height: 190,
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(25),
@@ -104,41 +104,41 @@ class MobileReservationView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(15),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: ColorManager.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: kIsWeb
-                  ? Image.asset('assets/images/doc.png', height: 80, width: 80)
+                  ? Image.asset('assets/images/doc.png', height: 60, width: 60)
                   : Lottie.asset(
                       ImagesConstants.document,
                       repeat: false,
-                      height: 80,
-                      width: 80,
+                      height: 60,
+                      width: 60,
                       fit: BoxFit.contain,
                     ),
             ),
-            const SizedBox(height: 15),
-            Text(
-              "add_reservation".tr(),
-              style: TextStyle(
-                fontFamily: StringConstant.fontName,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: ColorManager.primary,
+            const SizedBox(height: 12),
+                          Text(
+                "add_reservation".tr(),
+                style: TextStyle(
+                  fontFamily: StringConstant.fontName,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: ColorManager.primary,
+                ),
               ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              "fill_to_reservation".tr(),
-              style: TextStyle(
-                fontFamily: StringConstant.fontName,
-                fontSize: 14,
-                color: Colors.grey.shade600,
+              const SizedBox(height: 4),
+              Text(
+                "fill_to_reservation".tr(),
+                style: TextStyle(
+                  fontFamily: StringConstant.fontName,
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
           ],
         ),
       ),
@@ -197,7 +197,7 @@ class MobileReservationView extends StatelessWidget {
               validator: _basicValidator,
               keyboardType: TextInputType.phone,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             Text(
               "visit_info".tr(),
               style: TextStyle(
@@ -229,7 +229,7 @@ class MobileReservationView extends StatelessWidget {
               validator: _dateValidator,
               keyboardType: TextInputType.datetime,
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 24),
             _buildMobileSubmitButton(context),
           ],
         ),
