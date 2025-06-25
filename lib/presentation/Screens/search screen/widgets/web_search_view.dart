@@ -13,6 +13,9 @@ import '../../../../resources/Color_Manager.dart';
 import '../../../../resources/StringManager.dart';
 import '../../../../data/Brand/models/BrandDataModel.dart';
 import '../../../Controllar/GetBrandBySearchProvider.dart';
+import '../../../Controllar/Issues/SearchIssuesProvider.dart';
+import '../../../../domain/Issues/Entities/IssuesEntity.dart' as issues_entities;
+import '../../../../utilits/Local_User_Data.dart';
 import '../../../Widget/SearchWidget/NoDataFound.dart';
 import '../../brand details/BrandDetails.dart';
 import '../SearchScreen.dart';
@@ -26,6 +29,9 @@ class WebSearchView extends StatefulWidget {
   final VoidCallback onTutorialStart;
   final VoidCallback onTutorialTargetsAdd;
   final ScreenType screenType;
+  final TabController searchTypeController;
+  final int currentSearchType;
+  final ValueChanged<int> onSearchTypeChanged;
 
   const WebSearchView({
     super.key,
@@ -37,6 +43,9 @@ class WebSearchView extends StatefulWidget {
     required this.onTutorialStart,
     required this.onTutorialTargetsAdd,
     required this.screenType,
+    required this.searchTypeController,
+    required this.currentSearchType,
+    required this.onSearchTypeChanged,
   });
 
   @override
@@ -44,6 +53,7 @@ class WebSearchView extends StatefulWidget {
 }
 
 class _WebSearchViewState extends State<WebSearchView> {
+  bool _hasSearched = false; // متغير لتتبع ما إذا كان البحث قد تم تنفيذه
   
   // Simplified responsive values for header only
   double get _containerWidth {
@@ -129,7 +139,7 @@ class _WebSearchViewState extends State<WebSearchView> {
         children: [
           // Title
           Text(
-            "البحث في العلامات التجارية",
+            "البحث المتقدم",
             style: TextStyle(
               fontSize: _getTitleFontSize(),
               fontWeight: FontWeight.w700,
@@ -137,6 +147,10 @@ class _WebSearchViewState extends State<WebSearchView> {
               fontFamily: StringConstant.fontName,
             ),
           ),
+          SizedBox(height: _contentPadding * 0.6),
+          
+          // Search Type Tabs
+          _buildSearchTypeTabs(),
           SizedBox(height: _contentPadding * 0.8),
           
           // Simple Search Field
@@ -144,6 +158,67 @@ class _WebSearchViewState extends State<WebSearchView> {
             child: Container(
               constraints: BoxConstraints(maxWidth: _getSearchFieldWidth()),
               child: _buildSimpleSearchField(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchTypeTabs() {
+    return Container(
+      constraints: BoxConstraints(maxWidth: 500),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: TabBar(
+        controller: widget.searchTypeController,
+        onTap: widget.onSearchTypeChanged,
+        indicator: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: ColorManager.primary,
+          boxShadow: [
+            BoxShadow(
+              color: ColorManager.primary.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        indicatorPadding: const EdgeInsets.all(4),
+        labelStyle: TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+          fontFamily: StringConstant.fontName,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontWeight: FontWeight.w500,
+          fontSize: 16,
+          fontFamily: StringConstant.fontName,
+        ),
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.grey.shade600,
+        tabs: [
+          Tab(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.business_center, size: 20),
+                const SizedBox(width: 8),
+                Text("العلامات التجارية"),
+              ],
+            ),
+          ),
+          Tab(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.gavel, size: 20),
+                const SizedBox(width: 8),
+                Text("القضايا"),
+              ],
             ),
           ),
         ],
@@ -194,7 +269,9 @@ class _WebSearchViewState extends State<WebSearchView> {
                 color: Colors.grey.shade800,
               ),
               decoration: InputDecoration(
-                hintText: "ابحث عن اسم العلامة التجارية أو رقم التسجيل...",
+                hintText: widget.currentSearchType == 0 
+                    ? "ابحث عن اسم العلامة التجارية (حرفين على الأقل)..." 
+                    : "ابحث في القضايا (حرفين على الأقل)...",
                 hintStyle: TextStyle(
                   color: Colors.grey.shade500,
                   fontSize: 16,
@@ -210,7 +287,9 @@ class _WebSearchViewState extends State<WebSearchView> {
                         icon: Icon(Icons.clear, color: Colors.grey.shade400),
                         onPressed: () {
                           widget.searchController.clear();
-                          setState(() {});
+                          setState(() {
+                            _hasSearched = false; // إعادة تعيين البحث عند مسح النص
+                          });
                         },
                       )
                     : null,
@@ -220,7 +299,42 @@ class _WebSearchViewState extends State<WebSearchView> {
                   vertical: 16,
                 ),
               ),
-              onFieldSubmitted: (value) => _performSearch(),
+              onChanged: (value) {
+                setState(() {
+                  if (value.isEmpty) {
+                    _hasSearched = false; // إعادة تعيين البحث عند مسح النص
+                  }
+                }); // لتحديث حالة زر البحث
+              },
+              onFieldSubmitted: (value) {
+                // تنبيه المستخدم لاستخدام زر البحث
+                if (value.trim().length >= 2) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          Icon(Icons.info_outline, color: Colors.white),
+                          const SizedBox(width: 8),
+                          Text(
+                            'اضغط على زر البحث للحصول على النتائج',
+                            style: TextStyle(
+                              fontFamily: StringConstant.fontName,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      backgroundColor: ColorManager.primary,
+                      behavior: SnackBarBehavior.floating,
+                      margin: const EdgeInsets.all(16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
             ),
           ),
         ),
@@ -228,61 +342,91 @@ class _WebSearchViewState extends State<WebSearchView> {
         // مسافة بين حقل البحث والزر
         const SizedBox(width: 16),
         
-        // زر البحث منفصل
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: ColorManager.primary.withOpacity(0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: ElevatedButton(
-            onPressed: _performSearch,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: ColorManager.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 32,
-                vertical: 18,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 0,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.search,
-                  size: 20,
-                  color: Colors.white,
+                  // زر البحث منفصل
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: widget.searchController.text.trim().length >= 2 ? [
+                BoxShadow(
+                  color: ColorManager.primary.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  "بحث",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    fontFamily: StringConstant.fontName,
+              ] : [],
+            ),
+            child: ElevatedButton(
+              onPressed: widget.searchController.text.trim().length >= 2 ? _performSearch : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: widget.searchController.text.trim().length >= 2 
+                    ? ColorManager.primary 
+                    : Colors.grey.shade400,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 18,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.search,
+                    size: 20,
+                    color: Colors.white,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  Text(
+                    "بحث",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      fontFamily: StringConstant.fontName,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
       ],
     );
   }
 
+  void _performSearch() {
+    if (widget.searchController.text.trim().length >= 2) {
+      setState(() {
+        _hasSearched = true;
+      });
+      
+      if (widget.currentSearchType == 0) {
+        // بحث العلامات التجارية
+        Provider.of<GetBrandBySearchProvider>(context, listen: false)
+            .getAllBrandsBySearch(keyWord: widget.searchController.text.trim());
+      } else {
+        // بحث القضايا
+        int customerId = globalAccountData.getId() != null 
+            ? int.parse(globalAccountData.getId()!) 
+            : 0;
+        Provider.of<SearchIssuesProvider>(context, listen: false)
+            .searchIssues(
+              query: widget.searchController.text.trim(),
+              customerId: customerId,
+            );
+      }
+    }
+  }
+
   Widget _buildMainContent(BuildContext context) {
-    return widget.searchController.text.isEmpty
-        ? _buildEmptyState()
-        : _buildSearchResults();
+    if (widget.searchController.text.isEmpty || !_hasSearched) {
+      return _buildEmptyState();
+    }
+    
+    return widget.currentSearchType == 0
+        ? _buildBrandSearchResults()
+        : _buildIssueSearchResults();
   }
 
   Widget _buildEmptyState() {
@@ -333,9 +477,9 @@ class _WebSearchViewState extends State<WebSearchView> {
     );
   }
 
-  Widget _buildSearchResults() {
+  Widget _buildBrandSearchResults() {
     return Container(
-      width: double.infinity, // أخذ العرض الكامل
+      width: double.infinity,
       padding: EdgeInsets.all(_contentPadding),
       child: Consumer<GetBrandBySearchProvider>(
         builder: (context, model, _) {
@@ -348,6 +492,29 @@ class _WebSearchViewState extends State<WebSearchView> {
               return _buildNoResultsState();
             } else {
               return _buildResultsGrid(model);
+            }
+          }
+          return Container();
+        },
+      ),
+    );
+  }
+
+  Widget _buildIssueSearchResults() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(_contentPadding),
+      child: Consumer<SearchIssuesProvider>(
+        builder: (context, model, _) {
+          if (model.state == RequestState.loading && model.searchResults.isEmpty) {
+            return _buildLoadingState();
+          } else if (model.state == RequestState.failed) {
+            return _buildErrorState();
+          } else if (model.state == RequestState.loaded || model.searchResults.isNotEmpty) {
+            if (model.searchResults.isEmpty) {
+              return _buildNoResultsState();
+            } else {
+              return _buildIssueResultsGrid(model);
             }
           }
           return Container();
@@ -654,6 +821,137 @@ class _WebSearchViewState extends State<WebSearchView> {
     );
   }
 
+  Widget _buildIssueResultsGrid(SearchIssuesProvider model) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Results Header
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.gavel, color: ColorManager.primary, size: 24),
+              const SizedBox(width: 12),
+              Text(
+                "نتائج البحث في القضايا",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: ColorManager.primary,
+                  fontFamily: StringConstant.fontName,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: ColorManager.primary,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  "إجمالي: ${model.totalResults}",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    fontFamily: StringConstant.fontName,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        
+        const SizedBox(height: 20),
+        
+        // Issues Results Grid
+        SpGrid(
+          width: double.infinity,
+          gridSize: SpGridSize(
+            xs: 0,
+            sm: 480,
+            md: 768,
+            lg: 1024,
+            xl: 1440,
+          ),
+          spacing: _getSpacing(screenWidth),
+          runSpacing: _getSpacing(screenWidth),
+          children: [
+            ...model.searchResults.asMap().entries.map((entry) {
+              final index = entry.key;
+              final issue = entry.value;
+
+              return SpGridItem(
+                xs: 12,
+                sm: 12,
+                md: 6,
+                lg: 4,
+                xl: 3,
+
+                order: SpOrder(
+                  xs: index,
+                  sm: index,
+                  md: index,
+                  lg: index,
+                  xl: index,
+                ),
+
+                child: SearchIssueCard(
+                  issue: issue,
+                  screenWidth: screenWidth,
+                  onTap: () {
+                    // TODO: Navigate to issue details
+                  },
+                ),
+              );
+            }).toList(),
+          ],
+        ),
+        
+        // Loading indicator for more data
+        if (model.isLoading && model.searchResults.isNotEmpty)
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(_contentPadding),
+            child: Center(
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: AlwaysStoppedAnimation<Color>(ColorManager.primary),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "جاري تحميل المزيد من النتائج...",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: ColorManager.primary,
+                      fontFamily: StringConstant.fontName,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        
+        // Extra space at the end
+        const SizedBox(height: 100),
+      ],
+    );
+  }
+
   double _getSpacing(double screenWidth) {
     if (screenWidth > 1800) {
       return 24;
@@ -770,17 +1068,7 @@ class _WebSearchViewState extends State<WebSearchView> {
     );
   }
 
-  void _performSearch() {
-    if (widget.searchController.text.trim().isEmpty) return;
-    
-    final provider = Provider.of<GetBrandBySearchProvider>(context, listen: false);
-    // إعادة تعيين البيانات للبحث الجديد
-    provider.resetSearch();
-    provider.getAllBrandsBySearch(keyWord: widget.searchController.text.trim());
-    
-    FocusScope.of(context).unfocus();
-    setState(() {});
-  }
+
 }
 
 // Search Brand Card Widget for Search Results
@@ -1177,6 +1465,171 @@ class SearchBrandCard extends StatelessWidget {
         return Icons.hourglass_empty;
       default:
         return Icons.help_outline;
+    }
+  }
+}
+
+// Search Issue Card Widget for Issue Search Results
+class SearchIssueCard extends StatelessWidget {
+  final issues_entities.IssueSearchEntity issue;
+  final double screenWidth;
+  final VoidCallback onTap;
+
+  const SearchIssueCard({
+    required this.issue,
+    required this.screenWidth,
+    required this.onTap,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isLargeScreen = screenWidth > 1200;
+    
+    return Container(
+      height: isLargeScreen ? 160 : 180,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.15),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+                spreadRadius: 1,
+              ),
+            ],
+            border: Border.all(
+              color: _getIssueTypeColor(issue.refusedType).withOpacity(0.3),
+              width: 1.5,
+            ),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(isLargeScreen ? 16 : 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Issue Header
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: _getIssueTypeColor(issue.refusedType).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.gavel,
+                        color: _getIssueTypeColor(issue.refusedType),
+                        size: isLargeScreen ? 20 : 18,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "قضية #${issue.id}",
+                            style: TextStyle(
+                              fontSize: isLargeScreen ? 16 : 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                              fontFamily: StringConstant.fontName,
+                            ),
+                          ),
+                          Text(
+                            issue.refusedType.isNotEmpty ? issue.refusedType : "نوع غير محدد",
+                            style: TextStyle(
+                              fontSize: isLargeScreen ? 12 : 11,
+                              color: _getIssueTypeColor(issue.refusedType),
+                              fontWeight: FontWeight.w600,
+                              fontFamily: StringConstant.fontName,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                
+                const SizedBox(height: 12),
+                
+                // Brand Name
+                Text(
+                  "العلامة: ${issue.brandName.isNotEmpty ? issue.brandName : 'غير محدد'}",
+                  style: TextStyle(
+                    fontSize: isLargeScreen ? 14 : 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                    fontFamily: StringConstant.fontName,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                
+                const Spacer(),
+                
+                // Status and Date
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: _getIssueTypeColor(issue.refusedType).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: _getIssueTypeColor(issue.refusedType).withOpacity(0.3),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.schedule,
+                        size: isLargeScreen ? 14 : 12,
+                        color: _getIssueTypeColor(issue.refusedType),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        issue.createdAt.isNotEmpty 
+                            ? issue.createdAt.split(' ')[0]
+                            : 'غير محدد',
+                        style: TextStyle(
+                          fontSize: isLargeScreen ? 12 : 11,
+                          color: _getIssueTypeColor(issue.refusedType),
+                          fontWeight: FontWeight.w600,
+                          fontFamily: StringConstant.fontName,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Color _getIssueTypeColor(String type) {
+    switch (type.toLowerCase()) {
+      case 'معارضة':
+      case 'opposition':
+        return Colors.red.shade600;
+      case 'عادي':
+      case 'normal':
+        return Colors.blue.shade600;
+      case 'تجديد':
+      case 'renewal':
+        return Colors.green.shade600;
+      default:
+        return Colors.orange.shade600;
     }
   }
 } 

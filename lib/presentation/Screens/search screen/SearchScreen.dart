@@ -8,6 +8,7 @@ import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import '../../../resources/Color_Manager.dart';
 import '../../../resources/StringManager.dart';
 import '../../Controllar/GetBrandBySearchProvider.dart';
+import '../../Controllar/Issues/SearchIssuesProvider.dart';
 import 'widgets/mobile_search_view.dart';
 import 'widgets/web_search_view.dart';
 
@@ -21,13 +22,17 @@ class SearchScreen extends StatefulWidget {
   _SearchScreenState createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMixin {
   final TextEditingController searchController = TextEditingController();
   final ScrollController _mainScrollController = ScrollController();
   final searchKey = GlobalKey();
   
   TutorialCoachMark? tutorialCoachMark;
   List<TargetFocus> targetList = [];
+  
+  // Search Type Controller
+  late TabController _searchTypeController;
+  int currentSearchType = 0; // 0 = Brands, 1 = Issues
 
   // Enhanced responsive breakpoint detection
   ScreenType _getScreenType(BuildContext context) {
@@ -45,6 +50,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   void initState() {
     super.initState();
+    _searchTypeController = TabController(length: 2, vsync: this);
     _initializeScrollListener();
   }
 
@@ -53,8 +59,17 @@ class _SearchScreenState extends State<SearchScreen> {
       _mainScrollController.addListener(() {
         if (_mainScrollController.position.pixels >=
             _mainScrollController.position.maxScrollExtent - 100) {
-          Provider.of<GetBrandBySearchProvider>(context, listen: false)
-              .loadMoreBrands(searchController.text);
+          
+          if (currentSearchType == 0) {
+            // Brands search
+            Provider.of<GetBrandBySearchProvider>(context, listen: false)
+                .loadMoreBrands(searchController.text);
+          } else {
+            // Issues search
+            final issuesProvider = Provider.of<SearchIssuesProvider>(context, listen: false);
+            final customerId = 244; // Replace with actual customer ID
+            issuesProvider.loadMoreSearchResults(customerId);
+          }
         }
       });
     });
@@ -64,6 +79,7 @@ class _SearchScreenState extends State<SearchScreen> {
   void dispose() {
     tutorialCoachMark?.finish();
     _mainScrollController.dispose();
+    _searchTypeController.dispose();
     searchController.dispose();
     super.dispose();
   }
@@ -77,6 +93,7 @@ class _SearchScreenState extends State<SearchScreen> {
       appBar: _buildAppBar(context),
       body: _isWebView(context)
           ? WebSearchView(
+              key: ValueKey(currentSearchType), // إعادة بناء عند تغيير نوع البحث
               searchController: searchController,
               mainScrollController: _mainScrollController,
               searchKey: searchKey,
@@ -85,8 +102,17 @@ class _SearchScreenState extends State<SearchScreen> {
               onTutorialStart: _startTutorial,
               onTutorialTargetsAdd: _addTutorialTargets,
               screenType: screenType,
+              searchTypeController: _searchTypeController,
+              currentSearchType: currentSearchType,
+              onSearchTypeChanged: (index) {
+                setState(() {
+                  currentSearchType = index;
+                });
+                _clearSearchResults();
+              },
             )
           : MobileSearchView(
+              key: ValueKey(currentSearchType), // إعادة بناء عند تغيير نوع البحث
               searchController: searchController,
               mainScrollController: _mainScrollController,
               searchKey: searchKey,
@@ -94,8 +120,22 @@ class _SearchScreenState extends State<SearchScreen> {
               tutorialCoachMark: tutorialCoachMark,
               onTutorialStart: _startTutorial,
               onTutorialTargetsAdd: _addTutorialTargets,
+              searchTypeController: _searchTypeController,
+              currentSearchType: currentSearchType,
+              onSearchTypeChanged: (index) {
+                setState(() {
+                  currentSearchType = index;
+                });
+                _clearSearchResults();
+              },
+              
             ),
     );
+  }
+
+  void _clearSearchResults() {
+    Provider.of<GetBrandBySearchProvider>(context, listen: false).resetSearch();
+    Provider.of<SearchIssuesProvider>(context, listen: false).clearSearch();
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
