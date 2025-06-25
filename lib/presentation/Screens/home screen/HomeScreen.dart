@@ -147,7 +147,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           isLoadingMore: _isLoadingMore,
         )
             : MobileView(
-          tabController: _tabController,
           byStatus: _byStatus,
           onFilterChanged: (value) => setState(() => _byStatus = value),
           mainScrollController: _mainScrollController,

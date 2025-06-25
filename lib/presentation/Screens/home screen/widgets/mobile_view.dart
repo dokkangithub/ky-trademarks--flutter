@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:im_stepper/stepper.dart';
 import 'package:intl/intl.dart' as s;
@@ -11,14 +12,17 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../app/RequestState/RequestState.dart';
 import '../../../../core/Constant/Api_Constant.dart';
 import '../../../../data/Brand/models/BrandDataModel.dart';
-import '../../../../domain/Brand/Entities/BrandEntity.dart';
-import '../../../../domain/Company/Entities/CompanyEntity.dart';
+import '../../../../domain/Brand/Entities/BrandEntity.dart' as brand_entity;
+import '../../../../domain/Company/Entities/CompanyEntity.dart' as company_entity;
+import '../../../../domain/Issues/Entities/IssuesEntity.dart';
 import '../../../../resources/ImagesConstant.dart';
 import '../../../../network/RestApi/Comman.dart';
 import '../../../../resources/Color_Manager.dart';
 import '../../../../resources/StringManager.dart';
 import '../../../Controllar/GetBrandProvider.dart';
 import '../../../Controllar/GetCompanyProvider.dart';
+import '../../../Controllar/Issues/GetIssuesProvider.dart';
+import '../../../Controllar/Issues/GetIssuesSummaryProvider.dart';
 import '../../../Widget/loading_widget.dart';
 import '../../../Widget/BrandWidget.dart';
 import '../../add request/AddRequest.dart';
@@ -35,8 +39,8 @@ class AppConstants {
   static const double paddingVertical = 8.0;
 }
 
-class MobileView extends StatelessWidget {
-  final TabController tabController;
+// Converted to StatefulWidget to handle local state like TabController
+class MobileView extends StatefulWidget {
   final String byStatus;
   final ValueChanged<String> onFilterChanged;
   final ScrollController mainScrollController;
@@ -44,7 +48,6 @@ class MobileView extends StatelessWidget {
   final bool isLoadingMore;
 
   const MobileView({
-    required this.tabController,
     required this.byStatus,
     required this.onFilterChanged,
     required this.mainScrollController,
@@ -54,18 +57,54 @@ class MobileView extends StatelessWidget {
   });
 
   @override
+  State<MobileView> createState() => _MobileViewState();
+}
+
+class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Tab controller for Marks, Models, and Issues
+    _tabController = TabController(length: 3, vsync: this);
+    _loadInitialData();
+  }
+
+  void _loadInitialData() {
+    // Fetch issues data when the widget is initialized
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      final issuesProvider = Provider.of<GetIssuesProvider>(context, listen: false);
+      final summaryProvider = Provider.of<GetIssuesSummaryProvider>(context, listen: false);
+      final customerId = globalAccountData.getId();
+
+      if (customerId != null) {
+        issuesProvider.getIssues(customerId: int.parse(customerId));
+        summaryProvider.getIssuesSummary(customerId: int.parse(customerId));
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<GetBrandProvider>(context);
     return SingleChildScrollView(
-      controller: mainScrollController,
+      controller: widget.mainScrollController,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // The header remains largely the same but will now control a 3-tab view
           MobileHeader(
-            tabController: tabController,
-            byStatus: byStatus,
-            onFilterChanged: onFilterChanged,
+            tabController: _tabController,
+            byStatus: widget.byStatus,
+            onFilterChanged: widget.onFilterChanged,
           ),
+          // Latest updates section, as it was
           Container(
             color: ColorManager.anotherTabBackGround,
             padding: const EdgeInsets.only(
@@ -82,11 +121,13 @@ class MobileView extends StatelessWidget {
                       fontFamily: StringConstant.fontName),
                 ),
                 const SizedBox(height: 5),
-                BrandUpdatesList(
-                  controller: listScrollController,
-                  brands: provider.allBrandUpdates,
+                Consumer<GetBrandProvider>(
+                  builder: (context, provider, _) => BrandUpdatesList(
+                    controller: widget.listScrollController,
+                    brands: provider.allBrandUpdates,
+                  ),
                 ),
-                if (isLoadingMore) LoadingWidget(),
+                if (widget.isLoadingMore) LoadingWidget(),
               ],
             ),
           ),
@@ -110,11 +151,11 @@ class MobileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<GetBrandProvider>(context);
     final companyProvider = Provider.of<GetCompanyProvider>(context);
 
     return Stack(
       children: [
+        // Background Gradient
         Container(
           height: AppConstants.headerHeight,
           decoration: BoxDecoration(
@@ -126,20 +167,21 @@ class MobileHeader extends StatelessWidget {
             ),
           ),
         ),
+        // Content
         Column(
           children: [
             const SizedBox(height: 10),
             MobileHeaderContent(),
             MobileActionRows(),
             const SizedBox(height: 10),
-            // TabBar and Dropdowns for Mobile
+            // UI for Tabs and Filters
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppConstants.paddingHorizontal,
               ),
               child: Column(
                 children: [
-                  // TabBar
+                  // Updated TabBar with 3 tabs
                   TabBar(
                     controller: tabController,
                     labelColor: ColorManager.primary,
@@ -148,153 +190,54 @@ class MobileHeader extends StatelessWidget {
                     tabs: [
                       Tab(child: Text('marks'.tr(), style: TextStyle(fontFamily: StringConstant.fontName))),
                       Tab(child: Text('models'.tr(), style: TextStyle(fontFamily: StringConstant.fontName))),
+                      Tab(child: Text('issues'.tr(), style: TextStyle(fontFamily: StringConstant.fontName))),
                     ],
                   ),
                   const SizedBox(height: 10),
-                  // Company and Filter Dropdowns in Column for mobile
-                  Column(
+                  // Dropdown filters remain the same
+                  Row(
                     children: [
-                      // Company Dropdown
-                      SizedBox(
-                        width: double.infinity,
-                        child: companyProvider.state == RequestState.loading
-                            ? const CircularProgressIndicator()
-                            : DropdownButton<CompanyEntity>(
-                          value: companyProvider.selectedCompany,
-                          hint: Text(
-                            'select_company'.tr(),
-                            style: TextStyle(
-                                color: ColorManager.primary,
-                                fontFamily: StringConstant.fontName),
-                          ),
-                          dropdownColor: ColorManager.chartColor,
-                          style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName),
-                          icon: const SizedBox.shrink(),
-                          underline: Container(),
-                          isExpanded: true,
-                          onChanged: (CompanyEntity? newValue) {
-                            if (newValue != null) {
-                              companyProvider.setSelectedCompany(newValue);
-                              Provider.of<GetBrandProvider>(context, listen: false)
-                                  .getAllBrandsWidget(companyId: newValue.id);
-                            }
-                          },
-                          items: companyProvider.allCompanies
-                              .map<DropdownMenuItem<CompanyEntity>>(
-                                (CompanyEntity company) {
-                              return DropdownMenuItem<CompanyEntity>(
-                                value: company,
-                                child: Text(
-                                  company.companyName,
-                                  style: TextStyle(fontFamily: StringConstant.fontName),
-                                ),
-                              );
-                            },
-                          ).toList(),
-                          selectedItemBuilder: (BuildContext context) {
-                            return companyProvider.allCompanies
-                                .map<Widget>((CompanyEntity company) {
-                              return Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      company.companyName,
-                                      style: TextStyle(
-                                          color: ColorManager.primary,
-                                          fontFamily: StringConstant.fontName),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.arrow_drop_down,
-                                    color: ColorManager.primary,
-                                  ),
-                                ],
-                              );
-                            }).toList();
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      // Filter Dropdown
-                      SizedBox(
-                        width: double.infinity,
-                        child: DropdownButton<String>(
-                          value: byStatus.isEmpty ? null : byStatus,
-                          hint: Text(
-                            'brands_filter'.tr(),
-                            style: TextStyle(
-                                color: ColorManager.primary,
-                                fontFamily: StringConstant.fontName),
-                          ),
-                          dropdownColor: ColorManager.chartColor,
-                          style: TextStyle(
-                              color: ColorManager.primary,
-                              fontFamily: StringConstant.fontName),
-                          icon: Icon(
-                            Icons.arrow_drop_down,
-                            color: ColorManager.primary,
-                          ),
-                          underline: Container(),
-                          isExpanded: true,
-                          onChanged: (String? newValue) {
-                            if (newValue != null) {
-                              onFilterChanged(newValue);
-                            }
-                          },
-                          items: [
-                            DropdownMenuItem(
-                              value: StringConstant.inEgypt,
-                              child: Text(
-                                'in_egypt'.tr(),
-                                style: TextStyle(fontFamily: StringConstant.fontName),
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: StringConstant.outsideEgypt,
-                              child: Text(
-                                'out_egypt'.tr(),
-                                style: TextStyle(fontFamily: StringConstant.fontName),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      Expanded(child: _buildCompanyDropdown(context, companyProvider)),
+                      const SizedBox(width: 10),
+                      Expanded(child: _buildFilterDropdown(context)),
                     ],
                   ),
                 ],
               ),
             ),
-            Container(
-              height: MediaQuery.of(context).size.height * 0.4,
-              margin: const EdgeInsets.symmetric(
+            // The TabBarView is now wrapped to handle its own height
+            Padding(
+              padding: const EdgeInsets.symmetric(
                 horizontal: AppConstants.paddingHorizontal,
               ),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withValues(alpha: 0.1),
-                    spreadRadius: 1,
-                    blurRadius: 2,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
-              ),
-              child: TabBarView(
-                controller: tabController,
-                children: provider.allBrands.isEmpty
-                    ? List.generate(2, (_) => _NoDataView())
-                    : ['marks'.tr(), 'models'.tr()].map((tab) {
-                  final filteredData = provider.allBrands
-                      .where((brand) => _filterBrands(brand, tab))
-                      .toList();
-                  return filteredData.isEmpty
-                      ? _NoDataView()
-                      : MobileListContent(brands: filteredData);
-                }).toList(),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      spreadRadius: 1,
+                      blurRadius: 2,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                // This ensures the TabBarView takes the height of its content
+                child: AnimatedBuilder(
+                  animation: tabController.animation!,
+                  builder: (context, child) {
+                    return IndexedStack(
+                      index: tabController.index,
+                      children: [
+                        // Each child must be a self-contained scrollable view or sized box
+                        _buildBrandsContent(context, ContentType.brands),
+                        _buildBrandsContent(context, ContentType.models),
+                        _buildIssuesContent(context),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ],
@@ -303,9 +246,155 @@ class MobileHeader extends StatelessWidget {
     );
   }
 
-  bool _filterBrands(BrandEntity brand, String tab) {
-    final isMark = tab == 'marks'.tr();
-    final isInEgypt = brand.country == 0;
+  // Helper method to build Company Dropdown
+  Widget _buildCompanyDropdown(BuildContext context, GetCompanyProvider companyProvider) {
+    return companyProvider.state == RequestState.loading
+        ? const Center(child: CircularProgressIndicator(color: Colors.white))
+        : DropdownButton<company_entity.CompanyEntity>(
+            value: companyProvider.selectedCompany,
+            hint: Text('select_company'.tr(), style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName)),
+            dropdownColor: ColorManager.chartColor,
+            style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName),
+            icon: Icon(Icons.arrow_drop_down, color: ColorManager.primary),
+            underline: Container(),
+            isExpanded: true,
+            onChanged: (company_entity.CompanyEntity? newValue) {
+              if (newValue != null) {
+                companyProvider.setSelectedCompany(newValue);
+                Provider.of<GetBrandProvider>(context, listen: false).getAllBrandsWidget(companyId: newValue.id);
+              }
+            },
+            items: companyProvider.allCompanies.map<DropdownMenuItem<company_entity.CompanyEntity>>((company_entity.CompanyEntity company) {
+              return DropdownMenuItem<company_entity.CompanyEntity>(value: company, child: Text(company.companyName, overflow: TextOverflow.ellipsis));
+            }).toList(),
+          );
+  }
+
+  // Helper method to build Filter Dropdown
+  Widget _buildFilterDropdown(BuildContext context) {
+    return DropdownButton<String>(
+      value: byStatus.isEmpty ? null : byStatus,
+      hint: Text('brands_filter'.tr(), style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName)),
+      dropdownColor: ColorManager.chartColor,
+      style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName),
+      icon: Icon(Icons.arrow_drop_down, color: ColorManager.primary),
+      underline: Container(),
+      isExpanded: true,
+      onChanged: (String? newValue) {
+        if (newValue != null) onFilterChanged(newValue);
+      },
+      items: [
+        StringConstant.accept,
+        StringConstant.reject,
+        StringConstant.inEgypt,
+        StringConstant.outsideEgypt,
+        StringConstant.allStatus,
+      ].map((value) => DropdownMenuItem(value: value, child: Text(value.tr()))).toList(),
+    );
+  }
+
+  // Builds content for Brands and Models tabs
+  Widget _buildBrandsContent(BuildContext context, ContentType type) {
+    return Consumer<GetBrandProvider>(
+      builder: (context, provider, _) {
+        if (provider.state == RequestState.loading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final filteredData = provider.allBrands.where((brand) => _filterBrands(brand, type)).toList();
+
+        if (filteredData.isEmpty) {
+          return _NoDataView();
+        }
+
+        return MobileListContent(brands: filteredData);
+      },
+    );
+  }
+
+  // New method to build the Issues tab content
+  Widget _buildIssuesContent(BuildContext context) {
+    return Consumer2<GetIssuesProvider, GetIssuesSummaryProvider>(
+      builder: (context, issuesProvider, summaryProvider, _) {
+        if (issuesProvider.state == RequestState.loading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (issuesProvider.allIssues.isEmpty) {
+          return _NoDataView(message: 'no_issues'.tr());
+        }
+
+        return SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            children: [
+              // Summary card
+              if (summaryProvider.state == RequestState.loaded && summaryProvider.issuesSummary != null)
+                _buildIssuesSummaryCard(summaryProvider.issuesSummary!),
+
+              // List of issues
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: issuesProvider.allIssues.length,
+                itemBuilder: (context, index) {
+                  final issue = issuesProvider.allIssues[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: ListTile(
+                      title: Text(issue.brand.brandName, style: TextStyle(fontFamily: StringConstant.fontName, fontWeight: FontWeight.bold)),
+                      subtitle: Text(issue.refusedType, style: TextStyle(fontFamily: StringConstant.fontName)),
+                      trailing: Text('${issue.sessionsCount} ${'sessions'.tr()}', style: TextStyle(fontFamily: StringConstant.fontName)),
+                      onTap: () {
+                        // TODO: Navigate to issue details screen
+                      },
+                    ),
+                  );
+                },
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildIssuesSummaryCard(IssuesSummaryEntity summary) {
+    return Card(
+      elevation: 2,
+      margin: const EdgeInsets.all(8),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('issues_summary'.tr(), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: ColorManager.primary, fontFamily: StringConstant.fontName)),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildSummaryItem('total_issues'.tr(), summary.statistics.totalIssues.toString(), Icons.gavel, ColorManager.primary),
+                _buildSummaryItem('normal_issues'.tr(), summary.statistics.normalIssues.toString(), Icons.description, Colors.blue),
+                _buildSummaryItem('opposition_issues'.tr(), summary.statistics.oppositionIssues.toString(), Icons.warning, Colors.orange),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryItem(String title, String count, IconData icon, Color color) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 28),
+        const SizedBox(height: 4),
+        Text(count, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color, fontFamily: StringConstant.fontName)),
+        Text(title, style: TextStyle(fontSize: 12, color: Colors.grey, fontFamily: StringConstant.fontName)),
+      ],
+    );
+  }
+
+  bool _filterBrands(brand_entity.BrandEntity brand, ContentType type) {
+    final isMark = type == ContentType.brands;
     if (brand.markOrModel != (isMark ? 0 : 1)) return false;
 
     if (byStatus == StringConstant.accept) {
@@ -313,16 +402,17 @@ class MobileHeader extends StatelessWidget {
     } else if (byStatus == StringConstant.reject) {
       return brand.currentStatus == 3;
     } else if (byStatus == StringConstant.inEgypt) {
-      return isInEgypt;
+      return brand.country == 0;
     } else if (byStatus == StringConstant.outsideEgypt) {
-      return !isInEgypt;
-    } else if (byStatus == StringConstant.allStatus || byStatus == "") {
-      return true;
+      return brand.country != 0;
     }
-    return false;
+    return true; // For allStatus or empty
   }
 }
 
+enum ContentType { brands, models }
+
+// Keeping existing widgets but they might need minor adjustments
 class MobileHeaderContent extends StatelessWidget {
   const MobileHeaderContent({super.key});
 
@@ -569,22 +659,20 @@ class MobileDownloadButton extends StatelessWidget {
 }
 
 class MobileListContent extends StatelessWidget {
-  final List<BrandEntity> brands;
+  final List<brand_entity.BrandEntity> brands;
 
   const MobileListContent({required this.brands, super.key});
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<GetBrandProvider>(context);
     return ListView.builder(
-      itemCount: brands.length + (provider.isLoading ? 1 : 0),
-      physics: const BouncingScrollPhysics(),
+      itemCount: brands.length,
+      shrinkWrap: true, // Important for nested lists
+      physics: const NeverScrollableScrollPhysics(), // Important for nested lists
       padding: const EdgeInsets.all(AppConstants.paddingHorizontal),
-      itemBuilder: (context, index) => index == brands.length
-          ? Center(child: LoadingWidget())
-          : BrandWidget(
+      itemBuilder: (context, index) => BrandWidget(
         context: context,
-        model: provider,
+        model: Provider.of<GetBrandProvider>(context, listen: false),
         index: index,
         isFromHomeFiltering: true,
         brandsList: brands,
@@ -760,25 +848,31 @@ class BrandUpdateItem extends StatelessWidget {
 }
 
 class _NoDataView extends StatelessWidget {
+  final String? message;
+  const _NoDataView({this.message});
+
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: 40),
-          Lottie.asset(ImagesConstants.noData, fit: BoxFit.contain),
-          Text(
-            'no_data'.tr(),
-            style: TextStyle(
-              color: ColorManager.primary,
-              fontWeight: FontWeight.w500,
-              fontSize: 22,
-              fontFamily: StringConstant.fontName,
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Lottie.asset(ImagesConstants.noData, width: 150, height: 150, fit: BoxFit.contain),
+            const SizedBox(height: 16),
+            Text(
+              message ?? 'no_data'.tr(),
+              style: TextStyle(
+                color: ColorManager.primary,
+                fontWeight: FontWeight.w500,
+                fontSize: 18,
+                fontFamily: StringConstant.fontName,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

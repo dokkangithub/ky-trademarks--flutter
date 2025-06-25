@@ -184,10 +184,12 @@
   "search_by_brand": "Here you can search within your own brands by their name or their respective number",
   "search_by_brand_models": "Search for your tags and your specific models from here.",
   "search_by_brand_numbers": "You can search by brand name or its specific number.",
-  "logoutCaught" : "Are you sure you want to log out? You can always log in again..."
-
-
-
-
-
+  "logoutCaught" : "Are you sure you want to log out? You can always log in again...",
+  "issues": "Issues",
+  "issues_summary": "Issues Summary",
+  "total_issues": "Total Issues",
+  "normal_issues": "Normal Issues",
+  "opposition_issues": "Opposition Issues",
+  "no_issues": "No Issues",
+  "sessions": "Session"
 }
