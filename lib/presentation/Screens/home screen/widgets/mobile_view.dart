@@ -174,6 +174,78 @@ class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
             byStatus: widget.byStatus,
             onFilterChanged: widget.onFilterChanged,
           ),
+          
+          // Total Statistics Section - New addition
+          Consumer<GetBrandProvider>(
+            builder: (context, provider, _) => Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    ColorManager.primary.withValues(alpha: 0.05),
+                    ColorManager.primary.withValues(alpha: 0.1),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: ColorManager.primary.withValues(alpha: 0.15),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: ColorManager.primary.withValues(alpha: 0.08),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: ColorManager.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.assessment_outlined,
+                      color: ColorManager.primary,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'إجمالي العلامات التجارية',
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: StringConstant.fontName,
+                        ),
+                      ),
+                      Text(
+                        '${provider.totalMarks}',
+                        style: TextStyle(
+                          color: ColorManager.primary,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: StringConstant.fontName,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
           // Enhanced latest updates section
           Container(
             decoration: BoxDecoration(
@@ -483,6 +555,16 @@ class MobileHeader extends StatelessWidget {
         },
         items: [
           DropdownMenuItem(
+            value: "",
+            child: Row(
+              children: [
+                Icon(Icons.all_inclusive, size: 16, color: Colors.blue.shade600),
+                const SizedBox(width: 8),
+                Text('الكل', style: TextStyle(fontFamily: StringConstant.fontName)),
+              ],
+            ),
+          ),
+          DropdownMenuItem(
             value: StringConstant.inEgypt,
             child: Row(
               children: [
@@ -523,7 +605,61 @@ class MobileHeader extends StatelessWidget {
           return _NoDataView();
         }
 
-        return MobileListContent(brands: filteredData);
+        return Column(
+          children: [
+            // Filtered count header
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    type == ContentType.brands ? 'العلامات التجارية' : 'النماذج الصناعية',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: ColorManager.primary,
+                      fontFamily: StringConstant.fontName,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: ColorManager.primary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.list, color: Colors.white, size: 14),
+                        const SizedBox(width: 4),
+                        Text(
+                          'المعروض: ${filteredData.length}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            fontFamily: StringConstant.fontName,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Content
+            MobileListContent(brands: filteredData),
+          ],
+        );
       },
     );
   }
@@ -542,28 +678,82 @@ class MobileHeader extends StatelessWidget {
           return _NoDataView(message: 'no_issues'.tr());
         }
 
-        return SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.all(AppConstants.paddingHorizontal),
-                         child: Column(
-               crossAxisAlignment: CrossAxisAlignment.start,
-               children: [
-                 // List of issues with enhanced card design
-                 ListView.separated(
-                   shrinkWrap: true,
-                   physics: const NeverScrollableScrollPhysics(),
-                   itemCount: issuesProvider.allIssues.length,
-                   separatorBuilder: (context, index) => const SizedBox(height: 12),
-                   itemBuilder: (context, index) {
-                     final issue = issuesProvider.allIssues[index];
-                     return _buildEnhancedIssueCard(context, issue, index);
-                   },
+        return Column(
+          children: [
+            // Issues count header
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'القضايا المسجلة',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: ColorManager.primary,
+                      fontFamily: StringConstant.fontName,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: ColorManager.primary,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.gavel, color: Colors.white, size: 14),
+                        const SizedBox(width: 4),
+                        Text(
+                          'المعروض: ${issuesProvider.allIssues.length}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            fontFamily: StringConstant.fontName,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Issues content
+            SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.all(AppConstants.paddingHorizontal),
+                             child: Column(
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   children: [
+                     // List of issues with enhanced card design
+                     ListView.separated(
+                       shrinkWrap: true,
+                       physics: const NeverScrollableScrollPhysics(),
+                       itemCount: issuesProvider.allIssues.length,
+                       separatorBuilder: (context, index) => const SizedBox(height: 12),
+                       itemBuilder: (context, index) {
+                         final issue = issuesProvider.allIssues[index];
+                         return _buildEnhancedIssueCard(context, issue, index);
+                       },
+                     ),
+                     const SizedBox(height: 20),
+                   ],
                  ),
-                 const SizedBox(height: 20),
-               ],
-             ),
-          ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -702,8 +892,6 @@ class MobileHeader extends StatelessWidget {
     );
   }
 
-
-
   bool _filterBrands(brand_entity.BrandEntity brand, ContentType type) {
     final isMark = type == ContentType.brands;
     if (brand.markOrModel != (isMark ? 0 : 1)) return false;
@@ -712,6 +900,8 @@ class MobileHeader extends StatelessWidget {
       return brand.country == 0;
     } else if (byStatus == StringConstant.outsideEgypt) {
       return brand.country != 0;
+    } else if (byStatus == "" || byStatus.isEmpty) {
+      return true; // Show all for empty filter
     }
     return true; // For empty filter (show all)
   }
