@@ -50,14 +50,14 @@ class MobileSearchView extends StatefulWidget {
 
 class _MobileSearchViewState extends State<MobileSearchView> {
   bool _hasSearched = false; // متغير لتتبع ما إذا كان البحث قد تم تنفيذه
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         // Enhanced Search Header
         _buildMobileSearchHeader(context),
-        
+
         // Search Results Body
         Expanded(
           child: _buildMobileSearchBody(context),
@@ -95,11 +95,11 @@ class _MobileSearchViewState extends State<MobileSearchView> {
               // Enhanced Header with gradient background
               _buildMobileHeaderRow(context),
               const SizedBox(height: 20),
-              
+
               // Enhanced Search Type Tabs
               _buildMobileSearchTypeTabs(),
               const SizedBox(height: 16),
-              
+
               // Enhanced Search Field
               _buildMobileSearchField(context),
               const SizedBox(height: 16),
@@ -250,9 +250,9 @@ class _MobileSearchViewState extends State<MobileSearchView> {
             ),
           ),
         ),
-        
+
         const SizedBox(width: 12),
-        
+
         // Enhanced search button
         Container(
           height: 50,
@@ -308,7 +308,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
 
   InputDecoration _buildSearchFieldDecoration() {
     return InputDecoration(
-      hintText: widget.currentSearchType == 0 
+      hintText: widget.currentSearchType == 0
           ? "ابحث عن اسم العلامة التجارية..."
           : "ابحث في القضايا...",
       hintStyle: TextStyle(
@@ -323,14 +323,14 @@ class _MobileSearchViewState extends State<MobileSearchView> {
       ),
       suffixIcon: widget.searchController.text.isNotEmpty
           ? IconButton(
-              onPressed: () {
-                widget.searchController.clear();
-                setState(() {
-                  _hasSearched = false;
-                });
-              },
-              icon: Icon(Icons.clear, color: Colors.grey.shade600),
-            )
+        onPressed: () {
+          widget.searchController.clear();
+          setState(() {
+            _hasSearched = false;
+          });
+        },
+        icon: Icon(Icons.clear, color: Colors.grey.shade600),
+      )
           : null,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -355,21 +355,21 @@ class _MobileSearchViewState extends State<MobileSearchView> {
       setState(() {
         _hasSearched = true;
       });
-      
+
       if (widget.currentSearchType == 0) {
         // بحث العلامات التجارية
         Provider.of<GetBrandBySearchProvider>(context, listen: false)
             .getAllBrandsBySearch(keyWord: widget.searchController.text.trim());
       } else {
         // بحث القضايا
-        int customerId = globalAccountData.getId() != null 
-            ? int.parse(globalAccountData.getId()!) 
+        int customerId = globalAccountData.getId() != null
+            ? int.parse(globalAccountData.getId()!)
             : 0;
         Provider.of<SearchIssuesProvider>(context, listen: false)
             .searchIssues(
-              query: widget.searchController.text.trim(),
-              customerId: customerId,
-            );
+          query: widget.searchController.text.trim(),
+          customerId: customerId,
+        );
       }
     }
   }
@@ -378,7 +378,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
     if (widget.searchController.text.isEmpty || !_hasSearched) {
       return _buildEmptySearchState();
     }
-    
+
     return widget.currentSearchType == 0
         ? _buildBrandSearchResults()
         : _buildIssueSearchResults();
@@ -434,7 +434,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      widget.currentSearchType == 0 
+                      widget.currentSearchType == 0
                           ? Icons.business_center_outlined
                           : Icons.gavel_outlined,
                       size: 40,
@@ -443,14 +443,14 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 32),
-              
+
               // Enhanced title with gradient text effect
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  widget.currentSearchType == 0 
+                  widget.currentSearchType == 0
                       ? "اكتشف عالم العلامات التجارية"
                       : "استكشف قاعدة بيانات القضايا",
                   style: TextStyle(
@@ -463,14 +463,14 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Enhanced subtitle
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
-                  widget.currentSearchType == 0 
+                  widget.currentSearchType == 0
                       ? "ابحث عن العلامات التجارية المسجلة واستكشف تفاصيلها الكاملة"
                       : "ابحث في قاعدة بيانات القضايا والملفات القانونية",
                   style: TextStyle(
@@ -676,7 +676,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Results Grid
           GridView.builder(
             physics: const NeverScrollableScrollPhysics(),
@@ -694,12 +694,12 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                   model.allBrands.length >= 6) {
                 return Center(
                   child: Container(
-                    padding: const EdgeInsets.all(10),
-                    child: LoadingWidget()
+                      padding: const EdgeInsets.all(10),
+                      child: LoadingWidget()
                   ),
                 );
               }
-              
+
               return _buildMobileBrandCard(context, model, index);
             },
             itemCount: model.allBrands.length +
@@ -797,7 +797,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Issues Grid
           GridView.builder(
             physics: const NeverScrollableScrollPhysics(),
@@ -815,12 +815,12 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                   model.searchResults.length >= 6) {
                 return Center(
                   child: Container(
-                    padding: const EdgeInsets.all(10),
-                    child: LoadingWidget()
+                      padding: const EdgeInsets.all(10),
+                      child: LoadingWidget()
                   ),
                 );
               }
-              
+
               return _buildMobileIssueCard(context, model, index);
             },
             itemCount: model.searchResults.length +
@@ -833,7 +833,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
 
   Widget _buildMobileIssueCard(BuildContext context, SearchIssuesProvider model, int index) {
     final issue = model.searchResults[index];
-    
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -861,9 +861,9 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                   size: 24,
                 ),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               // Issue Details
               Expanded(
                 child: Column(
@@ -901,9 +901,9 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                           ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 8),
-                    
+
                     // Brand Name
                     Text(
                       "العلامة: ${issue.brandName.isNotEmpty ? issue.brandName : 'غير محدد'}",
@@ -915,9 +915,9 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    
+
                     const SizedBox(height: 4),
-                    
+
                     // Date
                     Text(
                       "تاريخ الإنشاء: ${issue.createdAt.isNotEmpty ? issue.createdAt.split(' ')[0] : 'غير محدد'}",
@@ -930,7 +930,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                   ],
                 ),
               ),
-              
+
               // Arrow Icon
               Icon(
                 Icons.arrow_forward_ios,
@@ -1229,4 +1229,4 @@ class _MobileSearchViewState extends State<MobileSearchView> {
       ),
     );
   }
-} 
+}
