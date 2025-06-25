@@ -28,6 +28,7 @@ import '../../brand details/BrandDetails.dart';
 import '../../notification screen/NotificationScreen.dart';
 import '../../../../utilits/Local_User_Data.dart';
 import '../../../../network/RestApi/Comman.dart';
+import '../../../../resources/Route_Manager.dart';
 
 class WebAppConstants {
   static const double headerHeight = 250.0;
@@ -2102,7 +2103,15 @@ class WebIssuesDataView extends StatelessWidget {
                       issue: issue,
                       screenWidth: screenWidth,
                       onTap: () {
-                        // TODO: Navigate to issue details
+                        // Navigate to issue details
+                                                      Navigator.pushNamed(
+                                context,
+                                Routes.issueDetailsRoute,
+                          arguments: {
+                            'issueId': issue.id,
+                            'customerId': issue.customer.id,
+                          },
+                        );
                       },
                     ),
                   );

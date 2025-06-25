@@ -17,6 +17,7 @@ import '../../../Widget/BrandWidget.dart';
 import '../../../Widget/SearchWidget/NoDataFound.dart';
 import '../../../Widget/SearchWidget/SearchShimmer.dart';
 import '../../../Widget/loading_widget.dart';
+import '../../../../resources/Route_Manager.dart';
 
 class MobileSearchView extends StatefulWidget {
   final TextEditingController searchController;
@@ -841,7 +842,15 @@ class _MobileSearchViewState extends State<MobileSearchView> {
       ),
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to issue details
+          // Navigate to issue details
+                                    Navigator.pushNamed(
+                            context,
+                            Routes.issueDetailsRoute,
+            arguments: {
+              'issueId': issue.id,
+              'customerId': 1, // Default customer ID for search results
+            },
+          );
         },
         borderRadius: BorderRadius.circular(4),
         child: Padding(

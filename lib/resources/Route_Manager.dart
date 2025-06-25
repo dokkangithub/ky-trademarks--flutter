@@ -7,6 +7,7 @@ import '../presentation/Screens/OuterMainTabs.dart';
 import '../presentation/Screens/PinScreen.dart';
 import '../presentation/Screens/SplashScreen.dart';
 import '../presentation/Screens/InnerMainTabs.dart';
+import '../presentation/Screens/issue details/IssueDetails.dart';
 
 class Routes {
   static const String splashRoute = "/";
@@ -27,6 +28,7 @@ class Routes {
   static const String checkOutRoute = "/CheckOutScreen";
   static const String mainRoute = "/MainTabs";
   static const String pinRoute = "/PinScreen";
+  static const String issueDetailsRoute = "/issueDetails";
 }
 
 class RouteGenerator {
@@ -60,6 +62,10 @@ class RouteGenerator {
       //   return MaterialPageRoute(builder: (_) => const WelcomeScreen());
       case Routes.tabBarRoute:
         return MaterialPageRoute(builder: (_) => const InnerMainTabs());
+      case Routes.issueDetailsRoute:
+        final args = routeSettings.arguments as Map<String, dynamic>?;
+        final issueId = args?['issueId'] as int? ?? 0;
+        return MaterialPageRoute(builder: (_) => IssueDetails(issueId: issueId));
       default:
         return unDefinedRoute();
     }

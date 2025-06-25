@@ -30,6 +30,7 @@ import '../../brand details/BrandDetails.dart';
 import '../../notification screen/NotificationScreen.dart';
 import '../../payment ways/PaymentWays.dart';
 import '../../../../utilits/Local_User_Data.dart';
+import '../../../../resources/Route_Manager.dart';
 
 class AppConstants {
   static const double headerHeight = 220.0;
@@ -774,7 +775,15 @@ class MobileHeader extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
           onTap: () {
-            // TODO: Navigate to issue details screen
+            // Navigate to issue details screen
+                                    Navigator.pushNamed(
+                          context,
+                          Routes.issueDetailsRoute,
+              arguments: {
+                'issueId': issue.id,
+                'customerId': issue.customer.id,
+              },
+            );
           },
           child: Padding(
             padding: const EdgeInsets.all(16),

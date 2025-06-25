@@ -19,6 +19,7 @@ import '../../../../utilits/Local_User_Data.dart';
 import '../../../Widget/SearchWidget/NoDataFound.dart';
 import '../../brand details/BrandDetails.dart';
 import '../SearchScreen.dart';
+import '../../../../resources/Route_Manager.dart';
 
 class WebSearchView extends StatefulWidget {
   final TextEditingController searchController;
@@ -907,7 +908,15 @@ class _WebSearchViewState extends State<WebSearchView> {
                   issue: issue,
                   screenWidth: screenWidth,
                   onTap: () {
-                    // TODO: Navigate to issue details
+                    // Navigate to issue details
+                                                Navigator.pushNamed(
+                              context,
+                              Routes.issueDetailsRoute,
+                      arguments: {
+                        'issueId': issue.id,
+                        'customerId': 1, // Default customer ID for search results
+                      },
+                    );
                   },
                 ),
               );
