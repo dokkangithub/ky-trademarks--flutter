@@ -68,35 +68,21 @@ class _MobileSearchViewState extends State<MobileSearchView> {
 
   Widget _buildMobileSearchHeader(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            ColorManager.primaryByOpacity.withOpacity(0.9),
-            ColorManager.primary,
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: ColorManager.primary.withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
+      color: Colors.white,
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 20, 18, 25),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // Header Row with Title and Tutorial Button
+              // Simple Header
               _buildMobileHeaderRow(context),
-              const SizedBox(height: 16),
-              
-              // Search Type Tabs
-              _buildMobileSearchTypeTabs(),
               const SizedBox(height: 20),
               
-              // Enhanced Search Field
+              // Simple Search Type Tabs
+              _buildMobileSearchTypeTabs(),
+              const SizedBox(height: 16),
+              
+              // Simple Search Field
               _buildMobileSearchField(context),
             ],
           ),
@@ -111,11 +97,11 @@ class _MobileSearchViewState extends State<MobileSearchView> {
       children: [
         const SizedBox(width: 40),
         Text(
-          "البحث المتقدم",
-          style: Theme.of(context).textTheme.displayLarge?.copyWith(
-            fontSize: 22,
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
+          "البحث",
+          style: TextStyle(
+            fontSize: 24,
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
             fontFamily: StringConstant.fontName,
           ),
         ),
@@ -136,14 +122,14 @@ class _MobileSearchViewState extends State<MobileSearchView> {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.grey.shade100,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withOpacity(0.3)),
+          border: Border.all(color: Colors.grey.shade300),
         ),
-        child: Lottie.asset(
-          ImagesConstants.infoW,
-          height: 32,
-          width: 32,
+        child: Icon(
+          Icons.help_outline,
+          size: 24,
+          color: Colors.grey.shade600,
         ),
       ),
     );
@@ -151,45 +137,36 @@ class _MobileSearchViewState extends State<MobileSearchView> {
 
   Widget _buildMobileSearchTypeTabs() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(8),
       ),
       child: TabBar(
         controller: widget.searchTypeController,
         onTap: widget.onSearchTypeChanged,
         indicator: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(6),
           color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         indicatorPadding: const EdgeInsets.all(4),
         labelStyle: TextStyle(
           fontWeight: FontWeight.w600,
-          fontSize: 15,
+          fontSize: 14,
           fontFamily: StringConstant.fontName,
         ),
         unselectedLabelStyle: TextStyle(
           fontWeight: FontWeight.w500,
-          fontSize: 15,
+          fontSize: 14,
           fontFamily: StringConstant.fontName,
         ),
-        labelColor: ColorManager.primary,
-        unselectedLabelColor: Colors.white.withOpacity(0.9),
+        labelColor: Colors.black87,
+        unselectedLabelColor: Colors.grey.shade600,
         tabs: [
           Tab(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.business_center, size: 18),
+                Icon(Icons.business_center_outlined, size: 16),
                 const SizedBox(width: 6),
                 Text("العلامات"),
               ],
@@ -199,7 +176,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.gavel, size: 18),
+                Icon(Icons.gavel_outlined, size: 16),
                 const SizedBox(width: 6),
                 Text("القضايا"),
               ],
@@ -211,137 +188,102 @@ class _MobileSearchViewState extends State<MobileSearchView> {
   }
 
   Widget _buildMobileSearchField(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Card(
-        elevation: 0,
-        color: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: TextFormField(
-          key: widget.searchKey,
-          style: TextStyle(
-            fontFamily: StringConstant.fontName,
-            color: ColorManager.accent,
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-          controller: widget.searchController,
-          validator: validateObjects(),
-          decoration: _buildSearchFieldDecoration(),
-          onChanged: (val) {
-            setState(() {
-              if (val.isEmpty) {
-                _hasSearched = false; // إعادة تعيين البحث عند مسح النص
+    return Row(
+      children: [
+        // حقل البحث البسيط
+        Expanded(
+          child: TextFormField(
+            key: widget.searchKey,
+            style: TextStyle(
+              fontFamily: StringConstant.fontName,
+              color: Colors.black87,
+              fontSize: 16,
+            ),
+            controller: widget.searchController,
+            validator: validateObjects(),
+            decoration: _buildSearchFieldDecoration(),
+            onChanged: (val) {
+              setState(() {
+                if (val.isEmpty) {
+                  _hasSearched = false;
+                }
+              });
+            },
+            onFieldSubmitted: (val) {
+              if (val.trim().length >= 2) {
+                _performSearch();
               }
-            }); // لتحديث حالة زر البحث
-          },
-          onFieldSubmitted: (val) {
-            // تنبيه المستخدم لاستخدام زر البحث
-            if (val.trim().length >= 2) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      Icon(Icons.info_outline, color: Colors.white),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'اضغط على زر البحث للحصول على النتائج',
-                          style: TextStyle(
-                            fontFamily: StringConstant.fontName,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  backgroundColor: ColorManager.primary,
-                  behavior: SnackBarBehavior.floating,
-                  margin: const EdgeInsets.all(16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  duration: const Duration(seconds: 2),
-                ),
-              );
-            }
-          },
+            },
+          ),
         ),
-      ),
+        
+        const SizedBox(width: 12),
+        
+        // زر البحث البسيط
+        SizedBox(
+          height: 48,
+          child: ElevatedButton(
+            onPressed: widget.searchController.text.trim().length >= 2 ? _performSearch : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: widget.searchController.text.trim().length >= 2
+                  ? ColorManager.primary
+                  : Colors.grey.shade400,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: Text(
+              "بحث",
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                fontFamily: StringConstant.fontName,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   InputDecoration _buildSearchFieldDecoration() {
     return InputDecoration(
       hintText: widget.currentSearchType == 0 
-          ? "ابحث عن اسم العلامة التجارية (حرفين على الأقل)..."
-          : "ابحث في القضايا (حرفين على الأقل)...",
+          ? "ابحث عن اسم العلامة التجارية..."
+          : "ابحث في القضايا...",
       hintStyle: TextStyle(
         fontFamily: StringConstant.fontName,
         color: Colors.grey.shade500,
-        fontWeight: FontWeight.w500,
         fontSize: 14,
       ),
-      prefixIcon: Container(
-        margin: const EdgeInsets.all(12),
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: ColorManager.primary.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Icon(
-          Icons.search,
-          color: ColorManager.primary,
-          size: 24,
-        ),
-      ),
+      prefixIcon: null,
       suffixIcon: widget.searchController.text.isNotEmpty
           ? IconButton(
               onPressed: () {
                 widget.searchController.clear();
                 setState(() {
-                  _hasSearched = false; // إعادة تعيين البحث عند مسح النص
+                  _hasSearched = false;
                 });
               },
               icon: Icon(Icons.clear, color: Colors.grey.shade600),
             )
-          : IconButton(
-              onPressed: widget.searchController.text.trim().length >= 2 ? _performSearch : null,
-              icon: Icon(
-                Icons.search,
-                color: widget.searchController.text.trim().length >= 2 
-                    ? ColorManager.primary 
-                    : Colors.grey.shade400,
-              ),
-            ),
+          : null,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30),
-        borderSide: BorderSide.none,
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Colors.grey.shade300),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30),
-        borderSide: BorderSide.none,
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: Colors.grey.shade300),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30),
-        borderSide: BorderSide(
-          color: ColorManager.primary.withOpacity(0.3),
-          width: 2,
-        ),
+        borderRadius: BorderRadius.circular(10),
+        borderSide: BorderSide(color: ColorManager.primary, width: 2),
       ),
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     );
   }
 
@@ -381,46 +323,48 @@ class _MobileSearchViewState extends State<MobileSearchView> {
 
   Widget _buildEmptySearchState() {
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.white,
-            ColorManager.primary.withOpacity(0.02),
-          ],
-        ),
-      ),
+      color: Colors.grey.shade50,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Simple search icon
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: ColorManager.primary.withOpacity(0.1),
+                color: Colors.grey.shade200,
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                Icons.search,
-                size: 64,
-                color: ColorManager.primary.withOpacity(0.7),
+                widget.currentSearchType == 0 
+                    ? Icons.business_center_outlined
+                    : Icons.gavel_outlined,
+                size: 48,
+                color: Colors.grey.shade600,
               ),
             ),
+            
             const SizedBox(height: 24),
+            
+            // Simple title
             Text(
-              "search_brands_hint".tr(),
+              widget.currentSearchType == 0 
+                  ? "ابحث في العلامات التجارية"
+                  : "ابحث في القضايا",
               style: TextStyle(
                 fontFamily: StringConstant.fontName,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: ColorManager.accent.withOpacity(0.7),
+                color: Colors.black87,
               ),
               textAlign: TextAlign.center,
             ),
+            
             const SizedBox(height: 12),
+            
+            // Simple subtitle
             Text(
-              "type_brand_name".tr(),
+              "اكتب في الحقل أعلاه للبحث",
               style: TextStyle(
                 fontFamily: StringConstant.fontName,
                 fontSize: 14,
@@ -436,19 +380,9 @@ class _MobileSearchViewState extends State<MobileSearchView> {
 
   Widget _buildBrandSearchResults() {
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.white,
-            ColorManager.primary.withOpacity(0.01),
-          ],
-        ),
-      ),
+      color: Colors.grey.shade50,
       child: SingleChildScrollView(
         controller: widget.mainScrollController,
-        physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
             Consumer<GetBrandBySearchProvider>(
@@ -456,7 +390,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                 return _buildBrandSearchResultsContent(context, model);
               },
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -465,19 +399,9 @@ class _MobileSearchViewState extends State<MobileSearchView> {
 
   Widget _buildIssueSearchResults() {
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.white,
-            ColorManager.primary.withOpacity(0.01),
-          ],
-        ),
-      ),
+      color: Colors.grey.shade50,
       child: SingleChildScrollView(
         controller: widget.mainScrollController,
-        physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
             Consumer<SearchIssuesProvider>(
@@ -485,7 +409,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                 return _buildIssueSearchResultsContent(context, model);
               },
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -530,25 +454,24 @@ class _MobileSearchViewState extends State<MobileSearchView> {
         children: [
           // Results Counter for Issues
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.orange.shade50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.orange.shade200),
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
                 Icon(
-                  Icons.gavel,
-                  color: Colors.orange.shade700,
-                  size: 20,
+                  Icons.gavel_outlined,
+                  color: Colors.grey.shade600,
+                  size: 18,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   "${model.searchResults.length} قضية",
                   style: TextStyle(
                     fontFamily: StringConstant.fontName,
-                    color: Colors.orange.shade700,
+                    color: Colors.black87,
                     fontWeight: FontWeight.w600,
                     fontSize: 14,
                   ),
@@ -559,7 +482,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                     "المزيد متاح",
                     style: TextStyle(
                       fontFamily: StringConstant.fontName,
-                      color: Colors.orange.shade600,
+                      color: Colors.grey.shade600,
                       fontSize: 12,
                     ),
                   ),
@@ -586,10 +509,8 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                   model.searchResults.length >= 6) {
                 return Center(
                   child: Container(
-                    padding: const EdgeInsets.all(20),
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.orange.shade600),
-                    ),
+                    padding: const EdgeInsets.all(10),
+                    child: LoadingWidget()
                   ),
                 );
               }
@@ -606,44 +527,31 @@ class _MobileSearchViewState extends State<MobileSearchView> {
 
   Widget _buildMobileIssueCard(BuildContext context, SearchIssuesProvider model, int index) {
     final issue = model.searchResults[index];
-    final issueColor = _getIssueTypeColor(issue.refusedType);
     
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-            spreadRadius: 1,
-          ),
-        ],
-        border: Border.all(
-          color: issueColor.withOpacity(0.2),
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(4),
       ),
       child: InkWell(
         onTap: () {
           // TODO: Navigate to issue details
         },
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(4),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              // Issue Icon
+              // Simple Issue Icon
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: issueColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(4),
                 ),
                 child: Icon(
-                  Icons.gavel,
-                  color: issueColor,
+                  Icons.gavel_outlined,
+                  color: Colors.grey.shade600,
                   size: 24,
                 ),
               ),
@@ -658,32 +566,33 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                     // Issue ID and Type
                     Row(
                       children: [
-                        Text(
-                          "قضية #${issue.id}",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                            fontFamily: StringConstant.fontName,
-                          ),
-                        ),
-                        const Spacer(),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: issueColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+                        Expanded(
                           child: Text(
-                            issue.refusedType.isNotEmpty ? issue.refusedType : "غير محدد",
+                            "قضية #${issue.id}",
                             style: TextStyle(
-                              fontSize: 12,
-                              color: issueColor,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                              color: Colors.black,
                               fontFamily: StringConstant.fontName,
                             ),
                           ),
                         ),
+                        if (issue.refusedType.isNotEmpty)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              issue.refusedType,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade700,
+                                fontFamily: StringConstant.fontName,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                     
@@ -694,11 +603,10 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                       "العلامة: ${issue.brandName.isNotEmpty ? issue.brandName : 'غير محدد'}",
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: Colors.grey.shade700,
                         fontFamily: StringConstant.fontName,
                       ),
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     
@@ -716,27 +624,18 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                   ],
                 ),
               ),
+              
+              // Arrow Icon
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Colors.grey.shade400,
+              ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  Color _getIssueTypeColor(String type) {
-    switch (type.toLowerCase()) {
-      case 'معارضة':
-      case 'opposition':
-        return Colors.red.shade600;
-      case 'عادي':
-      case 'normal':
-        return Colors.blue.shade600;
-      case 'تجديد':
-      case 'renewal':
-        return Colors.green.shade600;
-      default:
-        return Colors.orange.shade600;
-    }
   }
 
   Widget _buildLoadingState() {
@@ -745,35 +644,31 @@ class _MobileSearchViewState extends State<MobileSearchView> {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: ColorManager.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(ColorManager.primary),
-                  ),
+                  width: 100,
+                  height: 60,
+                  child: LoadingWidget()
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  "searching".tr(),
+                  "جاري البحث...",
                   style: TextStyle(
                     fontFamily: StringConstant.fontName,
-                    color: ColorManager.primary,
+                    color: Colors.black87,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 20),
-          const SearchShimmer(),
         ],
       ),
     );
@@ -781,19 +676,19 @@ class _MobileSearchViewState extends State<MobileSearchView> {
 
   Widget _buildErrorState() {
     return Container(
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.red.shade50,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.red.shade200),
       ),
       child: Column(
         children: [
-          Icon(Icons.error_outline, color: Colors.red.shade600, size: 48),
+          Icon(Icons.error_outline, color: Colors.red.shade600, size: 40),
           const SizedBox(height: 12),
           Text(
-            "search_error".tr(),
+            "حدث خطأ في البحث",
             style: TextStyle(
               fontFamily: StringConstant.fontName,
               color: Colors.red.shade700,
@@ -803,7 +698,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
           ),
           const SizedBox(height: 8),
           Text(
-            "try_again_later".tr(),
+            "يرجى المحاولة مرة أخرى",
             style: TextStyle(
               fontFamily: StringConstant.fontName,
               color: Colors.red.shade600,
@@ -817,18 +712,22 @@ class _MobileSearchViewState extends State<MobileSearchView> {
 
   Widget _buildNoResultsState() {
     return Container(
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(24),
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          const SizedBox(height: 40),
-          NoDataFound(),
           const SizedBox(height: 20),
+          Icon(
+            Icons.search_off,
+            size: 48,
+            color: Colors.grey.shade400,
+          ),
+          const SizedBox(height: 16),
           Text(
-            "search_not_found".tr(),
+            "لا توجد نتائج",
             style: TextStyle(
               fontFamily: StringConstant.fontName,
-              color: ColorManager.accent.withOpacity(0.8),
+              color: Colors.black87,
               fontWeight: FontWeight.w600,
               fontSize: 16,
             ),
@@ -836,7 +735,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
           ),
           const SizedBox(height: 8),
           Text(
-            "try_different_keywords".tr(),
+            "جرب كلمات مختلفة للبحث",
             style: TextStyle(
               fontFamily: StringConstant.fontName,
               color: Colors.grey.shade600,
@@ -856,7 +755,6 @@ class _MobileSearchViewState extends State<MobileSearchView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Results Counter
-          _buildResultsCounter(model),
           const SizedBox(height: 16),
           
           // Results Grid
@@ -876,10 +774,8 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                   model.allBrands.length >= 6) {
                 return Center(
                   child: Container(
-                    padding: const EdgeInsets.all(20),
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(ColorManager.primary),
-                    ),
+                    padding: const EdgeInsets.all(10),
+                    child: LoadingWidget()
                   ),
                 );
               }
@@ -894,64 +790,12 @@ class _MobileSearchViewState extends State<MobileSearchView> {
     );
   }
 
-  Widget _buildResultsCounter(GetBrandBySearchProvider model) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: ColorManager.primary.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ColorManager.primary.withOpacity(0.2)),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.search_outlined,
-            color: ColorManager.primary,
-            size: 20,
-          ),
-          const SizedBox(width: 8),
-          Text(
-            "${model.allBrands.length} ${"results_found".tr()}",
-            style: TextStyle(
-              fontFamily: StringConstant.fontName,
-              color: ColorManager.primary,
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
-          ),
-          if (model.hasMoreData) ...[
-            const Spacer(),
-            Text(
-              "more_available".tr(),
-              style: TextStyle(
-                fontFamily: StringConstant.fontName,
-                color: ColorManager.primary.withOpacity(0.7),
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
 
   Widget _buildMobileBrandCard(BuildContext context, GetBrandBySearchProvider model, int index) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-            spreadRadius: 1,
-          ),
-        ],
-        border: Border.all(
-          color: ColorManager.primary.withOpacity(0.1),
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(4),
       ),
       child: BrandWidget(
         context: context,
@@ -961,6 +805,4 @@ class _MobileSearchViewState extends State<MobileSearchView> {
       ),
     );
   }
-
-
 } 

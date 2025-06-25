@@ -270,8 +270,8 @@ class _WebSearchViewState extends State<WebSearchView> {
               ),
               decoration: InputDecoration(
                 hintText: widget.currentSearchType == 0 
-                    ? "ابحث عن اسم العلامة التجارية (حرفين على الأقل)..." 
-                    : "ابحث في القضايا (حرفين على الأقل)...",
+                    ? "ابحث عن اسم العلامة التجارية..."
+                    : "ابحث في القضايا...",
                 hintStyle: TextStyle(
                   color: Colors.grey.shade500,
                   fontSize: 16,
