@@ -56,8 +56,11 @@ class _MobileSearchViewState extends State<MobileSearchView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Enhanced Search Header
+        // Enhanced Search Header (Blue part only)
         _buildMobileSearchHeader(context),
+
+        // Search Controls (Tabs and Search Field)
+        _buildMobileSearchControls(context),
 
         // Search Results Body
         Expanded(
@@ -90,23 +93,30 @@ class _MobileSearchViewState extends State<MobileSearchView> {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              // Enhanced Header with gradient background
-              _buildMobileHeaderRow(context),
-              const SizedBox(height: 20),
-
-              // Enhanced Search Type Tabs
-              _buildMobileSearchTypeTabs(),
-              const SizedBox(height: 16),
-
-              // Enhanced Search Field
-              _buildMobileSearchField(context),
-              const SizedBox(height: 16),
-            ],
-          ),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          child: _buildMobileHeaderRow(context),
         ),
+      ),
+    );
+  }
+
+  Widget _buildMobileSearchControls(BuildContext context) {
+    return Container(
+      color: Colors.grey.shade50,
+      child: Column(
+        children: [
+          // Search Type Tabs
+          Container(
+            padding: const EdgeInsets.all(16),
+            child: _buildMobileSearchTypeTabs(),
+          ),
+
+          // Search Field
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: _buildMobileSearchField(context),
+          ),
+        ],
       ),
     );
   }
@@ -119,7 +129,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
         Text(
           "البحث",
           style: TextStyle(
-            fontSize: 24,
+            fontSize: 20,
             color: Colors.white,
             fontWeight: FontWeight.w700,
             fontFamily: StringConstant.fontName,
@@ -158,18 +168,37 @@ class _MobileSearchViewState extends State<MobileSearchView> {
   Widget _buildMobileSearchTypeTabs() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.15),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            spreadRadius: 1,
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: TabBar(
         controller: widget.searchTypeController,
         onTap: widget.onSearchTypeChanged,
         indicator: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: Colors.white,
+          gradient: LinearGradient(
+            colors: [
+              ColorManager.primary,
+              ColorManager.primary.withValues(alpha: 0.8),
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: ColorManager.primary.withValues(alpha: 0.3),
+              spreadRadius: 1,
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        indicatorPadding: const EdgeInsets.all(4),
         labelStyle: TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 14,
@@ -180,8 +209,8 @@ class _MobileSearchViewState extends State<MobileSearchView> {
           fontSize: 14,
           fontFamily: StringConstant.fontName,
         ),
-        labelColor: ColorManager.primary,
-        unselectedLabelColor: Colors.white,
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.grey.shade600,
         tabs: [
           Tab(
             child: Row(
@@ -260,16 +289,16 @@ class _MobileSearchViewState extends State<MobileSearchView> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: widget.searchController.text.trim().length >= 2
-                  ? [Colors.white, Colors.white.withValues(alpha: 0.9)]
-                  : [Colors.white.withValues(alpha: 0.3), Colors.white.withValues(alpha: 0.2)],
+                  ? [ColorManager.primary, ColorManager.primary.withValues(alpha: 0.8)]
+                  : [Colors.grey.shade300, Colors.grey.shade400],
             ),
             borderRadius: BorderRadius.circular(12),
             boxShadow: widget.searchController.text.trim().length >= 2 ? [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
+                color: ColorManager.primary.withValues(alpha: 0.3),
                 spreadRadius: 1,
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+                blurRadius: 6,
+                offset: const Offset(0, 3),
               ),
             ] : [],
           ),
@@ -277,9 +306,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
             onPressed: widget.searchController.text.trim().length >= 2 ? _performSearch : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.transparent,
-              foregroundColor: widget.searchController.text.trim().length >= 2
-                  ? ColorManager.primary
-                  : Colors.white.withValues(alpha: 0.7),
+              foregroundColor: Colors.white,
               shadowColor: Colors.transparent,
               elevation: 0,
               shape: RoundedRectangleBorder(
@@ -289,7 +316,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.search, size: 22,color: ColorManager.primary),
+                Icon(Icons.search, size: 22, color: Colors.white),
                 const SizedBox(width: 4),
                 Text(
                   "بحث",
@@ -297,6 +324,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                     fontFamily: StringConstant.fontName,
+                    color: Colors.white,
                   ),
                 ),
               ],
@@ -387,16 +415,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
 
   Widget _buildEmptySearchState() {
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.grey.shade50,
-            Colors.white,
-          ],
-        ),
-      ),
+      color: Colors.grey.shade50,
       child: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(32),
