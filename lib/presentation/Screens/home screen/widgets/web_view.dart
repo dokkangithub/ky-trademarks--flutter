@@ -181,7 +181,7 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
       child: CustomScrollView(
         controller: widget.mainScrollController,
         slivers: [
-          // Enhanced Control Panel
+          // Enhanced Control Panel with Total Statistics
           SliverToBoxAdapter(
             child: Container(
               padding:
@@ -199,12 +199,12 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
               ),
               child: Column(
                 children: [
-                  // Top Row: Statistics (full width)
-                  // Container(
-                  //   width: double.infinity,
-                  //   margin: const EdgeInsets.only(bottom: 20),
-                  //   child: _buildQuickStats(provider),
-                  // ),
+                  // Total Statistics Header
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    child: _buildTotalStatisticsHeader(provider, screenWidth),
+                  ),
 
                   // Second Row: Responsive Layout
                   isMobile
@@ -233,6 +233,79 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
             SliverToBoxAdapter(
               child: _buildLatestUpdatesSection(provider),
             ),
+        ],
+      ),
+    );
+  }
+
+  // New method for total statistics header
+  Widget _buildTotalStatisticsHeader(GetBrandProvider provider, double screenWidth) {
+    final isLargeScreen = screenWidth > 1200;
+    final isTablet = screenWidth > 768 && screenWidth <= 1200;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            ColorManager.primary.withOpacity(0.05),
+            ColorManager.primary.withOpacity(0.1),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: ColorManager.primary.withOpacity(0.15),
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: ColorManager.primary.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ColorManager.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              Icons.assessment_outlined,
+              color: ColorManager.primary,
+              size: isLargeScreen ? 28 : (isTablet ? 24 : 20),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'إجمالي العلامات التجارية',
+                style: TextStyle(
+                  color: Colors.grey.shade700,
+                  fontSize: isLargeScreen ? 14 : (isTablet ? 13 : 12),
+                  fontWeight: FontWeight.w500,
+                  fontFamily: StringConstant.fontName,
+                ),
+              ),
+              Text(
+                '${provider.totalMarks}',
+                style: TextStyle(
+                  color: ColorManager.primary,
+                  fontSize: isLargeScreen ? 28 : (isTablet ? 24 : 20),
+                  fontWeight: FontWeight.bold,
+                  fontFamily: StringConstant.fontName,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -871,11 +944,32 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
       underline: Container(),
       isExpanded: true,
       onChanged: (String? newValue) {
-                  if (newValue != null) {
-            widget.onFilterChanged(newValue);
-          }
+        if (newValue != null) {
+          widget.onFilterChanged(newValue);
+        }
       },
       items: [
+        DropdownMenuItem(
+          value: "",
+          child: Row(
+            children: [
+              Icon(
+                Icons.all_inclusive,
+                color: Colors.blue.shade600,
+                size: 16,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'الكل',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: StringConstant.fontName,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+        ),
         DropdownMenuItem(
           value: StringConstant.inEgypt,
           child: Row(
@@ -921,6 +1015,12 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
       ],
       selectedItemBuilder: (BuildContext context) {
         final items = [
+          {
+            'value': "",
+            'text': 'الكل',
+            'icon': Icons.all_inclusive,
+            'color': Colors.blue.shade600
+          },
           {
             'value': StringConstant.inEgypt,
             'text': 'in_egypt'.tr(),
@@ -975,10 +1075,10 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
       return isInEgypt;
     } else if (widget.byStatus == StringConstant.outsideEgypt) {
       return !isInEgypt;
-    } else if (widget.byStatus == StringConstant.allStatus || widget.byStatus == "") {
+    } else if (widget.byStatus == StringConstant.allStatus || widget.byStatus == "" || widget.byStatus.isEmpty) {
       return true;
     }
-    return false;
+    return true;
   }
 
   // Dynamic TabContent with calculated height based on content
@@ -1240,7 +1340,7 @@ class ImprovedBrandDataView extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'استعراض شامل للبيانات المحدثة',
+                      'استعراض النتائج المفلترة',
                       style: TextStyle(
                         fontSize: screenWidth > 1200 ? 14 : 12,
                         color: Colors.grey.shade600,
@@ -1262,7 +1362,7 @@ class ImprovedBrandDataView extends StatelessWidget {
                       Icon(Icons.list, color: Colors.white, size: 16),
                       const SizedBox(width: 6),
                       Text(
-                        'إجمالي: ${Provider.of<GetBrandProvider>(context,listen: false).totalMarks}',
+                        'المعروض: ${brands.length}',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -1943,7 +2043,7 @@ class WebIssuesDataView extends StatelessWidget {
                       Icon(Icons.gavel, color: Colors.white, size: 16),
                       const SizedBox(width: 6),
                       Text(
-                        'إجمالي: ${issues.length}',
+                        'المعروض: ${issues.length}',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
