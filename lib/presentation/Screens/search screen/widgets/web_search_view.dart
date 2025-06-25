@@ -25,10 +25,10 @@ class WebSearchView extends StatefulWidget {
   final TextEditingController searchController;
   final ScrollController mainScrollController;
   final GlobalKey searchKey;
-  final List<TargetFocus> targetList;
+  final List<TargetFocus>? targetList;
   final TutorialCoachMark? tutorialCoachMark;
-  final VoidCallback onTutorialStart;
-  final VoidCallback onTutorialTargetsAdd;
+  final VoidCallback? onTutorialStart;
+  final VoidCallback? onTutorialTargetsAdd;
   final ScreenType screenType;
   final TabController searchTypeController;
   final int currentSearchType;
@@ -39,10 +39,10 @@ class WebSearchView extends StatefulWidget {
     required this.searchController,
     required this.mainScrollController,
     required this.searchKey,
-    required this.targetList,
-    required this.tutorialCoachMark,
-    required this.onTutorialStart,
-    required this.onTutorialTargetsAdd,
+    this.targetList,
+    this.tutorialCoachMark,
+    this.onTutorialStart,
+    this.onTutorialTargetsAdd,
     required this.screenType,
     required this.searchTypeController,
     required this.currentSearchType,

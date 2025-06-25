@@ -71,9 +71,12 @@ class _BranDetailsState extends State<BranDetails> {
 
   Future<void> _startTutorialIfFirstLaunch() async {
     if (!mounted) return;
-    _addTutorialTargets();
-    if (await _isFirstLaunch()) {
-      _startTutorial();
+    // Only show tutorial for mobile view, not for web
+    if (!_isWebView(context)) {
+      _addTutorialTargets();
+      if (await _isFirstLaunch()) {
+        _startTutorial();
+      }
     }
   }
 
@@ -214,7 +217,6 @@ class _BranDetailsState extends State<BranDetails> {
                     logoKey: _logoKey,
                     brandStatusListKey: _brandStatusListKey,
                     downloadPdfKey: _downloadPdfKey,
-                    onTutorialTap: _onTutorialTap,
                     onDownloadTap: _onDownloadTap,
                   )
                 : MobileBrandDetailsView(

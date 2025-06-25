@@ -55,10 +55,13 @@ class _AddReservationState extends State<AddReservation> {
   }
 
   Future<void> _initTutorial() async {
-    _addTutorialTargets();
-    final isFirstLaunch = await _isFirstLaunch();
-    if (isFirstLaunch && mounted) {
-      _startTutorial();
+    // Only show tutorial for mobile view, not for web
+    if (!_isWebView(context)) {
+      _addTutorialTargets();
+      final isFirstLaunch = await _isFirstLaunch();
+      if (isFirstLaunch && mounted) {
+        _startTutorial();
+      }
     }
   }
 

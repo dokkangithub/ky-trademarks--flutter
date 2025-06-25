@@ -28,7 +28,7 @@ class WebBrandDetailsView extends StatelessWidget {
   final GlobalKey logoKey;
   final GlobalKey brandStatusListKey;
   final GlobalKey downloadPdfKey;
-  final VoidCallback onTutorialTap;
+  final VoidCallback? onTutorialTap;
   final VoidCallback onDownloadTap;
 
   const WebBrandDetailsView({
@@ -37,7 +37,7 @@ class WebBrandDetailsView extends StatelessWidget {
     required this.logoKey,
     required this.brandStatusListKey,
     required this.downloadPdfKey,
-    required this.onTutorialTap,
+    this.onTutorialTap,
     required this.onDownloadTap,
     super.key,
   });
@@ -206,42 +206,6 @@ class WebBrandDetailsView extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-          ),
-          // Tutorial Button
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: onTutorialTap,
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.help_outline, color: Colors.white, size: 20),
-                    const SizedBox(width: 8),
-                    Text(
-                      "مساعدة",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: StringConstant.fontName,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ),
           ),
         ],

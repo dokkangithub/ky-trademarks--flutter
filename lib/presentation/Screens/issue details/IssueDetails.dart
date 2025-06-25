@@ -72,9 +72,12 @@ class _IssueDetailsState extends State<IssueDetails> {
 
   Future<void> _startTutorialIfFirstLaunch() async {
     if (!mounted) return;
-    _addTutorialTargets();
-    if (await _isFirstLaunch()) {
-      _startTutorial();
+    // Only show tutorial for mobile view, not for web
+    if (!_isWebView(context)) {
+      _addTutorialTargets();
+      if (await _isFirstLaunch()) {
+        _startTutorial();
+      }
     }
   }
 
@@ -211,14 +214,16 @@ class _IssueDetailsState extends State<IssueDetails> {
         ),
       ),
       actions: [
-        IconButton(
-          onPressed: _onTutorialTap,
-          icon: Icon(
-            Icons.help_outline,
-            color: Colors.white,
-            size: 24,
+        // Only show tutorial button for mobile view
+        if (!_isWebView(context))
+          IconButton(
+            onPressed: _onTutorialTap,
+            icon: Icon(
+              Icons.help_outline,
+              color: Colors.white,
+              size: 24,
+            ),
           ),
-        ),
       ],
     );
   }
