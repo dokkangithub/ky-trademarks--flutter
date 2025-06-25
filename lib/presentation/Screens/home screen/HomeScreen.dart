@@ -139,7 +139,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       case RequestState.loaded:
         return _isWebView(context)
             ? WebView(
-          tabController: _tabController,
           byStatus: _byStatus,
           onFilterChanged: (value) => setState(() => _byStatus = value),
           mainScrollController: _mainScrollController,

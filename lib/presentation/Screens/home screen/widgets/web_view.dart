@@ -14,12 +14,15 @@ import '../../../../app/RequestState/RequestState.dart';
 import '../../../../core/Constant/Api_Constant.dart';
 import '../../../../domain/Brand/Entities/BrandEntity.dart';
 import '../../../../domain/Company/Entities/CompanyEntity.dart';
+import '../../../../domain/Issues/Entities/IssuesEntity.dart' as issues_entities;
 import '../../../../resources/ImagesConstant.dart';
 import '../../../../resources/Color_Manager.dart';
 import '../../../../resources/StringManager.dart';
 import '../../../../data/Brand/models/BrandDataModel.dart';
 import '../../../Controllar/GetBrandProvider.dart';
 import '../../../Controllar/GetCompanyProvider.dart';
+import '../../../Controllar/Issues/GetIssuesProvider.dart';
+import '../../../Controllar/Issues/GetIssuesSummaryProvider.dart';
 import '../../../Widget/loading_widget.dart';
 import '../../brand details/BrandDetails.dart';
 import '../../notification screen/NotificationScreen.dart';
@@ -103,8 +106,7 @@ class BrandStatusHelper {
   }
 }
 
-class WebView extends StatelessWidget {
-  final TabController tabController;
+class WebView extends StatefulWidget {
   final String byStatus;
   final ValueChanged<String> onFilterChanged;
   final ScrollController mainScrollController;
@@ -113,7 +115,6 @@ class WebView extends StatelessWidget {
   final Function(int)? onTabChanged;
 
   const WebView({
-    required this.tabController,
     required this.byStatus,
     required this.onFilterChanged,
     required this.mainScrollController,
@@ -122,6 +123,49 @@ class WebView extends StatelessWidget {
     this.onTabChanged,
     super.key,
   });
+
+  @override
+  State<WebView> createState() => _WebViewState();
+}
+
+class _WebViewState extends State<WebView> with TickerProviderStateMixin {
+  late final TabController tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Tab controller for Marks, Models, and Issues
+    tabController = TabController(length: 3, vsync: this);
+    
+    // Add listener to rebuild content when tab changes
+    tabController.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+    
+    _loadInitialData();
+  }
+
+  void _loadInitialData() {
+    // Fetch issues data when the widget is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final issuesProvider = Provider.of<GetIssuesProvider>(context, listen: false);
+      final summaryProvider = Provider.of<GetIssuesSummaryProvider>(context, listen: false);
+      final customerId = globalAccountData.getId();
+
+      if (customerId != null) {
+        issuesProvider.getIssues(customerId: int.parse(customerId));
+        summaryProvider.getIssuesSummary(customerId: int.parse(customerId));
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +179,7 @@ class WebView extends StatelessWidget {
     return Container(
       color: Colors.white,
       child: CustomScrollView(
-        controller: mainScrollController,
+        controller: widget.mainScrollController,
         slivers: [
           // Enhanced Control Panel
           SliverToBoxAdapter(
@@ -179,19 +223,16 @@ class WebView extends StatelessWidget {
             ),
           ),
 
-          // Brand content area
-          SliverFillRemaining(
-            child: TabBarView(
-              controller: tabController,
-              children: provider.allBrands.isEmpty
-                  ? List.generate(3, (_) => _WebNoDataView())
-                  : [
-                _buildTabContent(provider.allBrands, 'marks'.tr(), 0),
-                _buildTabContent(provider.allBrands, 'models'.tr(), 1),
-                _buildRecentUpdatesTab(provider.allBrands),
-              ],
-            ),
+          // Brand content area - Dynamic height based on content
+          SliverToBoxAdapter(
+            child: _buildDynamicTabContent(provider),
           ),
+
+          // Latest updates section at the bottom
+          if (provider.allBrandUpdates.isNotEmpty)
+            SliverToBoxAdapter(
+              child: _buildLatestUpdatesSection(provider),
+            ),
         ],
       ),
     );
@@ -207,26 +248,37 @@ class WebView extends StatelessWidget {
         : ImprovedBrandDataView(
       brands: filteredData,
       tabType: tabType,
-      listScrollController: listScrollController,
-      isLoadingMore: isLoadingMore,
+      listScrollController: widget.listScrollController,
+      isLoadingMore: widget.isLoadingMore,
     );
   }
 
-  Widget _buildRecentUpdatesTab(List<BrandEntity> allBrands) {
-    // نستخدم id كبديل للترتيب (الأرقام الأعلى = الأحدث)
-    final recentlyUpdated = [...allBrands];
-    recentlyUpdated.sort((a, b) => b.id.compareTo(a.id)); // الأحدث أولاً
+  // Enhanced Issues content for web view
+  Widget _buildIssuesContent(BuildContext context) {
+    return Consumer2<GetIssuesProvider, GetIssuesSummaryProvider>(
+      builder: (context, issuesProvider, summaryProvider, _) {
+        if (issuesProvider.state == RequestState.loading) {
+          return Container(
+            color: Colors.white,
+            child: const Center(
+              child: Padding(
+                padding: EdgeInsets.all(40),
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          );
+        }
+        
+        if (issuesProvider.allIssues.isEmpty) {
+          return _WebNoDataView();
+        }
 
-    // أخذ آخر 50 عنصر محدث
-    final recentItems = recentlyUpdated.take(50).toList();
-
-    return recentItems.isEmpty
-        ? _WebNoDataView()
-        : ImprovedBrandDataView(
-      brands: recentItems,
-      tabType: 'آخر تحديث',
-      listScrollController: listScrollController,
-      isLoadingMore: isLoadingMore,
+        return WebIssuesDataView(
+          issues: issuesProvider.allIssues,
+          listScrollController: widget.listScrollController,
+          isLoadingMore: widget.isLoadingMore,
+        );
+      },
     );
   }
 
@@ -259,7 +311,7 @@ class WebView extends StatelessWidget {
                     child: Text('نماذج',
                         style: TextStyle(fontFamily: StringConstant.fontName))),
                 Tab(
-                    child: Text('آخر تحديث',
+                    child: Text('قضايا',
                         style: TextStyle(fontFamily: StringConstant.fontName))),
               ],
             ),
@@ -342,7 +394,7 @@ class WebView extends StatelessWidget {
                   child: Text('نماذج',
                       style: TextStyle(fontFamily: StringConstant.fontName))),
               Tab(
-                  child: Text('آخر تحديث',
+                  child: Text('قضايا',
                       style: TextStyle(fontFamily: StringConstant.fontName))),
             ],
           ),
@@ -790,7 +842,7 @@ class WebView extends StatelessWidget {
 
   Widget _buildFilterDropdown() {
     return DropdownButton<String>(
-      value: byStatus.isEmpty ? null : byStatus,
+      value: widget.byStatus.isEmpty ? null : widget.byStatus,
       hint: Row(
         children: [
           Icon(
@@ -819,9 +871,9 @@ class WebView extends StatelessWidget {
       underline: Container(),
       isExpanded: true,
       onChanged: (String? newValue) {
-        if (newValue != null) {
-          onFilterChanged(newValue);
-        }
+                  if (newValue != null) {
+            widget.onFilterChanged(newValue);
+          }
       },
       items: [
         DropdownMenuItem(
@@ -915,18 +967,189 @@ class WebView extends StatelessWidget {
     final isInEgypt = brand.country == 0;
     if (brand.markOrModel != (isMark ? 0 : 1)) return false;
 
-    if (byStatus == StringConstant.accept) {
+    if (widget.byStatus == StringConstant.accept) {
       return brand.currentStatus == 2;
-    } else if (byStatus == StringConstant.reject) {
+    } else if (widget.byStatus == StringConstant.reject) {
       return brand.currentStatus == 3;
-    } else if (byStatus == StringConstant.inEgypt) {
+    } else if (widget.byStatus == StringConstant.inEgypt) {
       return isInEgypt;
-    } else if (byStatus == StringConstant.outsideEgypt) {
+    } else if (widget.byStatus == StringConstant.outsideEgypt) {
       return !isInEgypt;
-    } else if (byStatus == StringConstant.allStatus || byStatus == "") {
+    } else if (widget.byStatus == StringConstant.allStatus || widget.byStatus == "") {
       return true;
     }
     return false;
+  }
+
+  // Dynamic TabContent with calculated height based on content
+  Widget _buildDynamicTabContent(GetBrandProvider provider) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    
+    // Helper function for spacing calculation
+    double getSpacing(double screenWidth) {
+      if (screenWidth > 1800) {
+        return 24;
+      } else if (screenWidth > 1440) {
+        return 20;
+      } else if (screenWidth > 1200) {
+        return 16;
+      } else {
+        return 12;
+      }
+    }
+    
+    // Calculate dynamic height based on content
+    double calculateContentHeight() {
+      int contentCount = 0;
+      
+      // Get count based on current tab
+      if (tabController.index == 0) {
+        // Marks tab
+        contentCount = provider.allBrands.where((brand) => 
+          _filterBrands(brand, 'marks'.tr())).length;
+      } else if (tabController.index == 1) {
+        // Models tab  
+        contentCount = provider.allBrands.where((brand) => 
+          _filterBrands(brand, 'models'.tr())).length;
+      } else {
+        // Issues tab
+        final issuesProvider = Provider.of<GetIssuesProvider>(context, listen: false);
+        contentCount = issuesProvider.allIssues.length;
+      }
+
+      // Return minimum height if no content
+      if (contentCount == 0) {
+        return screenHeight * 0.3;
+      }
+
+      // Calculate rows needed based on screen width (matching SpGrid logic)
+      int itemsPerRow;
+      if (screenWidth > 1440) {
+        itemsPerRow = 4; // xl: 3 means 4 items per row
+      } else if (screenWidth > 1024) {
+        itemsPerRow = 3; // lg: 4 means 3 items per row  
+      } else if (screenWidth > 768) {
+        itemsPerRow = 2; // md: 6 means 2 items per row
+      } else {
+        itemsPerRow = 1; // xs & sm: 12 means 1 item per row
+      }
+
+      int rows = (contentCount / itemsPerRow).ceil();
+      double cardHeight = screenWidth <= 768 ? 320.0 : 180.0;
+      double spacing = getSpacing(screenWidth);
+      double headerHeight = 100.0; // For section header
+      double paddingVertical = 20.0; // Top and bottom padding
+      
+      // Calculate base height
+      double baseHeight = headerHeight + paddingVertical + 
+                         (rows * cardHeight) + 
+                         ((rows - 1) * spacing);
+      
+      // Dynamic constraints based on content amount
+      double minHeight, maxHeight;
+      
+      if (contentCount <= 4) {
+        // Few items - allow more space
+        minHeight = screenHeight * 0.5;
+        maxHeight = screenHeight * 0.8;
+      } else if (contentCount <= 12) {
+        // Medium amount - balanced space
+        minHeight = screenHeight * 0.4;
+        maxHeight = screenHeight * 0.7;
+      } else {
+        // Many items - compact space
+        minHeight = screenHeight * 0.3;
+        maxHeight = screenHeight * 0.6;
+      }
+      
+      // Apply constraints but prefer calculated height
+      return baseHeight.clamp(minHeight, maxHeight);
+    }
+
+    return Container(
+      height: calculateContentHeight(),
+      child: TabBarView(
+        controller: tabController,
+        children: provider.allBrands.isEmpty
+            ? List.generate(3, (_) => _WebNoDataView())
+            : [
+          _buildTabContent(provider.allBrands, 'marks'.tr(), 0),
+          _buildTabContent(provider.allBrands, 'models'.tr(), 1),
+          _buildIssuesContent(context),
+        ],
+      ),
+    );
+  }
+
+  // Latest updates section for web view (similar to mobile)
+  Widget _buildLatestUpdatesSection(GetBrandProvider provider) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isLargeScreen = screenWidth > 1200;
+    final isTablet = screenWidth > 768 && screenWidth <= 1200;
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.grey.shade50,
+            Colors.grey.shade100,
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 6,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.all(isLargeScreen ? 24 : (isTablet ? 20 : 16)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section Header
+          Row(
+            children: [
+              Container(
+                width: 4,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: ColorManager.primary,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                "latest_trademarks".tr(),
+                style: TextStyle(
+                  color: ColorManager.primary,
+                  fontWeight: FontWeight.w900,
+                  fontSize: isLargeScreen ? 20 : (isTablet ? 18 : 16),
+                  fontFamily: StringConstant.fontName,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Latest updates content
+          Container(
+            constraints: BoxConstraints(
+              maxHeight: isLargeScreen ? 400 : (isTablet ? 350 : 300),
+            ),
+            child: WebBrandUpdatesList(
+              brands: provider.allBrandUpdates,
+              allBrands: provider.allBrands,
+              screenWidth: screenWidth,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildWebDownloadButton(BuildContext context, bool isLargeScreen) {
@@ -1634,22 +1857,647 @@ class _WebNoDataView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(height: 60),
-          Lottie.asset(ImagesConstants.noData,
-              fit: BoxFit.contain, height: 200),
-          Text(
-            'no_data'.tr(),
-            style: TextStyle(
-              color: ColorManager.primary,
-              fontWeight: FontWeight.w600,
-              fontSize: 24,
-              fontFamily: StringConstant.fontName,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 60),
+            Lottie.asset(ImagesConstants.noData,
+                fit: BoxFit.contain, height: 200),
+            Text(
+              'no_data'.tr(),
+              style: TextStyle(
+                color: ColorManager.primary,
+                fontWeight: FontWeight.w600,
+                fontSize: 24,
+                fontFamily: StringConstant.fontName,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Web Issues Data View with responsive grid similar to brands
+class WebIssuesDataView extends StatelessWidget {
+  final List<issues_entities.IssueEntity> issues;
+  final ScrollController listScrollController;
+  final bool isLoadingMore;
+
+  const WebIssuesDataView({
+    required this.issues,
+    required this.listScrollController,
+    required this.isLoadingMore,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return CustomScrollView(
+      controller: listScrollController,
+      slivers: [
+        // Enhanced Header
+        SliverToBoxAdapter(
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            color: Colors.grey.shade50,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'القضايا المسجلة',
+                      style: TextStyle(
+                        fontSize: screenWidth > 1200 ? 24 : 20,
+                        fontWeight: FontWeight.bold,
+                        color: ColorManager.primary,
+                        fontFamily: StringConstant.fontName,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'عرض جميع القضايا المتعلقة بالعلامات التجارية',
+                      style: TextStyle(
+                        fontSize: screenWidth > 1200 ? 14 : 12,
+                        color: Colors.grey.shade600,
+                        fontFamily: StringConstant.fontName,
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: ColorManager.primary,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.gavel, color: Colors.white, size: 16),
+                      const SizedBox(width: 6),
+                      Text(
+                        'إجمالي: ${issues.length}',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: screenWidth > 1200 ? 14 : 12,
+                          fontFamily: StringConstant.fontName,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
+
+        // Responsive Issues Grid as Sliver
+        SliverToBoxAdapter(
+          child: Container(
+            color: Colors.grey.shade50,
+            padding: EdgeInsets.symmetric(
+              horizontal: screenWidth > 1200 ? 20 : 16,
+              vertical: 10,
+            ),
+            child: SpGrid(
+              width: MediaQuery.of(context).size.width - (screenWidth > 1200 ? 40 : 32),
+              gridSize: SpGridSize(
+                xs: 0,
+                sm: 480,
+                md: 768,
+                lg: 1024,
+                xl: 1440,
+              ),
+              spacing: _getSpacing(screenWidth),
+              runSpacing: _getSpacing(screenWidth),
+              children: [
+                ...issues.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final issue = entry.value;
+
+                  return SpGridItem(
+                    xs: 12,  // 1 item for small mobile
+                    sm: 12,  // 1 item for large mobile
+                    md: 6,   // 2 items for small tablet
+                    lg: 4,   // 3 items for large tablet
+                    xl: 3,   // 4 items for large screens
+
+                    order: SpOrder(
+                      xs: index,
+                      sm: index,
+                      md: index,
+                      lg: index,
+                      xl: index,
+                    ),
+
+                    child: ResponsiveIssueCard(
+                      issue: issue,
+                      screenWidth: screenWidth,
+                      onTap: () {
+                        // TODO: Navigate to issue details
+                      },
+                    ),
+                  );
+                }).toList(),
+              ],
+            ),
+          ),
+        ),
+
+        // Loading indicator
+        if (isLoadingMore)
+          SliverToBoxAdapter(
+            child: Container(
+              padding: EdgeInsets.all(screenWidth > 1200 ? 24 : 20),
+              color: Colors.grey.shade50,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    LoadingWidget(),
+                    const SizedBox(height: 12),
+                    Text(
+                      'جاري تحميل المزيد...',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 14,
+                        fontFamily: StringConstant.fontName,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+        // Extra space for pagination
+        SliverToBoxAdapter(
+          child: Container(
+            height: 50,
+            color: Colors.grey.shade50,
+          ),
+        ),
+      ],
+    );
+  }
+
+  double _getSpacing(double screenWidth) {
+    if (screenWidth > 1800) {
+      return 24;
+    } else if (screenWidth > 1440) {
+      return 20;
+    } else if (screenWidth > 1200) {
+      return 16;
+    } else {
+      return 12;
+    }
+  }
+}
+
+// Responsive Issue Card for web view
+class ResponsiveIssueCard extends StatelessWidget {
+  final issues_entities.IssueEntity issue;
+  final double screenWidth;
+  final VoidCallback onTap;
+
+  const ResponsiveIssueCard({
+    required this.issue,
+    required this.screenWidth,
+    required this.onTap,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final shouldUseVerticalLayout = screenWidth <= 768;
+    
+    double cardHeight = shouldUseVerticalLayout ? 200.0 : 160.0;
+
+    return Container(
+      height: cardHeight,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.15),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+                spreadRadius: 1,
+              ),
+            ],
+            border: Border.all(
+              color: Colors.orange.withOpacity(0.3),
+              width: 1.5,
+            ),
+          ),
+          child: shouldUseVerticalLayout
+              ? _buildVerticalLayout()
+              : _buildHorizontalLayout(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHorizontalLayout() {
+    return Row(
+      children: [
+        // Issue Icon
+        Expanded(
+          flex: 2,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  ColorManager.primary.withOpacity(0.1),
+                  ColorManager.primary.withOpacity(0.05),
+                ],
+              ),
+              borderRadius: const BorderRadius.only(
+                topRight: Radius.circular(16),
+                bottomRight: Radius.circular(16),
+              ),
+            ),
+            child: Center(
+              child: Icon(
+                Icons.gavel,
+                size: 40,
+                color: ColorManager.primary,
+              ),
+            ),
+          ),
+        ),
+        // Issue details
+        Expanded(
+          flex: 3,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: _buildIssueDetails(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVerticalLayout() {
+    return Column(
+      children: [
+        // Issue Icon
+        Expanded(
+          flex: 2,
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  ColorManager.primary.withOpacity(0.1),
+                  ColorManager.primary.withOpacity(0.05),
+                ],
+              ),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+            ),
+            child: Center(
+              child: Icon(
+                Icons.gavel,
+                size: 40,
+                color: ColorManager.primary,
+              ),
+            ),
+          ),
+        ),
+        // Issue details
+        Expanded(
+          flex: 3,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: _buildIssueDetails(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildIssueDetails() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // Brand name
+        Flexible(
+          flex: 2,
+          child: Text(
+            issue.brand.brandName,
+            style: TextStyle(
+              fontSize: screenWidth > 1200 ? 15 : 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+              fontFamily: StringConstant.fontName,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        
+        const SizedBox(height: 8),
+
+        // Issue status
+        Flexible(
+          flex: 1,
+          child: Row(
+            children: [
+              Icon(
+                Icons.info_outline,
+                size: 16,
+                color: Colors.grey.shade600,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  issue.refusedType,
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                    fontSize: screenWidth > 1200 ? 13 : 12,
+                    fontFamily: StringConstant.fontName,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        // Sessions count
+        Flexible(
+          flex: 1,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.orange.shade400,
+                  Colors.orange.shade600,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              '${issue.sessionsCount} جلسة',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: screenWidth > 1200 ? 12 : 11,
+                fontWeight: FontWeight.w600,
+                fontFamily: StringConstant.fontName,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// Web Brand Updates List similar to mobile but responsive
+class WebBrandUpdatesList extends StatelessWidget {
+  final List<dynamic> brands;
+  final List<BrandEntity> allBrands;
+  final double screenWidth;
+
+  const WebBrandUpdatesList({
+    required this.brands,
+    required this.allBrands,
+    required this.screenWidth,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isLargeScreen = screenWidth > 1200;
+    final isMobile = screenWidth <= 768;
+    
+    return SpGrid(
+      width: screenWidth,
+      gridSize: SpGridSize(
+        xs: 0,
+        sm: 480,
+        md: 768,
+        lg: 1024,
+        xl: 1440,
+      ),
+      spacing: _getSpacing(),
+      runSpacing: _getSpacing(),
+      children: [
+        ...brands.asMap().entries.map((entry) {
+          final index = entry.key;
+          final update = entry.value;
+          final brand = allBrands.isNotEmpty && index < allBrands.length 
+              ? allBrands[index] 
+              : null;
+
+          if (brand == null) {
+            return SpGridItem(
+              xs: 12,
+              sm: 12,
+              md: 6,
+              lg: 4,
+              xl: 3,
+              child: const SizedBox.shrink(),
+            );
+          }
+
+          return SpGridItem(
+            xs: 12,  // 1 item for small mobile
+            sm: 12,  // 1 item for large mobile
+            md: 6,   // 2 items for small tablet
+            lg: 4,   // 3 items for large tablet
+            xl: 3,   // 4 items for large screens
+
+            child: WebBrandUpdateCard(
+              brand: brand,
+              update: update,
+              screenWidth: screenWidth,
+            ),
+          );
+        }).toList(),
+      ],
+    );
+  }
+
+  double _getSpacing() {
+    if (screenWidth > 1800) {
+      return 20;
+    } else if (screenWidth > 1440) {
+      return 16;
+    } else if (screenWidth > 1200) {
+      return 12;
+    } else {
+      return 8;
+    }
+  }
+}
+
+// Web Brand Update Card
+class WebBrandUpdateCard extends StatelessWidget {
+  final BrandEntity brand;
+  final dynamic update;
+  final double screenWidth;
+
+  const WebBrandUpdateCard({
+    required this.brand,
+    required this.update,
+    required this.screenWidth,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isLargeScreen = screenWidth > 1200;
+    final isMobile = screenWidth <= 768;
+    
+    final filteredImage = brand.images.isNotEmpty
+        ? brand.images.firstWhere(
+            (img) => img.conditionId == null,
+            orElse: () => ImagesModel(image: '', conditionId: '', type: ''),
+          )
+        : null;
+
+    return Card(
+      elevation: 4,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => BranDetails(brandId: brand.id)),
+        ),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          height: isMobile ? 120 : (isLargeScreen ? 110 : 115),
+          padding: EdgeInsets.all(isMobile ? 10 : (isLargeScreen ? 14 : 12)),
+          child: Row(
+            children: [
+              // Brand Image
+              if (filteredImage != null && filteredImage.image.isNotEmpty)
+                Expanded(
+                  flex: isMobile ? 2 : 2,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: cachedImage(
+                      ApiConstant.imagePath + filteredImage.image,
+                      fit: BoxFit.contain,
+                      placeHolderFit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              
+              if (filteredImage != null && filteredImage.image.isNotEmpty)
+                const SizedBox(width: 8),
+
+              // Brand Details
+              Expanded(
+                flex: isMobile ? 6 : 5,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Brand Name
+                    Expanded(
+                      flex: 3,
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          brand.brandName,
+                          style: TextStyle(
+                            fontSize: isMobile ? 13 : (isLargeScreen ? 15 : 14),
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                            fontFamily: StringConstant.fontName,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        ),
+                      ),
+                    ),
+                    
+                    // Brand Status
+                    Expanded(
+                      flex: 2,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          BrandStatusHelper.getStatusText(brand.currentStatus),
+                          style: TextStyle(
+                            color: BrandStatusHelper.getStatusColor(brand.currentStatus),
+                            fontSize: isMobile ? 11 : (isLargeScreen ? 12 : 11),
+                            fontWeight: FontWeight.w600,
+                            fontFamily: StringConstant.fontName,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                    ),
+                    
+                    // Update Date
+                    Expanded(
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Text(
+                          "تحديث: ${update.date?.toString().split(' ')[0] ?? 'غير محدد'}",
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: isMobile ? 10 : (isLargeScreen ? 11 : 10),
+                            fontFamily: StringConstant.fontName,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Status Icon
+              Container(
+                width: isMobile ? 28 : 32,
+                height: isMobile ? 28 : 32,
+                decoration: BoxDecoration(
+                  color: BrandStatusHelper.getStatusLightColor(brand.currentStatus),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Icon(
+                  brand.currentStatus == 2
+                      ? Icons.check_circle
+                      : brand.currentStatus == 3
+                      ? Icons.cancel
+                      : Icons.hourglass_empty,
+                  color: BrandStatusHelper.getStatusColor(brand.currentStatus),
+                  size: isMobile ? 18 : 20,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
