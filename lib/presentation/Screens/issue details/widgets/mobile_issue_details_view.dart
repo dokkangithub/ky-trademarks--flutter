@@ -29,12 +29,11 @@ class MobileIssueDetailsView extends StatelessWidget {
         child: Column(
           children: [
             // Issue Header
-            _buildIssueHeader(context),
-            
+
             const SizedBox(height: 16),
             
             // Issue Info Card
-            _buildIssueInfoCard(context),
+           // _buildIssueInfoCard(context),
             
             const SizedBox(height: 16),
             

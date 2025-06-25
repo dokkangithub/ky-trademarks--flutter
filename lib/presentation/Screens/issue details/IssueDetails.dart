@@ -200,7 +200,7 @@ class _IssueDetailsState extends State<IssueDetails> {
           fontFamily: StringConstant.fontName,
           color: Colors.white,
           fontWeight: FontWeight.w700,
-          fontSize: 20,
+          fontSize: 18,
         ),
       ),
       leading: IconButton(
