@@ -1067,8 +1067,6 @@ class _WebSearchViewState extends State<WebSearchView> {
       ),
     );
   }
-
-
 }
 
 // Search Brand Card Widget for Search Results
@@ -1596,9 +1594,7 @@ class SearchIssueCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        issue.createdAt.isNotEmpty 
-                            ? issue.createdAt.split(' ')[0]
-                            : 'غير محدد',
+                        _formatDate(issue.createdAt),
                         style: TextStyle(
                           fontSize: isLargeScreen ? 12 : 11,
                           color: _getIssueTypeColor(issue.refusedType),
@@ -1615,6 +1611,25 @@ class SearchIssueCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  // Helper function to format dates
+  String _formatDate(String dateString) {
+    if (dateString.isEmpty) return 'غير محدد';
+    
+    try {
+      // Parse the date string
+      DateTime parsedDate = DateTime.parse(dateString.split(' ')[0]);
+      
+      // Format it in Arabic date format
+      return DateFormat('dd/MM/yyyy').format(parsedDate);
+    } catch (e) {
+      // If parsing fails, try to extract just the date part
+      if (dateString.contains(' ')) {
+        return dateString.split(' ')[0];
+      }
+      return dateString;
+    }
   }
 
   Color _getIssueTypeColor(String type) {
