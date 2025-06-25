@@ -176,9 +176,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      toolbarHeight: 40,
-      systemOverlayStyle: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: ColorManager.primary,
         statusBarIconBrightness: Brightness.light,
       ),
       flexibleSpace: Container(
@@ -195,5 +194,5 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(10);
+  Size get preferredSize => const Size.fromHeight(0);
 }

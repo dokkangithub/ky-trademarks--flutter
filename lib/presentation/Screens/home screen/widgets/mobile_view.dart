@@ -14,7 +14,7 @@ import '../../../../core/Constant/Api_Constant.dart';
 import '../../../../data/Brand/models/BrandDataModel.dart';
 import '../../../../domain/Brand/Entities/BrandEntity.dart' as brand_entity;
 import '../../../../domain/Company/Entities/CompanyEntity.dart' as company_entity;
-import '../../../../domain/Issues/Entities/IssuesEntity.dart';
+import '../../../../domain/Issues/Entities/IssuesEntity.dart' as issues_entities;
 import '../../../../resources/ImagesConstant.dart';
 import '../../../../network/RestApi/Comman.dart';
 import '../../../../resources/Color_Manager.dart';
@@ -32,11 +32,81 @@ import '../../payment ways/PaymentWays.dart';
 import '../../../../utilits/Local_User_Data.dart';
 
 class AppConstants {
-  static const double headerHeight = 200.0;
-  static const double cardHeight = 120.0;
-  static const double cardMargin = 8.0;
-  static const double paddingHorizontal = 16.0;
-  static const double paddingVertical = 8.0;
+  static const double headerHeight = 220.0;
+  static const double cardHeight = 140.0;
+  static const double cardMargin = 12.0;
+  static const double paddingHorizontal = 20.0;
+  static const double paddingVertical = 12.0;
+  static const double borderRadius = 20.0;
+}
+
+// Enhanced Brand Status Helper Class
+class BrandStatusHelper {
+  static String getStatusText(int status) {
+    switch (status) {
+      case 1:
+        return 'تحت الفحص الفني';
+      case 2:
+        return 'قبول';
+      case 3:
+        return 'رفض';
+      case 4:
+        return 'تظلم';
+      case 5:
+        return 'قرار لجنه التظلمات';
+      case 6:
+        return 'مجددة';
+      case 7:
+        return 'الطعن ضد التظلم';
+      case 8:
+        return 'قبول مشترط';
+      case 9:
+        return 'تنازل';
+      case 10:
+        return 'طعن في تسجيل العلامة';
+      case 11:
+        return 'تقرير';
+      case 12:
+        return 'معارضات';
+      default:
+        return 'غير محدد';
+    }
+  }
+
+  static Color getStatusColor(int status) {
+    switch (status) {
+      case 1:
+        return Colors.orange.shade600;
+      case 2:
+        return Colors.green.shade600;
+      case 3:
+        return Colors.red.shade600;
+      case 4:
+        return Colors.blue.shade600;
+      case 5:
+        return Colors.purple.shade600;
+      case 6:
+        return Colors.teal.shade600;
+      case 7:
+        return Colors.indigo.shade600;
+      case 8:
+        return Colors.amber.shade600;
+      case 9:
+        return Colors.brown.shade600;
+      case 10:
+        return Colors.pink.shade600;
+      case 11:
+        return Colors.cyan.shade600;
+      case 12:
+        return Colors.deepOrange.shade600;
+      default:
+        return Colors.grey.shade600;
+    }
+  }
+
+  static Color getStatusLightColor(int status) {
+    return getStatusColor(status).withValues(alpha: 0.1);
+  }
 }
 
 // Converted to StatefulWidget to handle local state like TabController
@@ -98,29 +168,51 @@ class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // The header remains largely the same but will now control a 3-tab view
+          // Enhanced header with new design
           MobileHeader(
             tabController: _tabController,
             byStatus: widget.byStatus,
             onFilterChanged: widget.onFilterChanged,
           ),
-          // Latest updates section, as it was
+          // Enhanced latest updates section
           Container(
-            color: ColorManager.anotherTabBackGround,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  ColorManager.anotherTabBackGround,
+                  Colors.grey.shade50,
+                ],
+              ),
+            ),
             padding: const EdgeInsets.only(
-                top: 15, left: AppConstants.paddingHorizontal),
+                top: 20, left: AppConstants.paddingHorizontal),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "latest_trademarks".tr(),
-                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                      color: ColorManager.primary,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 16,
-                      fontFamily: StringConstant.fontName),
+                Row(
+                  children: [
+                    Container(
+                      width: 4,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: ColorManager.primary,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      "latest_trademarks".tr(),
+                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          color: ColorManager.primary,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 18,
+                          fontFamily: StringConstant.fontName),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 15),
                 Consumer<GetBrandProvider>(
                   builder: (context, provider, _) => BrandUpdatesList(
                     controller: widget.listScrollController,
@@ -155,57 +247,96 @@ class MobileHeader extends StatelessWidget {
 
     return Stack(
       children: [
-        // Background Gradient
+        // Enhanced Background Gradient
         Container(
           height: AppConstants.headerHeight,
           decoration: BoxDecoration(
             gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
               colors: [
-                ColorManager.primaryByOpacity.withValues(alpha: 0.9),
+                ColorManager.primaryByOpacity.withValues(alpha: 0.95),
                 ColorManager.primary,
+                ColorManager.primary.withValues(alpha: 0.8),
               ],
             ),
+            boxShadow: [
+              BoxShadow(
+                color: ColorManager.primary.withValues(alpha: 0.3),
+                spreadRadius: 2,
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
         ),
         // Content
         Column(
           children: [
-            const SizedBox(height: 10),
+            const SizedBox(height: 15),
             MobileHeaderContent(),
-            MobileActionRows(),
             const SizedBox(height: 10),
-            // UI for Tabs and Filters
+            MobileActionRows(),
+            const SizedBox(height: 15),
+            // Enhanced Tabs and Filters
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppConstants.paddingHorizontal,
               ),
               child: Column(
                 children: [
-                  // Updated TabBar with 3 tabs
-                  TabBar(
-                    controller: tabController,
-                    labelColor: ColorManager.primary,
-                    unselectedLabelColor: Colors.grey,
-                    indicatorColor: ColorManager.primary,
-                    tabs: [
-                      Tab(child: Text('marks'.tr(), style: TextStyle(fontFamily: StringConstant.fontName))),
-                      Tab(child: Text('models'.tr(), style: TextStyle(fontFamily: StringConstant.fontName))),
-                      Tab(child: Text('issues'.tr(), style: TextStyle(fontFamily: StringConstant.fontName))),
-                    ],
+                  // Enhanced TabBar with modern design
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          spreadRadius: 1,
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: TabBar(
+                      controller: tabController,
+                      labelColor: ColorManager.primary,
+                      unselectedLabelColor: Colors.grey.shade600,
+                      indicatorColor: ColorManager.primary,
+                      indicatorWeight: 3,
+                      indicatorSize: TabBarIndicatorSize.label,
+                      labelStyle: TextStyle(
+                        fontFamily: StringConstant.fontName,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                      ),
+                      unselectedLabelStyle: TextStyle(
+                        fontFamily: StringConstant.fontName,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
+                      tabs: [
+                        Tab(child: Text('marks'.tr())),
+                        Tab(child: Text('models'.tr())),
+                        Tab(child: Text('issues'.tr())),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 10),
-                  // Dropdown filters remain the same
+                  const SizedBox(height: 12),
+                  // Enhanced dropdown filters
                   Row(
                     children: [
-                      Expanded(child: _buildCompanyDropdown(context, companyProvider)),
-                      const SizedBox(width: 10),
-                      Expanded(child: _buildFilterDropdown(context)),
+                      Expanded(child: _buildEnhancedCompanyDropdown(context, companyProvider)),
+                      const SizedBox(width: 12),
+                      Expanded(child: _buildEnhancedFilterDropdown(context)),
                     ],
                   ),
                 ],
               ),
             ),
-            // The TabBarView is now wrapped to handle its own height
+            const SizedBox(height: 15),
+            // Enhanced TabBarView container
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppConstants.paddingHorizontal,
@@ -213,30 +344,31 @@ class MobileHeader extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withValues(alpha: 0.1),
-                      spreadRadius: 1,
-                      blurRadius: 2,
-                      offset: const Offset(0, 1),
+                      color: Colors.grey.withValues(alpha: 0.15),
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                // This ensures the TabBarView takes the height of its content
-                child: AnimatedBuilder(
-                  animation: tabController.animation!,
-                  builder: (context, child) {
-                    return IndexedStack(
-                      index: tabController.index,
-                      children: [
-                        // Each child must be a self-contained scrollable view or sized box
-                        _buildBrandsContent(context, ContentType.brands),
-                        _buildBrandsContent(context, ContentType.models),
-                        _buildIssuesContent(context),
-                      ],
-                    );
-                  },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                  child: AnimatedBuilder(
+                    animation: tabController.animation!,
+                    builder: (context, child) {
+                      return IndexedStack(
+                        index: tabController.index,
+                        children: [
+                          _buildBrandsContent(context, ContentType.brands),
+                          _buildBrandsContent(context, ContentType.models),
+                          _buildIssuesContent(context),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
@@ -246,50 +378,132 @@ class MobileHeader extends StatelessWidget {
     );
   }
 
-  // Helper method to build Company Dropdown
-  Widget _buildCompanyDropdown(BuildContext context, GetCompanyProvider companyProvider) {
-    return companyProvider.state == RequestState.loading
-        ? const Center(child: CircularProgressIndicator(color: Colors.white))
-        : DropdownButton<company_entity.CompanyEntity>(
-            value: companyProvider.selectedCompany,
-            hint: Text('select_company'.tr(), style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName)),
-            dropdownColor: ColorManager.chartColor,
-            style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName),
-            icon: Icon(Icons.arrow_drop_down, color: ColorManager.primary),
-            underline: Container(),
-            isExpanded: true,
-            onChanged: (company_entity.CompanyEntity? newValue) {
-              if (newValue != null) {
-                companyProvider.setSelectedCompany(newValue);
-                Provider.of<GetBrandProvider>(context, listen: false).getAllBrandsWidget(companyId: newValue.id);
-              }
-            },
-            items: companyProvider.allCompanies.map<DropdownMenuItem<company_entity.CompanyEntity>>((company_entity.CompanyEntity company) {
-              return DropdownMenuItem<company_entity.CompanyEntity>(value: company, child: Text(company.companyName, overflow: TextOverflow.ellipsis));
-            }).toList(),
-          );
+  // Enhanced Company Dropdown
+  Widget _buildEnhancedCompanyDropdown(BuildContext context, GetCompanyProvider companyProvider) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: companyProvider.state == RequestState.loading
+          ? const Center(child: CircularProgressIndicator(color: Colors.white))
+          : DropdownButton<company_entity.CompanyEntity>(
+              value: companyProvider.selectedCompany,
+              hint: Row(
+                children: [
+                  Icon(Icons.business, size: 16, color: ColorManager.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'select_company'.tr(), 
+                      style: TextStyle(
+                        color: ColorManager.primary, 
+                        fontFamily: StringConstant.fontName,
+                        fontSize: 13,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              dropdownColor: Colors.white,
+              style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName),
+              icon: Icon(Icons.keyboard_arrow_down, color: ColorManager.primary),
+              underline: Container(),
+              isExpanded: true,
+              onChanged: (company_entity.CompanyEntity? newValue) {
+                if (newValue != null) {
+                  companyProvider.setSelectedCompany(newValue);
+                  Provider.of<GetBrandProvider>(context, listen: false).getAllBrandsWidget(companyId: newValue.id);
+                }
+              },
+              items: companyProvider.allCompanies.map<DropdownMenuItem<company_entity.CompanyEntity>>((company_entity.CompanyEntity company) {
+                return DropdownMenuItem<company_entity.CompanyEntity>(
+                  value: company, 
+                  child: Text(company.companyName, overflow: TextOverflow.ellipsis)
+                );
+              }).toList(),
+            ),
+    );
   }
 
-  // Helper method to build Filter Dropdown
-  Widget _buildFilterDropdown(BuildContext context) {
-    return DropdownButton<String>(
-      value: byStatus.isEmpty ? null : byStatus,
-      hint: Text('brands_filter'.tr(), style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName)),
-      dropdownColor: ColorManager.chartColor,
-      style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName),
-      icon: Icon(Icons.arrow_drop_down, color: ColorManager.primary),
-      underline: Container(),
-      isExpanded: true,
-      onChanged: (String? newValue) {
-        if (newValue != null) onFilterChanged(newValue);
-      },
-      items: [
-        StringConstant.accept,
-        StringConstant.reject,
-        StringConstant.inEgypt,
-        StringConstant.outsideEgypt,
-        StringConstant.allStatus,
-      ].map((value) => DropdownMenuItem(value: value, child: Text(value.tr()))).toList(),
+  // Enhanced Filter Dropdown
+  Widget _buildEnhancedFilterDropdown(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: DropdownButton<String>(
+        value: byStatus.isEmpty ? null : byStatus,
+              hint: Row(
+        children: [
+          Icon(Icons.location_on, size: 16, color: ColorManager.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'اختر الموقع', 
+              style: TextStyle(
+                color: ColorManager.primary, 
+                fontFamily: StringConstant.fontName,
+                fontSize: 13,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+        dropdownColor: Colors.white,
+        style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName),
+        icon: Icon(Icons.keyboard_arrow_down, color: ColorManager.primary),
+        underline: Container(),
+        isExpanded: true,
+        onChanged: (String? newValue) {
+          if (newValue != null) onFilterChanged(newValue);
+        },
+        items: [
+          DropdownMenuItem(
+            value: StringConstant.inEgypt,
+            child: Row(
+              children: [
+                Icon(Icons.flag, size: 16, color: Colors.green.shade600),
+                const SizedBox(width: 8),
+                Text('in_egypt'.tr(), style: TextStyle(fontFamily: StringConstant.fontName)),
+              ],
+            ),
+          ),
+          DropdownMenuItem(
+            value: StringConstant.outsideEgypt,
+            child: Row(
+              children: [
+                Icon(Icons.public, size: 16, color: Colors.orange.shade600),
+                const SizedBox(width: 8),
+                Text('out_egypt'.tr(), style: TextStyle(fontFamily: StringConstant.fontName)),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -298,7 +512,10 @@ class MobileHeader extends StatelessWidget {
     return Consumer<GetBrandProvider>(
       builder: (context, provider, _) {
         if (provider.state == RequestState.loading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Padding(
+            padding: EdgeInsets.all(40),
+            child: Center(child: CircularProgressIndicator()),
+          );
         }
         final filteredData = provider.allBrands.where((brand) => _filterBrands(brand, type)).toList();
 
@@ -311,12 +528,15 @@ class MobileHeader extends StatelessWidget {
     );
   }
 
-  // New method to build the Issues tab content
+  // Enhanced Issues content with card design similar to brands
   Widget _buildIssuesContent(BuildContext context) {
     return Consumer2<GetIssuesProvider, GetIssuesSummaryProvider>(
       builder: (context, issuesProvider, summaryProvider, _) {
         if (issuesProvider.state == RequestState.loading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Padding(
+            padding: EdgeInsets.all(40),
+            child: Center(child: CircularProgressIndicator()),
+          );
         }
         if (issuesProvider.allIssues.isEmpty) {
           return _NoDataView(message: 'no_issues'.tr());
@@ -324,89 +544,176 @@ class MobileHeader extends StatelessWidget {
 
         return SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              // Summary card
-              if (summaryProvider.state == RequestState.loaded && summaryProvider.issuesSummary != null)
-                _buildIssuesSummaryCard(summaryProvider.issuesSummary!),
-
-              // List of issues
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: issuesProvider.allIssues.length,
-                itemBuilder: (context, index) {
-                  final issue = issuesProvider.allIssues[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: ListTile(
-                      title: Text(issue.brand.brandName, style: TextStyle(fontFamily: StringConstant.fontName, fontWeight: FontWeight.bold)),
-                      subtitle: Text(issue.refusedType, style: TextStyle(fontFamily: StringConstant.fontName)),
-                      trailing: Text('${issue.sessionsCount} ${'sessions'.tr()}', style: TextStyle(fontFamily: StringConstant.fontName)),
-                      onTap: () {
-                        // TODO: Navigate to issue details screen
-                      },
-                    ),
-                  );
-                },
-              )
-            ],
+          child: Padding(
+            padding: const EdgeInsets.all(AppConstants.paddingHorizontal),
+                         child: Column(
+               crossAxisAlignment: CrossAxisAlignment.start,
+               children: [
+                 // List of issues with enhanced card design
+                 ListView.separated(
+                   shrinkWrap: true,
+                   physics: const NeverScrollableScrollPhysics(),
+                   itemCount: issuesProvider.allIssues.length,
+                   separatorBuilder: (context, index) => const SizedBox(height: 12),
+                   itemBuilder: (context, index) {
+                     final issue = issuesProvider.allIssues[index];
+                     return _buildEnhancedIssueCard(context, issue, index);
+                   },
+                 ),
+                 const SizedBox(height: 20),
+               ],
+             ),
           ),
         );
       },
     );
   }
 
-  Widget _buildIssuesSummaryCard(IssuesSummaryEntity summary) {
+  // Enhanced Issue Card that looks similar to Brand cards
+  Widget _buildEnhancedIssueCard(BuildContext context, issues_entities.IssueEntity issue, int index) {
     return Card(
-      elevation: 2,
-      margin: const EdgeInsets.all(8),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('issues_summary'.tr(), style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: ColorManager.primary, fontFamily: StringConstant.fontName)),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+      elevation: 8,
+      shadowColor: ColorManager.primary.withValues(alpha: 0.2),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+          border: Border.all(color: Colors.grey.shade100),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+          onTap: () {
+            // TODO: Navigate to issue details screen
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
               children: [
-                _buildSummaryItem('total_issues'.tr(), summary.statistics.totalIssues.toString(), Icons.gavel, ColorManager.primary),
-                _buildSummaryItem('normal_issues'.tr(), summary.statistics.normalIssues.toString(), Icons.description, Colors.blue),
-                _buildSummaryItem('opposition_issues'.tr(), summary.statistics.oppositionIssues.toString(), Icons.warning, Colors.orange),
+                // Issue Icon/Image (similar to brand image)
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        ColorManager.primary.withValues(alpha: 0.1),
+                        ColorManager.primary.withValues(alpha: 0.05),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: ColorManager.primary.withValues(alpha: 0.2)),
+                  ),
+                  child: Icon(
+                    Icons.gavel,
+                    size: 35,
+                    color: ColorManager.primary,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Issue details (similar to brand details)
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Issue title/brand name
+                      Text(
+                        issue.brand.brandName,
+                        style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          fontSize: 16, 
+                          fontWeight: FontWeight.w600,
+                          fontFamily: StringConstant.fontName,
+                          color: Colors.black87,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                                             const SizedBox(height: 6),
+                       // Issue status only
+                       Row(
+                         children: [
+                           Icon(
+                             Icons.info_outline,
+                             size: 16,
+                             color: Colors.grey.shade600,
+                           ),
+                           const SizedBox(width: 6),
+                           Expanded(
+                             child: Text(
+                               issue.refusedType,
+                               style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                                 color: Colors.grey.withValues(alpha: 0.8), 
+                                 fontSize: 14,
+                                 fontFamily: StringConstant.fontName
+                               ),
+                               overflow: TextOverflow.ellipsis,
+                               maxLines: 1,
+                             ),
+                           ),
+                         ],
+                       ),
+                      const SizedBox(height: 8),
+                      // Status container (similar to brand status)
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.orange.shade400,
+                              Colors.orange.shade600,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          '${issue.sessionsCount} ${'sessions'.tr()}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: StringConstant.fontName,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Status indicator
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    borderRadius: BorderRadius.circular(6),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.orange.withValues(alpha: 0.4),
+                        spreadRadius: 2,
+                        blurRadius: 4,
+                      ),
+                    ],
+                  ),
+                ),
               ],
-            )
-          ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildSummaryItem(String title, String count, IconData icon, Color color) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 28),
-        const SizedBox(height: 4),
-        Text(count, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color, fontFamily: StringConstant.fontName)),
-        Text(title, style: TextStyle(fontSize: 12, color: Colors.grey, fontFamily: StringConstant.fontName)),
-      ],
-    );
-  }
+
 
   bool _filterBrands(brand_entity.BrandEntity brand, ContentType type) {
     final isMark = type == ContentType.brands;
     if (brand.markOrModel != (isMark ? 0 : 1)) return false;
 
-    if (byStatus == StringConstant.accept) {
-      return brand.currentStatus == 2;
-    } else if (byStatus == StringConstant.reject) {
-      return brand.currentStatus == 3;
-    } else if (byStatus == StringConstant.inEgypt) {
+    if (byStatus == StringConstant.inEgypt) {
       return brand.country == 0;
     } else if (byStatus == StringConstant.outsideEgypt) {
       return brand.country != 0;
     }
-    return true; // For allStatus or empty
+    return true; // For empty filter (show all)
   }
 }
 
@@ -665,17 +972,340 @@ class MobileListContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
+    return ListView.separated(
       itemCount: brands.length,
-      shrinkWrap: true, // Important for nested lists
-      physics: const NeverScrollableScrollPhysics(), // Important for nested lists
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(AppConstants.paddingHorizontal),
-      itemBuilder: (context, index) => BrandWidget(
-        context: context,
-        model: Provider.of<GetBrandProvider>(context, listen: false),
-        index: index,
-        isFromHomeFiltering: true,
-        brandsList: brands,
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
+      itemBuilder: (context, index) => EnhancedMobileBrandCard(
+        brand: brands[index],
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => BranDetails(brandId: brands[index].id),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Enhanced Mobile Brand Card similar to web view design
+class EnhancedMobileBrandCard extends StatelessWidget {
+  final brand_entity.BrandEntity brand;
+  final VoidCallback onTap;
+
+  const EnhancedMobileBrandCard({
+    required this.brand,
+    required this.onTap,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final status = brand.currentStatus;
+    final statusColor = BrandStatusHelper.getStatusColor(status);
+    final statusText = brand.state;
+    final statusLightColor = BrandStatusHelper.getStatusLightColor(status);
+
+    // Find main image
+    ImagesModel? mainImage;
+    try {
+      if (brand.images.isNotEmpty) {
+        final imagesWithoutCondition = brand.images
+            .whereType<ImagesModel>()
+            .where((img) => img.conditionId == null)
+            .toList();
+
+        if (imagesWithoutCondition.isNotEmpty) {
+          mainImage = imagesWithoutCondition.first;
+        } else {
+          final firstImage = brand.images.first;
+          if (firstImage is ImagesModel) {
+            mainImage = firstImage;
+          }
+        }
+      }
+    } catch (e) {
+      print('Error processing brand images: $e');
+      mainImage = null;
+    }
+
+    return Container(
+      height: 180,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withValues(alpha: 0.15),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+                spreadRadius: 1,
+              ),
+            ],
+            border: Border.all(
+              color: statusColor.withValues(alpha: 0.3),
+              width: 1.5,
+            ),
+          ),
+          child: Row(
+            children: [
+              // Image Section (1/3 of width)
+              Expanded(
+                flex: 2,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
+                  child: _buildMobileImage(mainImage, statusColor, statusLightColor),
+                ),
+              ),
+              // Content Section (2/3 of width)
+              Expanded(
+                flex: 3,
+                child: Container(
+                  height: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  child: _buildMobileContent(statusColor, statusText),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileImage(ImagesModel? image, Color statusColor, Color statusLightColor) {
+    if (image != null && image.image.isNotEmpty) {
+      String imageUrl = ApiConstant.imagePath + image.image;
+
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        child: cachedImage(
+          imageUrl,
+          fit: BoxFit.contain,
+          placeHolderFit: BoxFit.cover,
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            statusLightColor,
+            statusColor.withValues(alpha: 0.05),
+          ],
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.image_not_supported_outlined,
+              color: statusColor,
+              size: 28,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'لا توجد صورة',
+            style: TextStyle(
+              color: statusColor,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              fontFamily: StringConstant.fontName,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileContent(Color statusColor, String statusText) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Brand Name and Number Section
+        Expanded(
+          flex: 3,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              // Brand Name
+              Flexible(
+                child: Text(
+                  brand.brandName ?? 'اسم غير محدد',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                    fontFamily: StringConstant.fontName,
+                    height: 1.1,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(height: 4),
+
+              // Brand Number
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(4),
+                  border: Border.all(color: Colors.blue.shade200, width: 0.5),
+                ),
+                child: Text(
+                  '#${brand.brandNumber ?? 'غير محدد'}',
+                  style: TextStyle(
+                    color: Colors.blue.shade700,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: StringConstant.fontName,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Indicators Section
+        Expanded(
+          flex: 1,
+          child: Center(
+            child: Wrap(
+              spacing: 4,
+              runSpacing: 2,
+              children: [
+                _buildMobileIndicator(
+                  icon: brand.country == 0 ? Icons.flag : Icons.public,
+                  color: brand.country == 0 ? Colors.green : Colors.orange,
+                  text: brand.country == 0 ? 'مصر' : 'خارجي',
+                ),
+                _buildMobileIndicator(
+                  icon: brand.markOrModel == 0
+                      ? Icons.verified
+                      : Icons.precision_manufacturing,
+                  color: brand.markOrModel == 0 ? Colors.purple : Colors.teal,
+                  text: brand.markOrModel == 0 ? 'علامة' : 'نموذج',
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Status Section
+        Expanded(
+          flex: 1,
+          child: _buildMobileStatusIndicator(statusText, statusColor),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileIndicator({
+    required IconData icon,
+    required Color color,
+    required String text,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 0.5),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 12,
+            color: color,
+          ),
+          const SizedBox(width: 3),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 11,
+              color: color,
+              fontWeight: FontWeight.w600,
+              fontFamily: StringConstant.fontName,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileStatusIndicator(String statusText, Color statusColor) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            statusColor.withValues(alpha: 0.1),
+            statusColor.withValues(alpha: 0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: statusColor.withValues(alpha: 0.4),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(3),
+            ),
+            child: Icon(
+              Icons.info_outline,
+              size: 12,
+              color: statusColor,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text(
+              statusText,
+              style: TextStyle(
+                color: statusColor,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                fontFamily: StringConstant.fontName,
+                height: 1.2,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }
