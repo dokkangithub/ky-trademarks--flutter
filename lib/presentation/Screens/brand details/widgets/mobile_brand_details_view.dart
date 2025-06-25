@@ -143,6 +143,34 @@ class MobileBrandDetailsView extends StatelessWidget {
             child: BrandImages(model: model, tutorialKey: logoKey),
           ),
         ),
+        // Back Button
+        Positioned(
+          top: 25,
+          left: 25,
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.9),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.arrow_forward,
+                color: ColorManager.primary,
+                size: 24,
+              ),
+            ),
+          ),
+        ),
+        // Tutorial Button
         Positioned(
           top: 25,
           right: 25,
@@ -271,7 +299,7 @@ class MobileBrandDetailsView extends StatelessWidget {
                 Icon(Icons.info_outline, color: Colors.white, size: 22),
                 const SizedBox(width: 10),
                 Text(
-                  "brand_info".tr(),
+                  "تفاصيل العلامه".tr(),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
