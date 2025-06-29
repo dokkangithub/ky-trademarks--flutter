@@ -53,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late final ScrollController _mainScrollController;
   late final ScrollController _listScrollController;
   String _byStatus = "";
+  String _byBrandDescription = "";
   bool _isLoadingMore = false;
 
   @override
@@ -140,14 +141,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return _isWebView(context)
             ? WebView(
           byStatus: _byStatus,
+          byBrandDescription: _byBrandDescription,
           onFilterChanged: (value) => setState(() => _byStatus = value),
+          onBrandDescriptionFilterChanged: (value) => setState(() => _byBrandDescription = value),
           mainScrollController: _mainScrollController,
           listScrollController: _listScrollController,
           isLoadingMore: _isLoadingMore,
         )
             : MobileView(
           byStatus: _byStatus,
+          byBrandDescription: _byBrandDescription,
           onFilterChanged: (value) => setState(() => _byStatus = value),
+          onBrandDescriptionFilterChanged: (value) => setState(() => _byBrandDescription = value),
           mainScrollController: _mainScrollController,
           listScrollController: _listScrollController,
           isLoadingMore: _isLoadingMore,

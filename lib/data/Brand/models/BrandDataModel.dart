@@ -10,6 +10,22 @@ class BrandDataModel extends BrandDataEntity {
     required super.total, // Added total
   });
 
+  // Helper function to clean HTML tags and escape characters
+  static String _cleanHtmlAndEscapeChars(String text) {
+    if (text.isEmpty) return text;
+    
+    // Replace HTML tags with space (to preserve word separation)
+    String cleaned = text.replaceAll(RegExp(r'<[^>]*>'), ' ');
+    
+    // Replace escape characters with space
+    cleaned = cleaned.replaceAll(RegExp(r'\\r\\n|\\n|\\r|\r\n|\n|\r'), ' ');
+    
+    // Remove extra whitespaces and trim
+    cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ').trim();
+    
+    return cleaned;
+  }
+
   factory BrandDataModel.fromJson(Map<String, dynamic> json) {
     return BrandDataModel(
       status: json['status'] as int? ?? 0,
@@ -46,6 +62,7 @@ class BrandModel extends BrandEntity {
     required super.markOrModel,
     required super.state,
     required super.images,
+    required super.brandDescription,
   });
 
   factory BrandModel.fromJson(Map<String, dynamic> json) {
@@ -59,6 +76,7 @@ class BrandModel extends BrandEntity {
       markOrModel: json['mark_or_model'] as int? ?? 0,
       state: (json['state'] as String?) ?? '',
       images: _parseImages(json['images']),
+      brandDescription: BrandDataModel._cleanHtmlAndEscapeChars((json['brand_description'] as String?) ?? ''),
     );
   }
 

@@ -113,14 +113,18 @@ class BrandStatusHelper {
 // Converted to StatefulWidget to handle local state like TabController
 class MobileView extends StatefulWidget {
   final String byStatus;
+  final String byBrandDescription;
   final ValueChanged<String> onFilterChanged;
+  final ValueChanged<String> onBrandDescriptionFilterChanged;
   final ScrollController mainScrollController;
   final ScrollController listScrollController;
   final bool isLoadingMore;
 
   const MobileView({
     required this.byStatus,
+    required this.byBrandDescription,
     required this.onFilterChanged,
+    required this.onBrandDescriptionFilterChanged,
     required this.mainScrollController,
     required this.listScrollController,
     required this.isLoadingMore,
@@ -162,6 +166,35 @@ class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  // Get unique brand descriptions from all brands
+  static List<String> _getUniqueBrandDescriptions(List<brand_entity.BrandEntity> brands) {
+    final descriptions = brands
+        .map((brand) => _cleanBrandDescription(brand.brandDescription))
+        .where((desc) => desc.isNotEmpty)
+        .toSet()
+        .toList();
+    
+    // Add "الكل" option at the beginning
+    descriptions.insert(0, "");
+    return descriptions;
+  }
+
+  // Helper function to clean HTML tags and escape characters from brand description
+  static String _cleanBrandDescription(String text) {
+    if (text.isEmpty) return text;
+    
+    // Replace HTML tags with space (to preserve word separation)
+    String cleaned = text.replaceAll(RegExp(r'<[^>]*>'), ' ');
+    
+    // Replace escape characters with space
+    cleaned = cleaned.replaceAll(RegExp(r'\\r\\n|\\n|\\r|\r\n|\n|\r'), ' ');
+    
+    // Remove extra whitespaces and trim
+    cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ').trim();
+    
+    return cleaned;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -173,7 +206,9 @@ class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
           MobileHeader(
             tabController: _tabController,
             byStatus: widget.byStatus,
+            byBrandDescription: widget.byBrandDescription,
             onFilterChanged: widget.onFilterChanged,
+            onBrandDescriptionFilterChanged: widget.onBrandDescriptionFilterChanged,
           ),
           
           // Total Statistics Section - New addition
@@ -305,12 +340,16 @@ class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
 class MobileHeader extends StatelessWidget {
   final TabController tabController;
   final String byStatus;
+  final String byBrandDescription;
   final ValueChanged<String> onFilterChanged;
+  final ValueChanged<String> onBrandDescriptionFilterChanged;
 
   const MobileHeader({
     required this.tabController,
     required this.byStatus,
+    required this.byBrandDescription,
     required this.onFilterChanged,
+    required this.onBrandDescriptionFilterChanged,
     super.key,
   });
 
@@ -405,6 +444,9 @@ class MobileHeader extends StatelessWidget {
                       Expanded(child: _buildEnhancedFilterDropdown(context)),
                     ],
                   ),
+                  const SizedBox(height: 12),
+                  // Brand description filter
+                  _buildBrandDescriptionFilterDropdown(context),
                 ],
               ),
             ),
@@ -586,6 +628,76 @@ class MobileHeader extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Brand description filter dropdown
+  Widget _buildBrandDescriptionFilterDropdown(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.9),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      child: DropdownButton<String>(
+        value: byBrandDescription.isEmpty ? null : byBrandDescription,
+        hint: Row(
+          children: [
+            Icon(Icons.description, size: 16, color: ColorManager.primary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'اختر الوصف', 
+                style: TextStyle(
+                  color: ColorManager.primary, 
+                  fontFamily: StringConstant.fontName,
+                  fontSize: 13,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        dropdownColor: Colors.white,
+        style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName),
+        icon: Icon(Icons.keyboard_arrow_down, color: ColorManager.primary),
+        underline: Container(),
+        isExpanded: true,
+        onChanged: (String? newValue) {
+          if (newValue != null) onBrandDescriptionFilterChanged(newValue);
+        },
+                 items: _MobileViewState._getUniqueBrandDescriptions(Provider.of<GetBrandProvider>(context).allBrands).map<DropdownMenuItem<String>>((String description) {
+           return DropdownMenuItem<String>(
+             value: description,
+             child: Row(
+               children: [
+                 Icon(
+                   description.isEmpty ? Icons.all_inclusive : Icons.description_outlined, 
+                   size: 16, 
+                   color: description.isEmpty ? Colors.blue.shade600 : Colors.purple.shade600
+                 ),
+                 const SizedBox(width: 8),
+                 Expanded(
+                   child: Text(
+                     description.isEmpty ? 'الكل' : description, 
+                     style: TextStyle(fontFamily: StringConstant.fontName),
+                     overflow: TextOverflow.ellipsis,
+                   ),
+                 ),
+               ],
+             ),
+           );
+         }).toList(),
       ),
     );
   }
@@ -905,6 +1017,16 @@ class MobileHeader extends StatelessWidget {
     final isMark = type == ContentType.brands;
     if (brand.markOrModel != (isMark ? 0 : 1)) return false;
 
+    // Apply brand description filter first - clean both for comparison
+    if (byBrandDescription.isNotEmpty) {
+      final cleanedBrandDesc = _MobileViewState._cleanBrandDescription(brand.brandDescription);
+      final cleanedFilterDesc = _MobileViewState._cleanBrandDescription(byBrandDescription);
+      if (cleanedBrandDesc != cleanedFilterDesc) {
+        return false;
+      }
+    }
+
+    // Apply location filter
     if (byStatus == StringConstant.inEgypt) {
       return brand.country == 0;
     } else if (byStatus == StringConstant.outsideEgypt) {

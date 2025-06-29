@@ -29,6 +29,7 @@ class BrandEntity extends Equatable {
   final String newCurrentStatus;
   final int markOrModel;
   final String state;
+  final String brandDescription;
 
   final List<BrandImages> images;
 
@@ -41,12 +42,13 @@ class BrandEntity extends Equatable {
       required this.images,
       required this.markOrModel,
       required this.country,
-      required this.state});
+      required this.state,
+      required this.brandDescription});
 
   @override
 // TODO: implement props
   List<Object?> get props =>
-      [id, brandName, brandName, currentStatus, images, markOrModel];
+      [id, brandName, brandName, currentStatus, images, markOrModel, brandDescription];
 }
 class BrandsUpdates extends Equatable {
   final String brand_name;

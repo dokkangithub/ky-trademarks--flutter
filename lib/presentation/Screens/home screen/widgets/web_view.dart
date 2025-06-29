@@ -109,7 +109,9 @@ class BrandStatusHelper {
 
 class WebView extends StatefulWidget {
   final String byStatus;
+  final String byBrandDescription; // Added brand description filter
   final ValueChanged<String> onFilterChanged;
+  final ValueChanged<String> onBrandDescriptionFilterChanged; // Added brand description filter callback
   final ScrollController mainScrollController;
   final ScrollController listScrollController;
   final bool isLoadingMore;
@@ -117,7 +119,9 @@ class WebView extends StatefulWidget {
 
   const WebView({
     required this.byStatus,
+    required this.byBrandDescription, // Added brand description filter
     required this.onFilterChanged,
+    required this.onBrandDescriptionFilterChanged, // Added brand description filter callback
     required this.mainScrollController,
     required this.listScrollController,
     required this.isLoadingMore,
@@ -166,6 +170,35 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
   void dispose() {
     tabController.dispose();
     super.dispose();
+  }
+
+  // Get unique brand descriptions from all brands
+  List<String> _getUniqueBrandDescriptions(List<BrandEntity> brands) {
+    final descriptions = brands
+        .map((brand) => _cleanBrandDescription(brand.brandDescription))
+        .where((desc) => desc.isNotEmpty)
+        .toSet()
+        .toList();
+    
+    // Add "الكل" option at the beginning
+    descriptions.insert(0, "");
+    return descriptions;
+  }
+
+  // Helper function to clean HTML tags and escape characters from brand description
+  String _cleanBrandDescription(String text) {
+    if (text.isEmpty) return text;
+    
+    // Replace HTML tags with space (to preserve word separation)
+    String cleaned = text.replaceAll(RegExp(r'<[^>]*>'), ' ');
+    
+    // Replace escape characters with space
+    cleaned = cleaned.replaceAll(RegExp(r'\\r\\n|\\n|\\r|\r\n|\n|\r'), ' ');
+    
+    // Remove extra whitespaces and trim
+    cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ').trim();
+    
+    return cleaned;
   }
 
   @override
@@ -396,8 +429,10 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
 
         // Filters - Flexible width
         Flexible(
-          flex: 2,
-          child: Row(
+          flex: 3,
+          child: Column(
+            children: [
+              Row(
             children: [
               // Company Dropdown
               Expanded(
@@ -434,6 +469,20 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
                   ),
                   child: _buildFilterDropdown(),
                 ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Brand Description Filter
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.grey.shade50,
+                ),
+                child: _buildBrandDescriptionDropdown(),
               ),
             ],
           ),
@@ -513,6 +562,20 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
             ),
           ],
         ),
+        
+        const SizedBox(height: 12),
+        
+        // Brand Description Filter
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.grey.shade50,
+          ),
+          child: _buildBrandDescriptionDropdown(),
+        ),
       ],
     );
   }
@@ -582,6 +645,20 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
             color: Colors.grey.shade50,
           ),
           child: _buildFilterDropdown(),
+        ),
+        
+        const SizedBox(height: 12),
+        
+        // Brand Description Filter
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.grey.shade50,
+          ),
+          child: _buildBrandDescriptionDropdown(),
         ),
       ],
     );
@@ -914,6 +991,96 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
     );
   }
 
+  // Brand description filter dropdown
+  Widget _buildBrandDescriptionDropdown() {
+    return DropdownButton<String>(
+      value: widget.byBrandDescription.isEmpty ? null : widget.byBrandDescription,
+      hint: Row(
+        children: [
+          Icon(
+            Icons.description,
+            color: Colors.grey.shade600,
+            size: 18,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'اختر الوصف',
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontSize: 14,
+              fontFamily: StringConstant.fontName,
+            ),
+          ),
+        ],
+      ),
+      dropdownColor: Colors.white,
+      style: TextStyle(
+        color: Colors.black,
+        fontSize: 14,
+        fontFamily: StringConstant.fontName,
+      ),
+      icon: Icon(Icons.keyboard_arrow_down, color: ColorManager.primary),
+      underline: Container(),
+      isExpanded: true,
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          widget.onBrandDescriptionFilterChanged(newValue);
+        }
+      },
+      items: _getUniqueBrandDescriptions(Provider.of<GetBrandProvider>(context).allBrands).map<DropdownMenuItem<String>>((String description) {
+        return DropdownMenuItem<String>(
+          value: description,
+          child: Row(
+            children: [
+              Icon(
+                description.isEmpty ? Icons.all_inclusive : Icons.description_outlined,
+                color: description.isEmpty ? Colors.blue.shade600 : Colors.purple.shade600,
+                size: 16,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  description.isEmpty ? 'الكل' : description,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontFamily: StringConstant.fontName,
+                    color: Colors.black87,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+      selectedItemBuilder: (BuildContext context) {
+        return _getUniqueBrandDescriptions(Provider.of<GetBrandProvider>(context).allBrands).map<Widget>((String description) {
+          return Row(
+            children: [
+              Icon(
+                Icons.description,
+                color: ColorManager.primary,
+                size: 18,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  description.isEmpty ? 'الكل' : description,
+                  style: TextStyle(
+                    color: ColorManager.primary,
+                    fontFamily: StringConstant.fontName,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          );
+        }).toList();
+      },
+    );
+  }
+
   Widget _buildFilterDropdown() {
     return DropdownButton<String>(
       value: widget.byStatus.isEmpty ? null : widget.byStatus,
@@ -1068,6 +1235,16 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
     final isInEgypt = brand.country == 0;
     if (brand.markOrModel != (isMark ? 0 : 1)) return false;
 
+    // Apply brand description filter first - clean both for comparison
+    if (widget.byBrandDescription.isNotEmpty) {
+      final cleanedBrandDesc = _cleanBrandDescription(brand.brandDescription);
+      final cleanedFilterDesc = _cleanBrandDescription(widget.byBrandDescription);
+      if (cleanedBrandDesc != cleanedFilterDesc) {
+        return false;
+      }
+    }
+
+    // Apply status/location filters
     if (widget.byStatus == StringConstant.accept) {
       return brand.currentStatus == 2;
     } else if (widget.byStatus == StringConstant.reject) {
