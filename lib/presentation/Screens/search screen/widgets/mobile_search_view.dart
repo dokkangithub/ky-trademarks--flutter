@@ -170,18 +170,11 @@ class _MobileSearchViewState extends State<MobileSearchView> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            spreadRadius: 1,
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: TabBar(
         controller: widget.searchTypeController,
         onTap: widget.onSearchTypeChanged,
+        padding: EdgeInsets.zero,
         indicator: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           gradient: LinearGradient(
@@ -343,7 +336,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
       hintStyle: TextStyle(
         fontFamily: StringConstant.fontName,
         color: Colors.grey.shade500,
-        fontSize: 14,
+        fontSize: 12,
       ),
       prefixIcon: Icon(
         widget.currentSearchType == 0 ? Icons.business_center_outlined : Icons.gavel_outlined,
