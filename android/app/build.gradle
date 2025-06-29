@@ -92,6 +92,10 @@ flutter {
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    
+    // Add kotlinx-metadata-jvm to resolve version conflict
+    implementation "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.7.0"
+    
     implementation 'com.google.firebase:firebase-analytics'
     implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
     implementation("com.google.firebase:firebase-analytics-ktx")
