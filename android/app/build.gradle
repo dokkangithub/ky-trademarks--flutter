@@ -17,7 +17,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.kytrademarks"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -33,7 +33,7 @@ android {
     defaultConfig {
         applicationId = "com.kytrademarks"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled true
@@ -89,18 +89,33 @@ flutter {
     source = "../.."
 }
 
+configurations.all {
+    resolutionStrategy {
+        force 'com.google.android.gms:play-services-measurement-api:21.5.0'
+        force 'com.google.android.gms:play-services-measurement-base:21.5.0'
+        force 'com.google.android.gms:play-services-measurement-impl:21.5.0'
+        force 'com.google.android.gms:play-services-measurement-sdk:21.5.0'
+        force 'com.google.android.gms:play-services-measurement-sdk-api:21.5.0'
+        force 'com.google.firebase:firebase-analytics-ktx:21.5.0'
+        force 'com.google.firebase:firebase-common-ktx:20.4.2'
+    }
+
+    exclude group: 'com.google.android.gms', module: 'play-services-measurement'
+    exclude group: 'com.google.android.gms', module: 'play-services-measurement-sdk'
+    exclude group: 'com.google.android.gms', module: 'play-services-measurement-impl'
+    exclude group: 'com.google.android.gms', module: 'play-services-measurement-api'
+    exclude group: 'com.google.android.gms', module: 'play-services-measurement-base'
+    exclude group: 'com.google.android.gms', module: 'play-services-measurement-sdk-api'
+}
+
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     
-    // Add kotlinx-metadata-jvm to resolve version conflict
-    implementation "org.jetbrains.kotlinx:kotlinx-metadata-jvm:0.7.0"
-    
-    implementation 'com.google.firebase:firebase-analytics'
-    implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
-    implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("com.google.firebase:firebase-crashlytics-ktx")
-    implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation 'com.google.firebase:firebase-analytics:21.5.0'
+    implementation("com.google.firebase:firebase-analytics-ktx:21.5.0")
+    implementation("com.google.firebase:firebase-crashlytics-ktx:18.6.0")
+    implementation("com.google.firebase:firebase-messaging-ktx:23.4.0")
     
     // Modern Play Core libraries (replacing the deprecated core:1.10.3)
     implementation 'com.google.android.play:app-update:2.1.0'
