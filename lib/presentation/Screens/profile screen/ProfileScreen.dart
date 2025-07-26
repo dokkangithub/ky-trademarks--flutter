@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../resources/Color_Manager.dart';
 import '../../Controllar/GetSuccessPartners.dart';
 import '../../Controllar/userProvider.dart';
+import '../home screen/HomeScreen.dart';
 import 'widgets/mobile_profile_view.dart';
 import 'widgets/web_profile_view.dart';
 
@@ -52,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFE),
-      appBar: _buildAppBar(context),
+      appBar: !_isWebView(context) ? const CustomAppBar() : null,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

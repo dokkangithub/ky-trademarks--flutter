@@ -19,8 +19,7 @@ class SendReservationToRemoteData extends BaseSendResevationRemotoData {
       {required Map<String,String> json}) async {
     print(json);
     final result = await http.post(Uri.parse(
-        "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.contacts}",),body: json,headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}','Content-Type': 'application/json',
-      'Accept': "application/json"});
+        "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.contacts}",),body: json);
 
     if (result.statusCode == 200) {
       return SuccessResponse(message:"تم تنفيذ طلبك بنجاح");

@@ -191,6 +191,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ColorManager.primaryByOpacity.withValues(alpha: 0.9),
               ColorManager.primary,
             ],
+            stops: [0.2,0.7]
           ),
         ),
       ),

@@ -9,6 +9,7 @@ import '../../../resources/Color_Manager.dart';
 import '../../../resources/StringManager.dart';
 import '../../Controllar/GetBrandBySearchProvider.dart';
 import '../../Controllar/Issues/SearchIssuesProvider.dart';
+import '../home screen/HomeScreen.dart';
 import 'widgets/mobile_search_view.dart';
 import 'widgets/web_search_view.dart';
 
@@ -90,7 +91,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
     
     return Scaffold(
       backgroundColor: ColorManager.anotherTabBackGround.withValues(alpha: 0.1),
-      appBar: _buildAppBar(context),
+      appBar: !_isWebView(context) ? const CustomAppBar() : null,
       body: _isWebView(context)
           ? WebSearchView(
               key: ValueKey(currentSearchType), // إعادة بناء عند تغيير نوع البحث
@@ -136,10 +137,15 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: ColorManager.primary,
       elevation: 0,
       toolbarHeight: 0,
       leadingWidth: 0,
+      flexibleSpace:Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [ColorManager.primaryByOpacity,ColorManager.primary],stops: [0.3,0.8])
+        ),
+      ),
       systemOverlayStyle: SystemUiOverlayStyle(
         statusBarColor: ColorManager.primary,
         statusBarIconBrightness: Brightness.light,

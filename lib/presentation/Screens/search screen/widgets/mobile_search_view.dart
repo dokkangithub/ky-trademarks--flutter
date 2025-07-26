@@ -74,13 +74,11 @@ class _MobileSearchViewState extends State<MobileSearchView> {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            ColorManager.primaryByOpacity.withValues(alpha: 0.95),
-            ColorManager.primary,
-            ColorManager.primary.withValues(alpha: 0.8),
-          ],
+            colors: [
+              ColorManager.primaryByOpacity.withValues(alpha: 0.9),
+              ColorManager.primary,
+            ],
+            stops: [0.2,0.7]
         ),
         boxShadow: [
           BoxShadow(
