@@ -6,6 +6,7 @@ import 'package:kyuser/data/Reservation/models/ReservationModel.dart';
 import 'package:kyuser/network/SuccessResponse.dart';
 import '../../../core/Constant/Api_Constant.dart';
 import '../../../network/ErrorModel.dart';
+import '../../../utilits/Local_User_Data.dart';
 
 abstract class BaseGetSuccessPartnerRemoteData {
   Future<List<ImagesModel>> successPartner();
@@ -15,7 +16,8 @@ class GetSuccessPartnerRemotoData extends BaseGetSuccessPartnerRemoteData {
   @override
   Future<List<ImagesModel>> successPartner() async {
      final result = await http.get(Uri.parse(
-        "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.partenrs}"));
+        "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.partenrs}"),headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}','Content-Type': 'application/json',
+       'Accept': "application/json"});
      print("${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.partenrs}");
     if (result.statusCode == 200) {
       print(result.body);

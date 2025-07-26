@@ -28,7 +28,7 @@ class Users extends singleUserEntity {
 
   const Users({
     required super.id, required super.name, required super.phone,
-    required super.email, required super.activeStatus,required super.adminPhone,required super.pin_code});
+    required super.email, required super.activeStatus,required super.adminPhone,required super.pin_code,required super.token});
 
 
   factory Users.fromJson(Map<String, dynamic> customerJson, Map<String, dynamic> adminJson) {
@@ -40,6 +40,9 @@ class Users extends singleUserEntity {
       pin_code: customerJson['pin_code'] ?? '',
       adminPhone: adminJson['phone'] ?? '',
       activeStatus: customerJson['status'] ?? 0,
+      token: customerJson['token'] ?? '',
+
+
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:kyuser/data/Reservation/models/ReservationModel.dart';
 import 'package:kyuser/network/SuccessResponse.dart';
 import '../../../core/Constant/Api_Constant.dart';
 import '../../../network/ErrorModel.dart';
+import '../../../utilits/Local_User_Data.dart';
 
 abstract class BaseSendResevationRemotoData {
   Future<SuccessResponse> sendReservationToRemote(
@@ -18,7 +19,8 @@ class SendReservationToRemoteData extends BaseSendResevationRemotoData {
       {required Map<String,String> json}) async {
     print(json);
     final result = await http.post(Uri.parse(
-        "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.contacts}",),body: json);
+        "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.contacts}",),body: json,headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}','Content-Type': 'application/json',
+      'Accept': "application/json"});
 
     if (result.statusCode == 200) {
       return SuccessResponse(message:"تم تنفيذ طلبك بنجاح");

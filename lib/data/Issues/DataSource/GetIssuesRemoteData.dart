@@ -46,7 +46,7 @@ class GetIssuesRemoteData extends BaseGetIssuesRemoteData {
     debugPrint('Page: $page, Per Page: $perPage');
     debugPrint(url.toString());
 
-    final result = await http.get(url);
+    final result = await http.get(url,headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}',});
     
     debugPrint(result.body);
 
@@ -71,7 +71,7 @@ class GetIssuesRemoteData extends BaseGetIssuesRemoteData {
     debugPrint('Customer ID: $customerId');
     debugPrint(url.toString());
 
-    final result = await http.get(url);
+    final result = await http.get(url,headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}',});
     
     debugPrint(result.body);
 
@@ -94,7 +94,7 @@ class GetIssuesRemoteData extends BaseGetIssuesRemoteData {
     debugPrint('Customer ID: $customerId');
     debugPrint(url.toString());
 
-    final result = await http.get(url);
+    final result = await http.get(url,headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}',});
     
     debugPrint(result.body);
 
@@ -122,7 +122,8 @@ class GetIssuesRemoteData extends BaseGetIssuesRemoteData {
     debugPrint('Page: $page, Per Page: $perPage');
     debugPrint(url.toString());
 
-    final result = await http.get(url);
+    final result = await http.get(url,headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}','Content-Type': 'application/json',
+      'Accept': "application/json"});
     
     debugPrint(result.body);
 

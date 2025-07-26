@@ -18,6 +18,7 @@ import 'package:image_picker/image_picker.dart'; // For XFile
 import 'package:kyuser/network/SuccessResponse.dart';
 import '../../../core/Constant/Api_Constant.dart';
 import '../../../network/RestApi/Comman.dart';
+import '../../../utilits/Local_User_Data.dart';
 
 abstract class BaseSendRequestRemotoData {
   Future<SuccessResponse> sendRequestToRemote({
@@ -34,7 +35,7 @@ class SendRequestToRemoteData extends BaseSendRequestRemotoData {
   @override
   Future<SuccessResponse> sendRequestToRemote({
     required Map<String, String> data,
-    required dynamic image1, // Accepts File or XFile
+    required dynamic image1,
     dynamic image2,
     dynamic image3,
   }) async {
@@ -44,9 +45,15 @@ class SendRequestToRemoteData extends BaseSendRequestRemotoData {
     try {
       http.MultipartRequest request = http.MultipartRequest("POST", url);
 
-      // Handle images based on platform
+      // ✅ Add Bearer token to headers
+      final token = globalAccountData.getToken(); // Get token from your global data
+      if (token != null && token.isNotEmpty) {
+        request.headers['Authorization'] = 'Bearer $token';
+        request.headers['Accept'] = 'application/json';
+      }
+
+      // Platform-specific image handling
       if (kIsWeb) {
-        // Web: Handle XFile
         if (image1 != null) {
           final bytes = await (image1 as XFile).readAsBytes();
           request.files.add(http.MultipartFile.fromBytes(
@@ -72,7 +79,6 @@ class SendRequestToRemoteData extends BaseSendRequestRemotoData {
           ));
         }
       } else {
-        // Non-web: Handle File
         if (image1 != null) {
           request.files.add(await http.MultipartFile.fromPath(
             'image1',
@@ -96,7 +102,6 @@ class SendRequestToRemoteData extends BaseSendRequestRemotoData {
         }
       }
 
-      // Add the JSON fields
       request.fields.addAll(data);
 
       // Send the request
@@ -107,7 +112,6 @@ class SendRequestToRemoteData extends BaseSendRequestRemotoData {
       print(response.body);
 
       if (response.statusCode == 200) {
-        print("-------------------");
         return SuccessResponse(message: "تم تنفيذ طلبك بنجاح");
       } else {
         final errorMessage = json.decode(response.body)["message"] ?? "فشل تنفيذ الطلب";
@@ -115,7 +119,7 @@ class SendRequestToRemoteData extends BaseSendRequestRemotoData {
       }
     } catch (e) {
       print(e.toString());
-      toast(e.toString()); // Assuming toast is available from Comman.dart
+      toast(e.toString());
       return SuccessResponse(message: "فشل تنفيذ طلبك: $e");
     }
   }

@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:kyuser/data/BrandDetails/models/BrandDetailsDataModel.dart';
 import '../../../core/Constant/Api_Constant.dart';
 import '../../../network/ErrorModel.dart';
+import '../../../utilits/Local_User_Data.dart';
 
 abstract class BaseGetBrandDetailsRemoteData {
   Future<BrandDetailsDataModel> getBrandDetailsFromRemote(
@@ -16,7 +17,7 @@ class GetBrandDetailsRemoteData extends BaseGetBrandDetailsRemoteData {
   Future<BrandDetailsDataModel> getBrandDetailsFromRemote(
       {required int brandNumber}) async {
     final result = await http.get(Uri.parse(
-        "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.brandDetails}$brandNumber"));
+        "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.brandDetails}$brandNumber"),headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}','Content-Type':'application/json','Accept':"application/json"});
     print('=======Brand Details======');
     debugPrint(result.request.toString());
     debugPrint(result.body);

@@ -4,5 +4,5 @@ import 'package:kyuser/domain/Company/Entities/CompanyEntity.dart';
 import '../../../app/Failure.dart';
 
 abstract class BaseCompanyRepository {
-  Future<Either<Failure, CompanyDataEntity>> getAllCompanies();
+  Future<Either<Failure, CompanyDataEntity>> getAllCompanies(context);
 }

@@ -9,7 +9,7 @@ class GetAllCompaniesUseCase {
 
   GetAllCompaniesUseCase(this.baseCompanyRepository);
 
-  Future<Either<Failure, CompanyDataEntity>> call() async {
-    return await baseCompanyRepository.getAllCompanies();
+  Future<Either<Failure, CompanyDataEntity>> call(context) async {
+    return await baseCompanyRepository.getAllCompanies(context);
   }
 }

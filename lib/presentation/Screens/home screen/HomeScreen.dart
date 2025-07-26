@@ -90,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     GetCompanyProvider companyProvider =
     Provider.of<GetCompanyProvider>(context, listen: false);
     await Provider.of<GetCompanyProvider>(context, listen: false)
-        .getAllCompanies();
+        .getAllCompanies(context);
     await Provider.of<GetBrandProvider>(context, listen: false)
         .getAllBrandsWidget(companyId: companyProvider.allCompanies[0].id);
   }

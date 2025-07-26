@@ -15,7 +15,7 @@ class GetBrandRemoteData extends BaseGetBrandRemoteData {
   @override
   Future<BrandDataModel> getAllBrandFromRemote({required int page,required int companyId }) async {
     final result = await http.get(Uri.parse(
-        "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.getBrands}${globalAccountData.getId()}/$companyId?page=$page"));
+        "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.getBrands}${globalAccountData.getId()}/$companyId?page=$page"),headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}','Content-Type':'application/json','Accept':"application/json"});
     debugPrint('=======brands======');
     print('111111${globalAccountData.getId()}');
     print('111111${companyId}');
@@ -43,7 +43,7 @@ class GetBrandRemoteData extends BaseGetBrandRemoteData {
         return "201004000856";
       }
 
-      final result = await http.get(url);
+      final result = await http.get(url,headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}',});
       print('Response status code: ${result.statusCode}');
 
       if (result.statusCode == 200) {

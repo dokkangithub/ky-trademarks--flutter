@@ -24,6 +24,7 @@ final String email;
 final String phone;
 final String adminPhone;
 final int pin_code;
+final String token;
   const singleUserEntity({
     required this.id,
     required this.activeStatus,
@@ -31,7 +32,8 @@ final int pin_code;
     required this.email,
     required this.phone,
     required this.adminPhone,
-    required this.pin_code
+    required this.pin_code,
+    required this.token
   });
 
 

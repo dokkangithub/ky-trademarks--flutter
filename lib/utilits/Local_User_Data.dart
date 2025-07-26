@@ -14,6 +14,14 @@ class globalAccountData {
   static const _userPin="userPin";
   static const _showAgain="showAgain";
   static const _stateDialog="_stateDialog";
+  static const _tokenKey = 'auth_token';
+
+  static Future<void> setToken(String token) async =>
+      await _preferences?.setString(_tokenKey, token);
+
+  static String? getToken() =>
+      _preferences?.getString(_tokenKey);
+
   static Future init() async => _preferences = await SharedPreferences.getInstance();
 
   static Future setUsername(String username) async => await _preferences?.setString(_username, username);

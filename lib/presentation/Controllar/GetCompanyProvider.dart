@@ -14,12 +14,12 @@ class GetCompanyProvider extends ChangeNotifier {
   // Getter for selectedCompany
   CompanyEntity? get selectedCompany => _selectedCompany;
 
-  Future<void> getAllCompanies() async {
+  Future<void> getAllCompanies(context) async {
     state = RequestState.loading;
     allCompanies.clear();
     notifyListeners();
 
-    var result = await GetAllCompaniesUseCase(sl()).call();
+    var result = await GetAllCompaniesUseCase(sl()).call(context);
     result.fold((l) {
       state = RequestState.failed;
       notifyListeners();

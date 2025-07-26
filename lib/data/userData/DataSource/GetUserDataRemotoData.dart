@@ -27,7 +27,8 @@ class GetUserRemoteData extends BaseGetUserRemoteData {
     debugPrint('=======user data endpoint======');
     debugPrint(uri.toString());
 
-    final result = await http.get(uri);
+    final result = await http.get(uri,headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}','Content-Type': 'application/json',
+      'Accept': "application/json"});
 
     debugPrint('=======user data response======');
     debugPrint('Status code: ${result.statusCode}');
@@ -61,11 +62,19 @@ class GetUserRemoteData extends BaseGetUserRemoteData {
     // Get user email from local data
     String userEmail = globalAccountData.getEmail().toString();
 
+    // Get the token (option 1: directly from global memory)
+    String? token = globalAccountData.getToken(); // Or await SharedPreferences.getInstance()
+
     // Create multipart request
     var request = http.MultipartRequest(
-        'POST',
-        Uri.parse("${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.updateProfile}")
+      'POST',
+      Uri.parse("${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.updateProfile}"),
     );
+
+    // Add authorization header
+    if (token != null && token.isNotEmpty) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
 
     // Add email field
     request.fields['email'] = userEmail;
@@ -75,10 +84,10 @@ class GetUserRemoteData extends BaseGetUserRemoteData {
     var fileLength = await avatarFile.length();
 
     var multipartFile = http.MultipartFile(
-        'avatar',
-        fileStream,
-        fileLength,
-        filename: avatarFile.path.split('/').last
+      'avatar',
+      fileStream,
+      fileLength,
+      filename: avatarFile.path.split('/').last,
     );
 
     request.files.add(multipartFile);
@@ -100,18 +109,25 @@ class GetUserRemoteData extends BaseGetUserRemoteData {
       } catch (e) {
         debugPrint('JSON parsing error: $e');
         throw ServerException(
-            errorModel: ErrorModel(message: "Failed to parse response: $e", statusCode: 500));
+          errorModel: ErrorModel(
+            message: "Failed to parse response: $e",
+            statusCode: 500,
+          ),
+        );
       }
     } else {
       debugPrint('Server error with status: ${response.statusCode}');
       try {
         throw ServerException(
-            errorModel: ErrorModel.fromJson(json.decode(response.body)));
+          errorModel: ErrorModel.fromJson(json.decode(response.body)),
+        );
       } catch (e) {
         throw ServerException(
-            errorModel: ErrorModel(
-                message: "Server error with status: ${response.statusCode}",
-                statusCode: response.statusCode));
+          errorModel: ErrorModel(
+            message: "Server error with status: ${response.statusCode}",
+            statusCode: response.statusCode,
+          ),
+        );
       }
     }
   }

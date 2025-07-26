@@ -18,6 +18,7 @@ Future<void> saveUserData(UserModel data) async {
   await globalAccountData.setId(data.data.id.toString());
   await globalAccountData.setUsername(data.data.name);
   await globalAccountData.setEmail(data.data.email);
+  await globalAccountData.setToken(data.data.token);
   // await globalAccountData.setState(data.data!.city.toString());
   await globalAccountData.setPhone(data.data.phone);
   await globalAccountData.setAdminPhone(data.data.adminPhone);
@@ -31,6 +32,7 @@ Future<void> logOut() async {
   await globalAccountData.setId('');
   await globalAccountData.setPhone('');
   await globalAccountData.setActiveStatus('');
+  await globalAccountData.setToken('');
   await globalAccountData.setUsername('');
   await globalAccountData.setLoginInState(false);
   await globalAccountData.setEmail('');

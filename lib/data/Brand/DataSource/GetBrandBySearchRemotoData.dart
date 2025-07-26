@@ -19,7 +19,7 @@ class GetBrandBySearchRemoteData extends BaseGetBrandBySearchRemoteData {
     print(globalAccountData.getId());
     final result = await http.get(
         Uri.parse("${ApiConstant.baseUrl}${ApiConstant.firstSearchSecForBrand}${globalAccountData.getId().toString()}"
-            "${ApiConstant.secondSearchSecForBrand}$keyWard&page=$page"));
+            "${ApiConstant.secondSearchSecForBrand}$keyWard&page=$page"),headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}','Content-Type':'application/json','Accept':"application/json"});
     print(
         Uri.parse("${ApiConstant.baseUrl}${ApiConstant.firstSearchSecForBrand}${globalAccountData.getId().toString()}"
             "${ApiConstant.secondSearchSecForBrand}$keyWard"));
