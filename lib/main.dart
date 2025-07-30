@@ -16,17 +16,17 @@ import 'notification.dart';
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Ensure Firebase is initialized
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  
+
   debugPrint('Handling a background message ${message.messageId}');
 
   // Initialize FlutterLocalNotificationsPlugin
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  FlutterLocalNotificationsPlugin();
 
   const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
+  AndroidInitializationSettings('@android:drawable/ic_dialog_info');
   final DarwinInitializationSettings initializationSettingsIOS =
-      DarwinInitializationSettings(
+  DarwinInitializationSettings(
     requestAlertPermission: true,
     requestBadgePermission: true,
     requestSoundPermission: true,
@@ -49,14 +49,14 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     'high_importance_channel', // id
     'High Importance Notifications', // title
     description:
-        'This channel is used for important notifications.', // description
+    'This channel is used for important notifications.', // description
     importance: Importance.high,
   );
 
   // Create the notification channel
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
+      AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
 
   // Display the notification
@@ -74,7 +74,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
             channel.id,
             channel.name,
             channelDescription: channel.description,
-            icon: '@mipmap/ic_launcher',
+            icon: '@android:drawable/ic_dialog_info',
             importance: Importance.high,
             priority: Priority.high,
           ),
@@ -91,16 +91,16 @@ AndroidNotificationChannel channel = const AndroidNotificationChannel(
   'high_importance_channel', // id
   'High Importance Notifications', // title
   description:
-      'This channel is used for important notifications.', // description
+  'This channel is used for important notifications.', // description
   importance: Importance.high,
 );
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+FlutterLocalNotificationsPlugin();
 AppLifecycleState appLifecycleState = AppLifecycleState.detached;
 const AndroidInitializationSettings initializationSettingsAndroid =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
+AndroidInitializationSettings('@android:drawable/ic_dialog_info');
 final DarwinInitializationSettings initializationSettingsIOS =
-    DarwinInitializationSettings(
+DarwinInitializationSettings(
   requestAlertPermission: true,
   requestBadgePermission: true,
   requestSoundPermission: true,
@@ -119,7 +119,7 @@ Future<void> _requestNotificationPermissions() async {
       debugPrint('Running on web - skipping notification permission request');
       return;
     }
-    
+
     // Only request permissions on mobile platforms
     if (!kIsWeb) {
       final settings = await FirebaseMessaging.instance.requestPermission(
@@ -187,7 +187,7 @@ void main() async {
     // Create notification channel (only on Android)
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+        AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
     // Set background message handler
@@ -213,7 +213,7 @@ void main() async {
               channel.id,
               channel.name,
               channelDescription: channel.description,
-              icon: '@mipmap/ic_launcher',
+              icon: '@android:drawable/ic_dialog_info',
               importance: Importance.high,
               priority: Priority.high,
             ),
@@ -230,7 +230,7 @@ void main() async {
 
     // Check if the app was opened from a terminated state via a notification
     RemoteMessage? initialMessage =
-        await FirebaseMessaging.instance.getInitialMessage();
+    await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
       _handleMessage(initialMessage);
     }
@@ -273,7 +273,7 @@ void _handleMessage(RemoteMessage message) {
   if (navigatorKey.currentContext != null) {
     RemoteNotification? notification = message.notification;
     AndroidNotification? android = message.notification?.android;
-  
+
     if (notification != null && android != null) {
       showDialog(
         context: navigatorKey.currentContext!,
