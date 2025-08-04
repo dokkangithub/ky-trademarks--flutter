@@ -10,6 +10,8 @@ import 'package:kyuser/utilits/Local_User_Data.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../resources/Color_Manager.dart';
 import 'add reservation/AddReservation.dart';
+import 'chat screen/view/screen/all_chats_screen.dart';
+import 'chat screen/view/screen/chat_screen.dart';
 import 'home screen/HomeScreen.dart';
 import 'notification screen/NotificationScreen.dart';
 import 'profile screen/ProfileScreen.dart';
@@ -44,8 +46,21 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
   List<Widget> mainScreens = [];
 
   final contactUsKey = GlobalKey();
+  Future<Widget> _checkUserRole() async {
+    String userEmail = await globalAccountData.getEmail() ?? '';
+    bool isAdmin = userEmail == 'test@kytrademarks.com';
+
+    return isAdmin
+        ? AllChatsScreen()
+        : ChatScreen(chatId: '');
+  }
 
   List<SpeedDialMenuData> speedDialMenuItems = [
+    SpeedDialMenuData(
+      icon: IconlyBroken.chat,
+      label: 'chat'.tr(),
+      widget:  await _checkUserRole(),
+    ),
     SpeedDialMenuData(
       icon: IconlyBroken.calling,
       label: 'contact_us'.tr(),

@@ -1,56 +1,98 @@
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import 'package:cloud_firestore/cloud_firestore.dart';
+enum MessageType { text, image, video, audio, pdf, file }
+enum MessageStatus { sending, sent, delivered, seen }
+enum UserStatus { online, offline, typing }
 
-class ChatMessage {
+class MessageModel {
   final String id;
-  final String type;
-  final types.User author;
+  final String senderId;
+  final String senderName;
+  final String chatId;
   final String? text;
-  final String? uri;
-  final String? name;
-  final int? size;
-  final bool? isRead;
-  final int? createdAt;
+  final String? mediaUrl;
+  final String? fileName;
+  final int? fileSize;
+  final MessageType type;
+  final MessageStatus status;
+  final DateTime createdAt;
+  final DateTime? seenAt;
+  final bool isFromCurrentUser;
 
-  ChatMessage({
+  MessageModel({
     required this.id,
-    required this.type,
-    required this.author,
+    required this.senderId,
+    required this.senderName,
+    required this.chatId,
     this.text,
-    this.uri,
-    this.name,
-    this.size,
-    this.isRead,
-    this.createdAt,
+    this.mediaUrl,
+    this.fileName,
+    this.fileSize,
+    required this.type,
+    this.status = MessageStatus.sending,
+    required this.createdAt,
+    this.seenAt,
+    this.isFromCurrentUser = false,
   });
 
-  factory ChatMessage.fromJson(Map<String, dynamic> json, String id) {
-    final author = types.User(id: json['author']);
-    return ChatMessage(
+  factory MessageModel.fromJson(Map<String, dynamic> json, String id) {
+    return MessageModel(
       id: id,
-      type: json['type'],
-      author: author,
+      senderId: json['senderId'],
+      senderName: json['senderName'],
+      chatId: json['chatId'],
       text: json['text'],
-      uri: json['uri'],
-      name: json['name'],
-      size: json['size'],
-      isRead: json['isRead'],
-      createdAt: json['createdAt'] is int
-          ? json['createdAt'] as int
-          : (json['createdAt'] as Timestamp?)?.millisecondsSinceEpoch,);
+      mediaUrl: json['mediaUrl'],
+      fileName: json['fileName'],
+      fileSize: json['fileSize'],
+      type: MessageType.values.firstWhere(
+            (e) => e.toString().split('.').last == json['type'],
+        orElse: () => MessageType.text,
+      ),
+      status: MessageStatus.values.firstWhere(
+            (e) => e.toString().split('.').last == json['status'],
+        orElse: () => MessageStatus.sent,
+      ),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(json['createdAt']),
+      seenAt: json['seenAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['seenAt'])
+          : null,
+    );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'type': type,
-      'author': author.id,
+      'senderId': senderId,
+      'senderName': senderName,
+      'chatId': chatId,
       'text': text,
-      'uri': uri,
-      'name': name,
-      'size': size,
-      'isRead': isRead,
-      'createdAt': createdAt,
+      'mediaUrl': mediaUrl,
+      'fileName': fileName,
+      'fileSize': fileSize,
+      'type': type.toString().split('.').last,
+      'status': status.toString().split('.').last,
+      'createdAt': createdAt.millisecondsSinceEpoch,
+      'seenAt': seenAt?.millisecondsSinceEpoch,
     };
+  }
+
+  MessageModel copyWith({
+    MessageStatus? status,
+    DateTime? seenAt,
+    bool? isFromCurrentUser,
+  }) {
+    return MessageModel(
+      id: id,
+      senderId: senderId,
+      senderName: senderName,
+      chatId: chatId,
+      text: text,
+      mediaUrl: mediaUrl,
+      fileName: fileName,
+      fileSize: fileSize,
+      type: type,
+      status: status ?? this.status,
+      createdAt: createdAt,
+      seenAt: seenAt ?? this.seenAt,
+      isFromCurrentUser: isFromCurrentUser ?? this.isFromCurrentUser,
+    );
   }
 }

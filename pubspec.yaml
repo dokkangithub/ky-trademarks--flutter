@@ -59,9 +59,9 @@ dependencies:
   flutter_timeline:
   fluttericon:
   oktoast:
-  # Removed incompatible package:
-  # image_gallery_saver: ^2.0.3
 
+  # Permissions (if needed for file access)
+  permission_handler: ^11.2.0
   get_it:
   iconly:
   im_stepper:

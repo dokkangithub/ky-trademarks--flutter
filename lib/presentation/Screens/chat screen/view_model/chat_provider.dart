@@ -1,3 +1,5 @@
+// lib/presentation/Screens/chat screen/view_model/chat_provider.dart
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,34 +7,42 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kyuser/utilits/Local_User_Data.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../model/message_model.dart';
-import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
-import '../view/widgets/video_player.dart';
-
+import '../model/chat_model.dart';
 
 class ChatViewModel extends ChangeNotifier {
   final String chatId;
-  List<ChatMessage> _messages = [];
+  List<MessageModel> _messages = [];
   bool isLoading = true;
   String? userId;
   String? userName;
-  String? token;
-
+  String? userEmail;
+  bool isAdmin = false;
+  UserStatus currentUserStatus = UserStatus.online;
+  UserStatus otherUserStatus = UserStatus.offline;
+  bool isTyping = false;
+  String? typingUserId;
 
   ChatViewModel(this.chatId) {
     _getUserData();
     _fetchMessages();
+    _listenToUserStatus();
+    _listenToTypingStatus();
   }
 
+  List<MessageModel> get messages => _messages;
 
   Future<void> _getUserData() async {
     userId = await globalAccountData.getId();
     userName = await globalAccountData.getUsername();
-    token= await globalAccountData.getEmail();
+    userEmail = await globalAccountData.getEmail();
+    isAdmin = userEmail == 'test@kytrademarks.com';
+
+    // Set user online status
+    await _setUserStatus(UserStatus.online);
   }
-
-
-  List<ChatMessage> get messages => _messages;
 
   void _fetchMessages() {
     FirebaseFirestore.instance
@@ -43,148 +53,252 @@ class ChatViewModel extends ChangeNotifier {
         .snapshots()
         .listen((snapshot) {
       _messages = snapshot.docs
-          .map((doc) => ChatMessage.fromJson(doc.data(), doc.id))
+          .map((doc) {
+        final message = MessageModel.fromJson(doc.data(), doc.id);
+        return message.copyWith(
+          isFromCurrentUser: message.senderId == userId,
+        );
+      })
           .toList();
+
+      // Mark messages as seen if they're not from current user
+      _markMessagesAsSeen();
+
       isLoading = false;
       notifyListeners();
     });
   }
 
-  Future<void> sendMessage(ChatMessage message) async {
+  Future<void> _markMessagesAsSeen() async {
+    final unseenMessages = _messages
+        .where((msg) =>
+    !msg.isFromCurrentUser &&
+        msg.status != MessageStatus.seen)
+        .toList();
+
+    for (final message in unseenMessages) {
+      await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .doc(message.id)
+          .update({
+        'status': MessageStatus.seen.toString().split('.').last,
+        'seenAt': DateTime.now().millisecondsSinceEpoch,
+      });
+    }
+  }
+
+  Future<void> _setUserStatus(UserStatus status) async {
+    currentUserStatus = status;
     await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .set({
+      'status': status.toString(),
+      'lastSeen': DateTime.now().millisecondsSinceEpoch,
+    }, SetOptions(merge: true));
+
+    notifyListeners();
+  }
+
+  void _listenToUserStatus() {
+    // Get the other user ID (admin or regular user)
+    String otherUserId = isAdmin ? chatId : 'admin';
+
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(otherUserId)
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.exists) {
+        final data = snapshot.data() as Map<String, dynamic>;
+        otherUserStatus = UserStatus.values.firstWhere(
+              (e) => e.toString() == data['status'],
+          orElse: () => UserStatus.offline,
+        );
+        notifyListeners();
+      }
+    });
+  }
+
+  void _listenToTypingStatus() {
+    FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatId)
+        .collection('typing')
+        .snapshots()
+        .listen((snapshot) {
+      final typingUsers = snapshot.docs
+          .where((doc) => doc.id != userId && doc.data()['isTyping'] == true)
+          .toList();
+
+      isTyping = typingUsers.isNotEmpty;
+      typingUserId = isTyping ? typingUsers.first.id : null;
+      notifyListeners();
+    });
+  }
+
+  Future<void> setTypingStatus(bool typing) async {
+    await FirebaseFirestore.instance
+        .collection('chats')
+        .doc(chatId)
+        .collection('typing')
+        .doc(userId)
+        .set({
+      'isTyping': typing,
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+    });
+  }
+
+  Future<String?> _uploadFile(File file, String fileName) async {
+    try {
+      var request = http.MultipartRequest(
+          'POST',
+          Uri.parse('https://clientarea.kytrademarks.com/v2/api/ky-upload')
+      );
+
+      request.files.add(await http.MultipartFile.fromPath('file', file.path));
+      request.fields['fileName'] = fileName;
+
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        var responseData = await response.stream.bytesToString();
+        var jsonResponse = json.decode(responseData);
+        return jsonResponse['url']; // Assuming the API returns the file URL
+      }
+    } catch (e) {
+      print('Upload error: $e');
+    }
+    return null;
+  }
+
+  Future<void> sendMessage({
+    String? text,
+    File? file,
+    String? fileName,
+    MessageType type = MessageType.text,
+  }) async {
+    String? mediaUrl;
+
+    // Upload file if provided
+    if (file != null) {
+      mediaUrl = await _uploadFile(file, fileName ?? 'file');
+      if (mediaUrl == null) {
+        // Handle upload error
+        return;
+      }
+    }
+
+    final message = MessageModel(
+      id: '',
+      senderId: userId!,
+      senderName: userName!,
+      chatId: chatId,
+      text: text,
+      mediaUrl: mediaUrl,
+      fileName: fileName,
+      fileSize: file != null ? await file.length() : null,
+      type: type,
+      status: MessageStatus.sending,
+      createdAt: DateTime.now(),
+    );
+
+    // Add to Firestore
+    final docRef = await FirebaseFirestore.instance
         .collection('chats')
         .doc(chatId)
         .collection('messages')
         .add(message.toJson());
 
+    // Update message status to sent
+    await docRef.update({
+      'status': MessageStatus.sent.toString().split('.').last,
+    });
+
+    // Update chat metadata
+    await _updateChatMetadata(message);
+
+    // Stop typing
+    await setTypingStatus(false);
+  }
+
+  Future<void> _updateChatMetadata(MessageModel message) async {
+    final chatData = {
+      'lastMessage': message.text ?? _getMediaTypeText(message.type),
+      'lastMessageTime': message.createdAt.millisecondsSinceEpoch,
+      'lastSenderId': message.senderId,
+      'updatedAt': DateTime.now().millisecondsSinceEpoch,
+    };
+
     await FirebaseFirestore.instance
         .collection('chats')
         .doc(chatId)
-        .collection('chatModel')
-    .add({'':''});
+        .set(chatData, SetOptions(merge: true));
   }
 
-  // Open PDF file using URL launcher
-  Future<void> _openPDF(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not open the PDF file';
+  String _getMediaTypeText(MessageType type) {
+    switch (type) {
+      case MessageType.image:
+        return '📷 Image';
+      case MessageType.video:
+        return '🎥 Video';
+      case MessageType.audio:
+        return '🎵 Audio';
+      case MessageType.pdf:
+        return '📄 PDF';
+      case MessageType.file:
+        return '📎 File';
+      default:
+        return 'Message';
     }
   }
 
-
-  Future<void> onMessageTap(types.Message message,context) async {
-    if (message is types.FileMessage) {
-      final uri = message.uri;
-      if (uri != null) {
-        final fileExtension = uri.split('.').last.toLowerCase();
-
-        if (fileExtension == 'pdf') {
-          // Open PDF using url_launcher
-          _openPDF(uri);
-        } else if (fileExtension == 'mp4') {
-          // Navigate to the video player screen
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => VideoPlayerScreen(videoUrl: uri),
-            ),
-          );
-        }
-      }
-    }
-  }
-
-
-  final ImagePicker _picker = ImagePicker();
-  Future<void> _pickMedia(String type,context) async {
-    Navigator.pop(context); // Close the dialog
-
-    if (type == 'image') {
-      final List<XFile>? images = await _picker.pickMultiImage();
-      if (images != null) {
-        for (var image in images) {
-          final fileMessage = {
-            'author': userId,
-            'name': image.name,
-            'size': await image.length(),
-            'uri': image.path,
-            'createdAt': FieldValue.serverTimestamp(),
-            'type': 'image',
-          };
-
-          FirebaseFirestore.instance
-              .collection('chats')
-              .doc(chatId)
-              .collection('messages')
-              .add(fileMessage);
-        }
-      }
-    } else if (type == 'pdf') {
-      // PDF selection using file_picker
-      final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
-      if (result != null) {
-        final file = result.files.single;
-        final fileMessage = {
-          'author': userId,
-          'name': file.name,
-          'size': file.size,
-          'uri': file.path,
-          'createdAt': FieldValue.serverTimestamp(),
-          'type': 'file',
-        };
-
-        FirebaseFirestore.instance
-            .collection('chats')
-            .doc(chatId)
-            .collection('messages')
-            .add(fileMessage);
-      }
-    } else if (type == 'video') {
-      final XFile? video = await _picker.pickVideo(source: ImageSource.gallery);
-      if (video != null) {
-        final fileMessage = {
-          'author': userId,
-          'name': video.name,
-          'size': await video.length(),
-          'uri': video.path,
-          'createdAt': FieldValue.serverTimestamp(),
-          'type': 'file',
-        };
-
-        FirebaseFirestore.instance
-            .collection('chats')
-            .doc(chatId)
-            .collection('messages')
-            .add(fileMessage);
-      }
-    }
-  }
-
-  Future<void> handleAttachmentPressed(context) async {
-    showDialog(
+  Future<void> handleAttachmentPressed(BuildContext context) async {
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: 10,
-        content: Column(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => Container(
+        padding: EdgeInsets.all(20),
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.image),
-              title: const Text('Image'),
-              onTap: () => _pickMedia('image',context),
+            Text(
+              'Select Attachment',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            ListTile(
-              leading: const Icon(Icons.picture_as_pdf),
-              title: const Text('PDF'),
-              onTap: () => _pickMedia('pdf',context),
-            ),
-            ListTile(
-              leading: const Icon(Icons.video_library),
-              title: const Text('Video'),
-              onTap: () => _pickMedia('video',context),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildAttachmentOption(
+                  context,
+                  Icons.photo,
+                  'Image',
+                      () => _pickMedia(context, MessageType.image),
+                ),
+                _buildAttachmentOption(
+                  context,
+                  Icons.videocam,
+                  'Video',
+                      () => _pickMedia(context, MessageType.video),
+                ),
+                _buildAttachmentOption(
+                  context,
+                  Icons.audiotrack,
+                  'Audio',
+                      () => _pickMedia(context, MessageType.audio),
+                ),
+                _buildAttachmentOption(
+                  context,
+                  Icons.picture_as_pdf,
+                  'PDF',
+                      () => _pickMedia(context, MessageType.pdf),
+                ),
+              ],
             ),
           ],
         ),
@@ -192,5 +306,100 @@ class ChatViewModel extends ChangeNotifier {
     );
   }
 
+  Widget _buildAttachmentOption(
+      BuildContext context,
+      IconData icon,
+      String label,
+      VoidCallback onTap,
+      ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: Colors.blue, size: 30),
+          ),
+          SizedBox(height: 8),
+          Text(label, style: TextStyle(fontSize: 12)),
+        ],
+      ),
+    );
+  }
 
+  Future<void> _pickMedia(BuildContext context, MessageType type) async {
+    Navigator.pop(context);
+
+    try {
+      switch (type) {
+        case MessageType.image:
+          final ImagePicker picker = ImagePicker();
+          final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+          if (image != null) {
+            await sendMessage(
+              file: File(image.path),
+              fileName: image.name,
+              type: MessageType.image,
+            );
+          }
+          break;
+
+        case MessageType.video:
+          final ImagePicker picker = ImagePicker();
+          final XFile? video = await picker.pickVideo(source: ImageSource.gallery);
+          if (video != null) {
+            await sendMessage(
+              file: File(video.path),
+              fileName: video.name,
+              type: MessageType.video,
+            );
+          }
+          break;
+
+        case MessageType.audio:
+          final result = await FilePicker.platform.pickFiles(
+            type: FileType.audio,
+          );
+          if (result != null) {
+            final file = result.files.single;
+            await sendMessage(
+              file: File(file.path!),
+              fileName: file.name,
+              type: MessageType.audio,
+            );
+          }
+          break;
+
+        case MessageType.pdf:
+          final result = await FilePicker.platform.pickFiles(
+            type: FileType.custom,
+            allowedExtensions: ['pdf'],
+          );
+          if (result != null) {
+            final file = result.files.single;
+            await sendMessage(
+              file: File(file.path!),
+              fileName: file.name,
+              type: MessageType.pdf,
+            );
+          }
+          break;
+
+        default:
+          break;
+      }
+    } catch (e) {
+      print('Error picking media: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _setUserStatus(UserStatus.offline);
+    super.dispose();
+  }
 }
