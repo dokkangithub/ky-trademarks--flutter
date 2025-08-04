@@ -14,8 +14,10 @@ import 'notification.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Ensure Firebase is initialized
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Only initialize if not already initialized
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  }
 
   debugPrint('Handling a background message ${message.messageId}');
 
@@ -140,21 +142,28 @@ Future<void> _requestNotificationPermissions() async {
 
 Future<FirebaseApp> initializeFirebase() async {
   try {
-    // Return existing instance if already initialized
+    // Check if Firebase is already initialized
     if (Firebase.apps.isNotEmpty) {
+      debugPrint('Firebase already initialized, using existing app');
       return Firebase.app();
     }
 
-    // Initialize new instance if needed
-    return await Firebase.initializeApp(
+    // Initialize Firebase
+    debugPrint('Initializing Firebase...');
+    final app = await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    debugPrint('Firebase initialized successfully');
+    return app;
   } catch (e) {
     debugPrint('Firebase initialization error: $e');
-    // Try to return existing app if initialization fails
+
+    // If there's already an app, return it
     if (Firebase.apps.isNotEmpty) {
+      debugPrint('Using existing Firebase app despite error');
       return Firebase.app();
     }
+
     rethrow; // Rethrow if we can't recover
   }
 }
@@ -162,7 +171,7 @@ Future<FirebaseApp> initializeFirebase() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
+  // Initialize Firebase first
   await initializeFirebase();
 
   // Initialize Easy Localization
@@ -294,7 +303,6 @@ void _handleMessage(RemoteMessage message) {
     }
   }
 }
-
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {

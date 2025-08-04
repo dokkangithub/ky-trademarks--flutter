@@ -99,7 +99,7 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
     // Get user data
     String userEmail = await globalAccountData.getEmail() ?? '';
     userId = await globalAccountData.getId();
-    isAdmin = userEmail == 'test@kytrademarks.com';
+    isAdmin = userEmail == 'admin@KyTradeMarks.com';
 
     print('User initialized - ID: $userId, Email: $userEmail, IsAdmin: $isAdmin');
 

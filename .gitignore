@@ -11,6 +11,9 @@ flutter_*.png
 macos/
 windows/
 linux/
+android/app/.cxx/
+android/app/.txt/
+
 
 # Web build
 web/
