@@ -230,7 +230,13 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
         shape: BoxShape.circle,
       ),
       child: FloatingActionButton(
-        onPressed: _handleChatPressed,
+        onPressed: () => isAdmin
+            ? Navigator.push(context,
+            MaterialPageRoute(builder: (_) => AllChatsScreen()))
+            : Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => ChatScreen(chatId: userId??''))),
         backgroundColor: Colors.transparent,
         elevation: 0,
         child: Icon(

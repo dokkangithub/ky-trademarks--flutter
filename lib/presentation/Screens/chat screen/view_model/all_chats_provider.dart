@@ -33,7 +33,7 @@ class AllChatsViewModel extends ChangeNotifier {
     userId = await globalAccountData.getId();
     userEmail = await globalAccountData.getEmail();
     userName = await globalAccountData.getUsername();
-    isAdmin = userEmail == 'test@kytrademarks.com';
+    isAdmin = userEmail == 'admin@KyTradeMarks.com';
 
     print('User data: userId=$userId, email=$userEmail, isAdmin=$isAdmin');
   }

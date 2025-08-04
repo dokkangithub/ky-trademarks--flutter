@@ -87,14 +87,17 @@ class _TypingIndicatorState extends State<TypingIndicator>
         return Row(
           mainAxisSize: MainAxisSize.min,
           children: List.generate(3, (index) {
+            // Fixed opacity calculation to ensure value stays between 0.0 and 1.0
+            double opacity = 0.4 + 0.6 * ((_animation.value + (index * 0.2)) % 1.0);
+            // Clamp to ensure it's within valid range
+            opacity = opacity.clamp(0.0, 1.0);
+
             return Container(
               margin: EdgeInsets.symmetric(horizontal: 1),
               height: 6,
               width: 6,
               decoration: BoxDecoration(
-                color: Colors.grey.shade500.withOpacity(
-                  0.4 + 0.6 * (_animation.value + (index * 0.2)) % 1.0,
-                ),
+                color: Colors.grey.shade500.withOpacity(opacity),
                 shape: BoxShape.circle,
               ),
             );

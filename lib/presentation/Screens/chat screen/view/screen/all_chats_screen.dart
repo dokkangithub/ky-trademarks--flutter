@@ -12,41 +12,43 @@ import '../../view_model/all_chats_provider.dart';
 class AllChatsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AllChatsViewModel(),
-      child: Consumer<AllChatsViewModel>(
-        builder: (context, viewModel, child) {
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('Chats', style: TextStyle(color: Colors.white)),
-              centerTitle: true,
-              backgroundColor: ColorManager.primary,
-              elevation: 0,
-            ),
-            body: viewModel.isLoading
-                ? Center(child: LoadingWidget())
-                : Column(
-              children: [
-                // Search Bar
-                _buildSearchBar(),
+    return Scaffold(
+      body: ChangeNotifierProvider(
+        create: (_) => AllChatsViewModel(),
+        child: Consumer<AllChatsViewModel>(
+          builder: (context, viewModel, child) {
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Chats', style: TextStyle(color: Colors.white)),
+                centerTitle: true,
+                backgroundColor: ColorManager.primary,
+                elevation: 0,
+              ),
+              body: viewModel.isLoading
+                  ? Center(child: LoadingWidget())
+                  : Column(
+                children: [
+                  // Search Bar
+                  _buildSearchBar(),
 
-                // Chat List or Empty State
-                Expanded(
-                  child: viewModel.chats.isEmpty
-                      ? _buildEmptyState(viewModel)
-                      : _buildChatList(viewModel),
-                ),
-              ],
-            ),
-            floatingActionButton: !viewModel.isAdmin
-                ? FloatingActionButton(
-              onPressed: () => _startChatWithAdmin(context, viewModel),
-              backgroundColor: ColorManager.primary,
-              child: Icon(Icons.chat, color: Colors.white),
-            )
-                : null,
-          );
-        },
+                  // Chat List or Empty State
+                  Expanded(
+                    child: viewModel.chats.isEmpty
+                        ? _buildEmptyState(viewModel)
+                        : _buildChatList(viewModel),
+                  ),
+                ],
+              ),
+              floatingActionButton: !viewModel.isAdmin
+                  ? FloatingActionButton(
+                onPressed: () => _startChatWithAdmin(context, viewModel),
+                backgroundColor: ColorManager.primary,
+                child: Icon(Icons.chat, color: Colors.white),
+              )
+                  : null,
+            );
+          },
+        ),
       ),
     );
   }

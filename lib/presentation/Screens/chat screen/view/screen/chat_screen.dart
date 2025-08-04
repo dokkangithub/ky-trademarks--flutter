@@ -19,52 +19,54 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ChatViewModel(chatId),
-      child: Consumer<ChatViewModel>(
-        builder: (context, viewModel, child) {
-          return Scaffold(
-            appBar: _buildAppBar(viewModel),
-            body: viewModel.isLoading
-                ? Center(child: LoadingWidget())
-                : Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
-                    reverse: true,
-                    physics: BouncingScrollPhysics(),
-                    itemCount: viewModel.messages.length +
-                        (viewModel.isTyping ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      // Show typing indicator at the top (index 0 when reversed)
-                      if (viewModel.isTyping && index == 0) {
-                        return TypingIndicator(
-                          userName: viewModel.isAdmin ? 'User' : 'Admin',
+    return Scaffold(
+      body: ChangeNotifierProvider(
+        create: (_) => ChatViewModel(chatId),
+        child: Consumer<ChatViewModel>(
+          builder: (context, viewModel, child) {
+            return Scaffold(
+              appBar: _buildAppBar(viewModel),
+              body: viewModel.isLoading
+                  ? Center(child: LoadingWidget())
+                  : Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      reverse: true,
+                      physics: BouncingScrollPhysics(),
+                      itemCount: viewModel.messages.length +
+                          (viewModel.isTyping ? 1 : 0),
+                      itemBuilder: (context, index) {
+                        // Show typing indicator at the top (index 0 when reversed)
+                        if (viewModel.isTyping && index == 0) {
+                          return TypingIndicator(
+                            userName: viewModel.isAdmin ? 'User' : 'Admin',
+                          );
+                        }
+
+                        // Adjust index for messages
+                        final messageIndex = viewModel.isTyping
+                            ? index - 1
+                            : index;
+                        final message = viewModel.messages[messageIndex];
+
+                        return MessageBubble(
+                          message: message,
+                          onTap: () => _handleMessageTap(context, message, viewModel),
                         );
-                      }
-
-                      // Adjust index for messages
-                      final messageIndex = viewModel.isTyping
-                          ? index - 1
-                          : index;
-                      final message = viewModel.messages[messageIndex];
-
-                      return MessageBubble(
-                        message: message,
-                        onTap: () => _handleMessageTap(context, message, viewModel),
-                      );
-                    },
+                      },
+                    ),
                   ),
-                ),
-                ChatInput(
-                  onSendMessage: (text) => viewModel.sendMessage(text: text),
-                  onAttachmentPressed: () => viewModel.handleAttachmentPressed(context),
-                  onTypingChanged: viewModel.setTypingStatus,
-                ),
-              ],
-            ),
-          );
-        },
+                  ChatInput(
+                    onSendMessage: (text) => viewModel.sendMessage(text: text),
+                    onAttachmentPressed: () => viewModel.handleAttachmentPressed(context),
+                    onTypingChanged: viewModel.setTypingStatus,
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
