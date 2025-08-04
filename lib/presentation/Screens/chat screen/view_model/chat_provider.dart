@@ -26,15 +26,25 @@ class ChatViewModel extends ChangeNotifier {
   bool isTyping = false;
   String? typingUserId;
   Timer? _typingTimer;
+  Timer? _statusTimer;
+  StreamSubscription? _messagesSubscription;
+  StreamSubscription? _userStatusSubscription;
+  StreamSubscription? _typingSubscription;
 
   ChatViewModel(this.chatId) {
-    _getUserData();
-    _fetchMessages();
-    _listenToUserStatus();
-    _listenToTypingStatus();
+    _initializeChat();
   }
 
   List<MessageModel> get messages => _messages;
+
+  Future<void> _initializeChat() async {
+    await _getUserData();
+    await _createChatIfNotExists();
+    _fetchMessages();
+    _listenToUserStatus();
+    _listenToTypingStatus();
+    _startStatusTimer();
+  }
 
   Future<void> _getUserData() async {
     userId = await globalAccountData.getId();
@@ -42,23 +52,59 @@ class ChatViewModel extends ChangeNotifier {
     userEmail = await globalAccountData.getEmail();
     isAdmin = userEmail == 'test@kytrademarks.com';
 
+    print('Chat initialized - User: $userId, Admin: $isAdmin, ChatId: $chatId');
+
     // Set user online status
     await _setUserStatus(UserStatus.online);
   }
 
+  Future<void> _createChatIfNotExists() async {
+    if (isAdmin) return; // Admin doesn't need to create chat
+
+    try {
+      final chatDoc = await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .get();
+
+      if (!chatDoc.exists) {
+        await FirebaseFirestore.instance
+            .collection('chats')
+            .doc(chatId)
+            .set({
+          'userId': userId,
+          'username': userName ?? 'User',
+          'createdAt': DateTime.now().millisecondsSinceEpoch,
+          'updatedAt': DateTime.now().millisecondsSinceEpoch,
+          'lastMessage': null,
+          'lastMessageTime': null,
+          'lastSenderId': null,
+          'unreadCount': 0,
+        });
+        print('Chat document created for user: $chatId');
+      }
+    } catch (e) {
+      print('Error creating chat: $e');
+    }
+  }
+
   void _fetchMessages() {
-    FirebaseFirestore.instance
+    print('Fetching messages for chat: $chatId');
+
+    _messagesSubscription = FirebaseFirestore.instance
         .collection('chats')
         .doc(chatId)
         .collection('messages')
         .orderBy('createdAt', descending: true)
         .snapshots()
         .listen((snapshot) {
+      print('Received ${snapshot.docs.length} messages');
+
       _messages = snapshot.docs
           .map((doc) {
         final message = MessageModel.fromJson(doc.data(), doc.id);
         return message.copyWith(
-          isFromCurrentUser: message.senderId == userId,
+          isFromCurrentUser: message.senderId == (isAdmin ? 'admin' : userId),
         );
       })
           .toList();
@@ -68,17 +114,25 @@ class ChatViewModel extends ChangeNotifier {
 
       isLoading = false;
       notifyListeners();
+    }, onError: (error) {
+      print('Error fetching messages: $error');
+      isLoading = false;
+      notifyListeners();
     });
   }
 
   Future<void> _markMessagesAsSeen() async {
+    final currentUserId = isAdmin ? 'admin' : userId!;
+
     final unseenMessages = _messages
         .where((msg) =>
-    !msg.isFromCurrentUser &&
+    msg.senderId != currentUserId &&
         msg.status != MessageStatus.seen)
         .toList();
 
     if (unseenMessages.isEmpty) return;
+
+    print('Marking ${unseenMessages.length} messages as seen');
 
     final batch = FirebaseFirestore.instance.batch();
 
@@ -103,15 +157,19 @@ class ChatViewModel extends ChangeNotifier {
   }
 
   Future<void> _setUserStatus(UserStatus status) async {
+    final currentUserId = isAdmin ? 'admin' : userId!;
     currentUserStatus = status;
+
     try {
       await FirebaseFirestore.instance
           .collection('users')
-          .doc(userId)
+          .doc(currentUserId)
           .set({
         'status': status.toString(),
         'lastSeen': DateTime.now().millisecondsSinceEpoch,
       }, SetOptions(merge: true));
+
+      print('User status set to: $status');
     } catch (e) {
       print('Error setting user status: $e');
     }
@@ -123,46 +181,75 @@ class ChatViewModel extends ChangeNotifier {
     // Get the other user ID (admin or regular user)
     String otherUserId = isAdmin ? chatId : 'admin';
 
-    FirebaseFirestore.instance
+    print('Listening to status for user: $otherUserId');
+
+    _userStatusSubscription = FirebaseFirestore.instance
         .collection('users')
         .doc(otherUserId)
         .snapshots()
         .listen((snapshot) {
       if (snapshot.exists) {
         final data = snapshot.data() as Map<String, dynamic>;
-        otherUserStatus = UserStatus.values.firstWhere(
+        final newStatus = UserStatus.values.firstWhere(
               (e) => e.toString() == data['status'],
           orElse: () => UserStatus.offline,
         );
-        notifyListeners();
+
+        if (newStatus != otherUserStatus) {
+          otherUserStatus = newStatus;
+          print('Other user status changed to: $newStatus');
+          notifyListeners();
+        }
       }
+    }, onError: (error) {
+      print('Error listening to user status: $error');
     });
   }
 
   void _listenToTypingStatus() {
-    FirebaseFirestore.instance
+    final currentUserId = isAdmin ? 'admin' : userId!;
+
+    _typingSubscription = FirebaseFirestore.instance
         .collection('chats')
         .doc(chatId)
         .collection('typing')
         .snapshots()
         .listen((snapshot) {
       final typingUsers = snapshot.docs
-          .where((doc) => doc.id != userId && doc.data()['isTyping'] == true)
+          .where((doc) => doc.id != currentUserId && doc.data()['isTyping'] == true)
           .toList();
 
+      final wasTyping = isTyping;
       isTyping = typingUsers.isNotEmpty;
       typingUserId = isTyping ? typingUsers.first.id : null;
-      notifyListeners();
+
+      if (wasTyping != isTyping) {
+        print('Typing status changed: $isTyping');
+        notifyListeners();
+      }
+    }, onError: (error) {
+      print('Error listening to typing status: $error');
+    });
+  }
+
+  void _startStatusTimer() {
+    // Update online status every 30 seconds
+    _statusTimer = Timer.periodic(Duration(seconds: 30), (timer) {
+      if (currentUserStatus == UserStatus.online) {
+        _setUserStatus(UserStatus.online);
+      }
     });
   }
 
   Future<void> setTypingStatus(bool typing) async {
+    final currentUserId = isAdmin ? 'admin' : userId!;
+
     try {
       await FirebaseFirestore.instance
           .collection('chats')
           .doc(chatId)
           .collection('typing')
-          .doc(userId)
+          .doc(currentUserId)
           .set({
         'isTyping': typing,
         'timestamp': DateTime.now().millisecondsSinceEpoch,
@@ -183,6 +270,8 @@ class ChatViewModel extends ChangeNotifier {
   }
 
   Future<String?> _uploadFile(File file, String fileName) async {
+    print('Uploading file: $fileName');
+
     try {
       var request = http.MultipartRequest(
           'POST',
@@ -198,14 +287,24 @@ class ChatViewModel extends ChangeNotifier {
         var responseData = await response.stream.bytesToString();
         var jsonResponse = json.decode(responseData);
 
+        print('Upload response: $jsonResponse');
+
         // Handle different possible response structures
         if (jsonResponse is Map<String, dynamic>) {
-          return jsonResponse['url'] ?? jsonResponse['file_url'] ?? jsonResponse['path'];
+          final url = jsonResponse['url'] ??
+              jsonResponse['file_url'] ??
+              jsonResponse['path'] ??
+              jsonResponse['data']?['url'];
+
+          print('File uploaded successfully: $url');
+          return url;
         }
 
         return null;
       } else {
         print('Upload failed with status: ${response.statusCode}');
+        var errorData = await response.stream.bytesToString();
+        print('Error response: $errorData');
         return null;
       }
     } catch (e) {
@@ -222,27 +321,26 @@ class ChatViewModel extends ChangeNotifier {
   }) async {
     if ((text?.trim().isEmpty ?? true) && file == null) return;
 
-    String? mediaUrl;
+    final currentUserId = isAdmin ? 'admin' : userId!;
+    final currentUserName = isAdmin ? 'Admin' : (userName ?? 'User');
 
-    // Show loading state for file upload
-    if (file != null) {
-      // You might want to show a loading indicator here
-    }
+    String? mediaUrl;
 
     // Upload file if provided
     if (file != null) {
+      print('Uploading file before sending message...');
       mediaUrl = await _uploadFile(file, fileName ?? 'file');
       if (mediaUrl == null) {
-        // Show error message to user
         print('Failed to upload file');
+        // You might want to show an error message to user here
         return;
       }
     }
 
     final message = MessageModel(
       id: '',
-      senderId: userId!,
-      senderName: userName ?? 'User',
+      senderId: currentUserId,
+      senderName: currentUserName,
       chatId: chatId,
       text: text?.trim(),
       mediaUrl: mediaUrl,
@@ -254,6 +352,8 @@ class ChatViewModel extends ChangeNotifier {
     );
 
     try {
+      print('Sending message: ${message.text ?? 'Media message'}');
+
       // Add to Firestore
       final docRef = await FirebaseFirestore.instance
           .collection('chats')
@@ -271,6 +371,8 @@ class ChatViewModel extends ChangeNotifier {
 
       // Stop typing
       await setTypingStatus(false);
+
+      print('Message sent successfully');
     } catch (e) {
       print('Error sending message: $e');
       // You might want to show an error message to the user
@@ -283,8 +385,8 @@ class ChatViewModel extends ChangeNotifier {
       'lastMessageTime': message.createdAt.millisecondsSinceEpoch,
       'lastSenderId': message.senderId,
       'updatedAt': DateTime.now().millisecondsSinceEpoch,
-      'username': userName ?? 'User',
-      'userId': userId,
+      'username': isAdmin ? 'Admin' : (userName ?? 'User'),
+      'userId': isAdmin ? 'admin' : userId,
     };
 
     try {
@@ -292,6 +394,8 @@ class ChatViewModel extends ChangeNotifier {
           .collection('chats')
           .doc(chatId)
           .set(chatData, SetOptions(merge: true));
+
+      print('Chat metadata updated');
     } catch (e) {
       print('Error updating chat metadata: $e');
     }
@@ -300,17 +404,17 @@ class ChatViewModel extends ChangeNotifier {
   String _getMediaTypeText(MessageType type) {
     switch (type) {
       case MessageType.image:
-        return '📷 Image';
+        return '📷 صورة';
       case MessageType.video:
-        return '🎥 Video';
+        return '🎥 فيديو';
       case MessageType.audio:
-        return '🎵 Audio';
+        return '🎵 صوت';
       case MessageType.pdf:
-        return '📄 PDF';
+        return '📄 ملف PDF';
       case MessageType.file:
-        return '📎 File';
+        return '📎 ملف';
       default:
-        return 'Message';
+        return 'رسالة';
     }
   }
 
@@ -326,7 +430,7 @@ class ChatViewModel extends ChangeNotifier {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Select Attachment',
+              'إرفق ملف',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
@@ -337,19 +441,19 @@ class ChatViewModel extends ChangeNotifier {
                 _buildAttachmentOption(
                   context,
                   Icons.photo,
-                  'Image',
+                  'صورة',
                       () => _pickMedia(context, MessageType.image),
                 ),
                 _buildAttachmentOption(
                   context,
                   Icons.videocam,
-                  'Video',
+                  'فيديو',
                       () => _pickMedia(context, MessageType.video),
                 ),
                 _buildAttachmentOption(
                   context,
                   Icons.audiotrack,
-                  'Audio',
+                  'صوت',
                       () => _pickMedia(context, MessageType.audio),
                 ),
                 _buildAttachmentOption(
@@ -361,7 +465,7 @@ class ChatViewModel extends ChangeNotifier {
                 _buildAttachmentOption(
                   context,
                   Icons.insert_drive_file,
-                  'File',
+                  'ملف',
                       () => _pickMedia(context, MessageType.file),
                 ),
               ],
@@ -488,15 +592,24 @@ class ChatViewModel extends ChangeNotifier {
       print('Error picking media: $e');
       // Show error message to user
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to select file: ${e.toString()}')),
+        SnackBar(content: Text('فشل في تحديد الملف: ${e.toString()}')),
       );
     }
   }
 
   @override
   void dispose() {
+    print('Disposing ChatViewModel');
+
     _typingTimer?.cancel();
+    _statusTimer?.cancel();
+    _messagesSubscription?.cancel();
+    _userStatusSubscription?.cancel();
+    _typingSubscription?.cancel();
+
+    // Set user offline when leaving chat
     _setUserStatus(UserStatus.offline);
+
     super.dispose();
   }
 }

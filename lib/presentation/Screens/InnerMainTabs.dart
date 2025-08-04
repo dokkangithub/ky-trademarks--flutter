@@ -101,6 +101,8 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
     userId = await globalAccountData.getId();
     isAdmin = userEmail == 'test@kytrademarks.com';
 
+    print('User initialized - ID: $userId, Email: $userEmail, IsAdmin: $isAdmin');
+
     // Initialize main screens
     mainScreens.addAll([
       HomeScreen(contactUsKey: contactUsKey),
@@ -157,6 +159,7 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
   }
 
   void _handleChatPressed() {
+    print('Chat button pressed - IsAdmin: $isAdmin, UserId: $userId');
     setState(() {
       _selectedIndex = mainScreens.length; // Index of chat screen in allScreens
     });
@@ -379,7 +382,7 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'الدعم الفني',
+                            isAdmin ? 'جميع المحادثات' : 'الدعم الفني',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -421,6 +424,23 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
               fontFamily: StringConstant.fontName,
             ),
           ),
+          if (isAdmin)
+            Container(
+              margin: EdgeInsets.only(left: 8),
+              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.green,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                'مدير',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
           const SizedBox(width: 12),
           InkWell(
             onTap: () => Navigator.push(
