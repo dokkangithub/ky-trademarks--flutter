@@ -263,6 +263,7 @@ void main() async {
 
   // Initialize local user data
   await globalAccountData.init();
+
   // Override HTTP settings if necessary (only on mobile)
   print('Bearer ${globalAccountData.getToken()}');
   if (!kIsWeb) {

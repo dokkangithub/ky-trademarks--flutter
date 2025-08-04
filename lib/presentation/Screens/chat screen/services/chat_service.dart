@@ -2,38 +2,18 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../../../core/Constant/Api_Constant.dart';
 import '../model/chat_model.dart';
 import '../model/message_model.dart';
+import 'package:kyuser/utilits/Local_User_Data.dart';
+
 class ChatService {
   static final ChatService _instance = ChatService._internal();
   factory ChatService() => _instance;
   ChatService._internal();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  static const String uploadEndpoint = 'https://clientarea.kytrademarks.com/v2/api/ky-upload';
 
-  // Upload file to server
-  Future<String?> uploadFile(File file, String fileName) async {
-    try {
-      var request = http.MultipartRequest('POST', Uri.parse(uploadEndpoint));
-      request.files.add(await http.MultipartFile.fromPath('file', file.path));
-      request.fields['fileName'] = fileName;
-
-      var response = await request.send();
-
-      if (response.statusCode == 200) {
-        var responseData = await response.stream.bytesToString();
-        var jsonResponse = json.decode(responseData);
-        return jsonResponse['url']; // Adjust based on your API response structure
-      } else {
-        print('Upload failed with status: ${response.statusCode}');
-        return null;
-      }
-    } catch (e) {
-      print('Upload error: $e');
-      return null;
-    }
-  }
 
   // Send message
   Future<bool> sendMessage(MessageModel message) async {
@@ -54,19 +34,33 @@ class ChatService {
     }
   }
 
-  // Update chat last message
+  // Update chat last message with proper user info
   Future<void> _updateChatLastMessage(MessageModel message) async {
-    final chatData = {
-      'lastMessage': message.text ?? _getMediaTypeText(message.type),
-      'lastMessageTime': message.createdAt.millisecondsSinceEpoch,
-      'lastSenderId': message.senderId,
-      'updatedAt': DateTime.now().millisecondsSinceEpoch,
-    };
+    try {
+      // Get user info for better chat display
+      String? userName = await globalAccountData.getUsername();
+      String? userEmail = await globalAccountData.getEmail();
+      bool isAdmin = userEmail == 'admin@KyTradeMarks.com';
 
-    await _firestore
-        .collection('chats')
-        .doc(message.chatId)
-        .set(chatData, SetOptions(merge: true));
+      final chatData = {
+        'lastMessage': message.text ?? _getMediaTypeText(message.type),
+        'lastMessageTime': message.createdAt.millisecondsSinceEpoch,
+        'lastSenderId': message.senderId,
+        'updatedAt': DateTime.now().millisecondsSinceEpoch,
+        'username': isAdmin ? 'Admin' : (userName ?? 'User'),
+        'userId': message.senderId,
+        'userEmail': userEmail,
+      };
+
+      await _firestore
+          .collection('chats')
+          .doc(message.chatId)
+          .set(chatData, SetOptions(merge: true));
+
+      print('Chat metadata updated with user info');
+    } catch (e) {
+      print('Error updating chat metadata: $e');
+    }
   }
 
   String _getMediaTypeText(MessageType type) {
@@ -104,33 +98,46 @@ class ChatService {
         .toList());
   }
 
-  // Get chats stream for admin
+  // Get chats stream for admin - FIXED to load all chats
   Stream<List<ChatModel>> getChatsStream() {
     return _firestore
         .collection('chats')
         .orderBy('updatedAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-        .map((doc) => _createChatModelFromDoc(doc))
-        .where((chat) => chat != null)
-        .cast<ChatModel>()
-        .toList());
+        .asyncMap((snapshot) async {
+      List<ChatModel> chats = [];
+
+      for (var doc in snapshot.docs) {
+        final chat = await _createChatModelFromDoc(doc);
+        if (chat != null) {
+          chats.add(chat);
+        }
+      }
+
+      return chats;
+    });
   }
 
-  ChatModel? _createChatModelFromDoc(DocumentSnapshot doc) {
+  // Enhanced chat model creation with unread count calculation
+  Future<ChatModel?> _createChatModelFromDoc(DocumentSnapshot doc) async {
     try {
       final data = doc.data() as Map<String, dynamic>?;
       if (data == null) return null;
 
+      // Calculate actual unread count
+      int unreadCount = await _calculateUnreadCount(doc.id, data['lastSenderId']);
+
       return ChatModel(
         chatId: doc.id,
-        username: data['username'] ?? 'Unknown User',
+        username: data['username'] ?? data['userEmail'] ?? 'Unknown User',
         lastMessage: data['lastMessage'],
         lastMessageTime: data['lastMessageTime'] != null
             ? DateTime.fromMillisecondsSinceEpoch(data['lastMessageTime'])
             : null,
         userId: data['userId'] ?? doc.id,
-        userStatus: UserStatus.offline,
+        userStatus: UserStatus.offline, // Will be updated by real-time listener
+        unreadCount: unreadCount,
+        isRead: data['lastSenderId'] == 'admin', // For admin view
       );
     } catch (e) {
       print('Error creating chat model: $e');
@@ -138,12 +145,41 @@ class ChatService {
     }
   }
 
+  // Calculate unread messages count
+  Future<int> _calculateUnreadCount(String chatId, String? lastSenderId) async {
+    try {
+      // Get current user info
+      String? userEmail = await globalAccountData.getEmail();
+      bool isAdmin = userEmail == 'admin@KyTradeMarks.com';
+      String? currentUserId = isAdmin ? 'admin' : await globalAccountData.getId();
+
+      if (currentUserId == null) return 0;
+
+      final query = await _firestore
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .where('senderId', isNotEqualTo: currentUserId)
+          .where('status', isNotEqualTo: MessageStatus.seen.toString().split('.').last)
+          .get();
+
+      return query.docs.length;
+    } catch (e) {
+      print('Error calculating unread count: $e');
+      return 0;
+    }
+  }
+
   // Set user status
   Future<void> setUserStatus(String userId, UserStatus status) async {
-    await _firestore.collection('users').doc(userId).set({
-      'status': status.toString(),
-      'lastSeen': DateTime.now().millisecondsSinceEpoch,
-    }, SetOptions(merge: true));
+    try {
+      await _firestore.collection('users').doc(userId).set({
+        'status': status.toString(),
+        'lastSeen': DateTime.now().millisecondsSinceEpoch,
+      }, SetOptions(merge: true));
+    } catch (e) {
+      print('Error setting user status: $e');
+    }
   }
 
   // Get user status stream
@@ -166,15 +202,19 @@ class ChatService {
 
   // Set typing status
   Future<void> setTypingStatus(String chatId, String userId, bool isTyping) async {
-    await _firestore
-        .collection('chats')
-        .doc(chatId)
-        .collection('typing')
-        .doc(userId)
-        .set({
-      'isTyping': isTyping,
-      'timestamp': DateTime.now().millisecondsSinceEpoch,
-    });
+    try {
+      await _firestore
+          .collection('chats')
+          .doc(chatId)
+          .collection('typing')
+          .doc(userId)
+          .set({
+        'isTyping': isTyping,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      });
+    } catch (e) {
+      print('Error setting typing status: $e');
+    }
   }
 
   // Get typing status stream
@@ -194,49 +234,69 @@ class ChatService {
 
   // Mark messages as seen
   Future<void> markMessagesAsSeen(String chatId, String currentUserId) async {
-    final messagesQuery = await _firestore
-        .collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .where('senderId', isNotEqualTo: currentUserId)
-        .where('status', isNotEqualTo: MessageStatus.seen.toString().split('.').last)
-        .get();
+    try {
+      final messagesQuery = await _firestore
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .where('senderId', isNotEqualTo: currentUserId)
+          .where('status', isNotEqualTo: MessageStatus.seen.toString().split('.').last)
+          .get();
 
-    final batch = _firestore.batch();
+      final batch = _firestore.batch();
 
-    for (final doc in messagesQuery.docs) {
-      batch.update(doc.reference, {
-        'status': MessageStatus.seen.toString().split('.').last,
-        'seenAt': DateTime.now().millisecondsSinceEpoch,
-      });
+      for (final doc in messagesQuery.docs) {
+        batch.update(doc.reference, {
+          'status': MessageStatus.seen.toString().split('.').last,
+          'seenAt': DateTime.now().millisecondsSinceEpoch,
+        });
+      }
+
+      await batch.commit();
+    } catch (e) {
+      print('Error marking messages as seen: $e');
     }
-
-    await batch.commit();
   }
 
-  // Create or get user chat
+  // Create or get user chat with proper user info
   Future<void> createUserChat(String userId, String username) async {
-    await _firestore.collection('chats').doc(userId).set({
-      'userId': userId,
-      'username': username,
-      'createdAt': DateTime.now().millisecondsSinceEpoch,
-      'updatedAt': DateTime.now().millisecondsSinceEpoch,
-      'lastMessage': null,
-      'lastMessageTime': null,
-      'lastSenderId': null,
-    }, SetOptions(merge: true));
+    try {
+      // Get additional user info
+      String? userEmail = await globalAccountData.getEmail();
+
+      await _firestore.collection('chats').doc(userId).set({
+        'userId': userId,
+        'username': username,
+        'userEmail': userEmail,
+        'createdAt': DateTime.now().millisecondsSinceEpoch,
+        'updatedAt': DateTime.now().millisecondsSinceEpoch,
+        'lastMessage': null,
+        'lastMessageTime': null,
+        'lastSenderId': null,
+        'unreadCount': 0,
+      }, SetOptions(merge: true));
+
+      print('User chat created with proper info');
+    } catch (e) {
+      print('Error creating user chat: $e');
+    }
   }
 
   // Get unread messages count
   Future<int> getUnreadMessagesCount(String chatId, String currentUserId) async {
-    final query = await _firestore
-        .collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .where('senderId', isNotEqualTo: currentUserId)
-        .where('status', isNotEqualTo: MessageStatus.seen.toString().split('.').last)
-        .get();
+    try {
+      final query = await _firestore
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .where('senderId', isNotEqualTo: currentUserId)
+          .where('status', isNotEqualTo: MessageStatus.seen.toString().split('.').last)
+          .get();
 
-    return query.docs.length;
+      return query.docs.length;
+    } catch (e) {
+      print('Error getting unread count: $e');
+      return 0;
+    }
   }
 }

@@ -10,6 +10,7 @@ import 'package:kyuser/utilits/Local_User_Data.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../../../core/Constant/Api_Constant.dart';
 import '../model/message_model.dart';
 import '../model/chat_model.dart';
 
@@ -269,17 +270,35 @@ class ChatViewModel extends ChangeNotifier {
     }
   }
 
+  static const String uploadEndpoint = '${ApiConstant.baseUrl}${ApiConstant.slug}files/upload';
+
+  // Upload file to server with new endpoint
   Future<String?> _uploadFile(File file, String fileName) async {
-    print('Uploading file: $fileName');
-
     try {
-      var request = http.MultipartRequest(
-          'POST',
-          Uri.parse('https://clientarea.kytrademarks.com/v2/api/ky-upload')
-      );
+      // Get customer_id and auth from local storage
+      String? customerId = await globalAccountData.getId();
+      String? authToken = await globalAccountData.getToken(); // Assuming you have getToken method
 
-      request.files.add(await http.MultipartFile.fromPath('file', file.path));
-      request.fields['fileName'] = fileName;
+      if (customerId == null) {
+        print('Customer ID is null');
+        return null;
+      }
+
+      var request = http.MultipartRequest('POST', Uri.parse(uploadEndpoint));
+
+      // Add the file
+      request.files.add(await http.MultipartFile.fromPath('file', file.path, filename: fileName));
+
+      // Add customer_id to the request body
+      request.fields['customer_id'] = customerId;
+      print('aaaBearer $authToken');
+      // Add auth header if available
+      if (authToken != null) {
+        request.headers['Authorization'] = 'Bearer $authToken';
+        // or use: request.headers['auth'] = authToken;
+      }
+
+      print('Uploading file: $fileName for customer: $customerId');
 
       var response = await request.send();
 
@@ -290,17 +309,23 @@ class ChatViewModel extends ChangeNotifier {
         print('Upload response: $jsonResponse');
 
         // Handle different possible response structures
+        String? fileUrl;
         if (jsonResponse is Map<String, dynamic>) {
-          final url = jsonResponse['url'] ??
-              jsonResponse['file_url'] ??
-              jsonResponse['path'] ??
-              jsonResponse['data']?['url'];
+          var data = jsonResponse['data'];
+          if (data != null && data is Map<String, dynamic>) {
+            fileUrl = '${ApiConstant.baseUrl}${data['file_url'].toString().replaceFirst('/', '')}';
 
-          print('File uploaded successfully: $url');
-          return url;
+          }
         }
 
-        return null;
+
+        if (fileUrl != null) {
+          print('File uploaded successfully: $fileUrl');
+          return fileUrl;
+        } else {
+          print('No URL found in response: $jsonResponse');
+          return null;
+        }
       } else {
         print('Upload failed with status: ${response.statusCode}');
         var errorData = await response.stream.bytesToString();
@@ -312,6 +337,7 @@ class ChatViewModel extends ChangeNotifier {
       return null;
     }
   }
+
 
   Future<void> sendMessage({
     String? text,
