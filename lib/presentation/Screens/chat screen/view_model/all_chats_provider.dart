@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kyuser/utilits/Local_User_Data.dart';
 import '../model/chat_model.dart';
 import '../model/message_model.dart';
+import 'dart:async';
 
 class AllChatsViewModel extends ChangeNotifier {
   List<ChatModel> _chats = [];
@@ -12,6 +13,8 @@ class AllChatsViewModel extends ChangeNotifier {
   String? userEmail;
   String? userName;
   bool isAdmin = false;
+  StreamSubscription? _chatsSubscription;
+  final Map<String, StreamSubscription> _unreadCountSubscriptions = {};
 
   AllChatsViewModel() {
     _initializeChat();
@@ -23,7 +26,7 @@ class AllChatsViewModel extends ChangeNotifier {
     await _getUserData();
 
     if (isAdmin) {
-      _fetchAllChats();
+      _fetchAllChatsWithRealTime();
     } else {
       _fetchUserChat();
     }
@@ -38,30 +41,75 @@ class AllChatsViewModel extends ChangeNotifier {
     print('User data: userId=$userId, email=$userEmail, isAdmin=$isAdmin');
   }
 
-  void _fetchAllChats() {
-    print('Fetching all chats for admin');
+  void _fetchAllChatsWithRealTime() {
+    print('Fetching all chats for admin with real-time updates');
 
-    FirebaseFirestore.instance
+    _chatsSubscription = FirebaseFirestore.instance
         .collection('chats')
         .orderBy('updatedAt', descending: true)
         .snapshots()
-        .listen((snapshot) {
+        .listen((snapshot) async {
       print('Admin received ${snapshot.docs.length} chats');
 
-      _chats = snapshot.docs
-          .map((doc) => _createChatModelFromDoc(doc))
-          .where((chat) => chat != null)
-          .cast<ChatModel>()
-          .where((chat) => chat.userId != 'admin') // Don't show admin's own chat
-          .toList();
+      List<ChatModel> newChats = [];
 
+      for (var doc in snapshot.docs) {
+        final chatModel = await _createChatModelFromDoc(doc);
+        if (chatModel != null && chatModel.userId != 'admin') {
+          newChats.add(chatModel);
+        }
+      }
+
+      _chats = newChats;
       isLoading = false;
       notifyListeners();
+
+      // Set up real-time unread count listeners for each chat
+      _setupUnreadCountListeners();
     }, onError: (error) {
       print('Error fetching chats: $error');
       isLoading = false;
       notifyListeners();
     });
+  }
+
+  void _setupUnreadCountListeners() {
+    // Cancel existing subscriptions
+    _unreadCountSubscriptions.forEach((key, subscription) {
+      subscription.cancel();
+    });
+    _unreadCountSubscriptions.clear();
+
+    // Set up new subscriptions for each chat
+    for (var chat in _chats) {
+      _unreadCountSubscriptions[chat.chatId] = FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chat.chatId)
+          .collection('messages')
+          .where('senderId', isNotEqualTo: 'admin')
+          .where('status', whereIn: ['sent', 'delivered'])
+          .snapshots()
+          .listen((snapshot) {
+        final unreadCount = snapshot.docs.length;
+
+        // Update the specific chat's unread count
+        final chatIndex = _chats.indexWhere((c) => c.chatId == chat.chatId);
+        if (chatIndex != -1) {
+          _chats[chatIndex] = ChatModel(
+            chatId: _chats[chatIndex].chatId,
+            username: _chats[chatIndex].username,
+            lastMessage: _chats[chatIndex].lastMessage,
+            lastMessageTime: _chats[chatIndex].lastMessageTime,
+            isRead: _chats[chatIndex].isRead,
+            unreadCount: unreadCount,
+            profileImage: _chats[chatIndex].profileImage,
+            userId: _chats[chatIndex].userId,
+            userStatus: _chats[chatIndex].userStatus,
+          );
+          notifyListeners();
+        }
+      });
+    }
   }
 
   void _fetchUserChat() {
@@ -70,15 +118,18 @@ class AllChatsViewModel extends ChangeNotifier {
     // For regular users, we listen to their specific chat document
     final userChatId = userId!;
 
-    FirebaseFirestore.instance
+    _chatsSubscription = FirebaseFirestore.instance
         .collection('chats')
         .doc(userChatId)
         .snapshots()
-        .listen((snapshot) {
+        .listen((snapshot) async {
       print('User chat snapshot exists: ${snapshot.exists}');
 
       if (snapshot.exists) {
         final data = snapshot.data() as Map<String, dynamic>;
+
+        // Get unread count for user
+        final unreadCount = await _getUserUnreadCount(userChatId);
 
         _chats = [
           ChatModel(
@@ -88,14 +139,13 @@ class AllChatsViewModel extends ChangeNotifier {
             lastMessageTime: data['lastMessageTime'] != null
                 ? DateTime.fromMillisecondsSinceEpoch(data['lastMessageTime'])
                 : null,
-            isRead: data['lastSenderId'] == userId, // If last sender is current user, it's read
-            unreadCount: data['unreadCount'] ?? 0,
+            isRead: data['lastSenderId'] == userId,
+            unreadCount: unreadCount,
             userId: 'admin',
             userStatus: UserStatus.offline,
           )
         ];
       } else {
-        // Create empty state - chat will be created when user sends first message
         _chats = [];
       }
 
@@ -108,17 +158,15 @@ class AllChatsViewModel extends ChangeNotifier {
     });
   }
 
-  ChatModel? _createChatModelFromDoc(DocumentSnapshot doc) {
+  Future<ChatModel?> _createChatModelFromDoc(DocumentSnapshot doc) async {
     try {
       final data = doc.data() as Map<String, dynamic>?;
       if (data == null) return null;
 
-      // Calculate unread count for admin (messages not sent by admin and not seen)
+      // Get real-time unread count
       int unreadCount = 0;
-      if (isAdmin && data['lastSenderId'] != 'admin') {
-        // This would need to be calculated from messages subcollection
-        // For now, we'll use a placeholder
-        unreadCount = data['unreadCount'] ?? 0;
+      if (isAdmin) {
+        unreadCount = await _getAdminUnreadCount(doc.id);
       }
 
       return ChatModel(
@@ -131,7 +179,7 @@ class AllChatsViewModel extends ChangeNotifier {
         isRead: data['lastSenderId'] == (isAdmin ? 'admin' : userId),
         unreadCount: unreadCount,
         userId: data['userId'] ?? doc.id,
-        userStatus: UserStatus.offline, // Will be updated by real-time listener
+        userStatus: UserStatus.offline,
       );
     } catch (e) {
       print('Error creating chat model from doc ${doc.id}: $e');
@@ -139,15 +187,48 @@ class AllChatsViewModel extends ChangeNotifier {
     }
   }
 
+  Future<int> _getAdminUnreadCount(String chatId) async {
+    try {
+      final query = await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .where('senderId', isNotEqualTo: 'admin')
+          .where('status', whereIn: ['sent', 'delivered'])
+          .get();
+
+      return query.docs.length;
+    } catch (e) {
+      print('Error getting admin unread count for $chatId: $e');
+      return 0;
+    }
+  }
+
+  Future<int> _getUserUnreadCount(String chatId) async {
+    try {
+      final query = await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .where('senderId', isEqualTo: 'admin')
+          .where('status', whereIn: ['sent', 'delivered'])
+          .get();
+
+      return query.docs.length;
+    } catch (e) {
+      print('Error getting user unread count for $chatId: $e');
+      return 0;
+    }
+  }
+
   Future<void> startChatWithAdmin() async {
-    if (isAdmin) return; // Admin doesn't start chat with themselves
+    if (isAdmin) return;
 
     print('Starting chat with admin for user: $userId');
 
     final userChatId = userId!;
 
     try {
-      // Create or update the chat document
       await FirebaseFirestore.instance
           .collection('chats')
           .doc(userChatId)
@@ -163,68 +244,124 @@ class AllChatsViewModel extends ChangeNotifier {
       }, SetOptions(merge: true));
 
       print('Chat document created/updated successfully');
-
-      // The snapshot listener will automatically update the UI
     } catch (e) {
       print('Error creating chat with admin: $e');
     }
   }
 
-  // Method to get unread count for a specific chat
+  // Enhanced method to get unread count for a specific chat
   Future<int> getUnreadCount(String chatId) async {
     if (isAdmin) {
-      // For admin, count messages not sent by admin and not seen
-      final query = await FirebaseFirestore.instance
-          .collection('chats')
-          .doc(chatId)
-          .collection('messages')
-          .where('senderId', isNotEqualTo: 'admin')
-          .where('status', isNotEqualTo: MessageStatus.seen.toString().split('.').last)
-          .get();
-
-      return query.docs.length;
+      return await _getAdminUnreadCount(chatId);
     } else {
-      // For user, count messages not sent by user and not seen
-      final query = await FirebaseFirestore.instance
-          .collection('chats')
-          .doc(chatId)
-          .collection('messages')
-          .where('senderId', isNotEqualTo: userId)
-          .where('status', isNotEqualTo: MessageStatus.seen.toString().split('.').last)
-          .get();
-
-      return query.docs.length;
+      return await _getUserUnreadCount(chatId);
     }
   }
 
-  // Method to update unread counts for all chats (for admin)
-  Future<void> updateUnreadCounts() async {
+  // Method to mark messages as read when opening a chat
+  Future<void> markChatAsRead(String chatId) async {
+    try {
+      final currentUserId = isAdmin ? 'admin' : userId!;
+
+      // Get all unread messages from the other user
+      final query = await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .where('senderId', isNotEqualTo: currentUserId)
+          .where('status', whereIn: ['sent', 'delivered'])
+          .get();
+
+      if (query.docs.isNotEmpty) {
+        final batch = FirebaseFirestore.instance.batch();
+
+        for (var doc in query.docs) {
+          batch.update(doc.reference, {
+            'status': MessageStatus.seen.toString().split('.').last,
+            'seenAt': DateTime.now().millisecondsSinceEpoch,
+          });
+        }
+
+        await batch.commit();
+        print('Marked ${query.docs.length} messages as read in chat $chatId');
+      }
+    } catch (e) {
+      print('Error marking chat as read: $e');
+    }
+  }
+
+  // Method to refresh all chats data
+  Future<void> refreshChats() async {
+    isLoading = true;
+    notifyListeners();
+
+    if (isAdmin) {
+      // The stream listener will automatically refresh
+      print('Refreshing admin chats...');
+    } else {
+      // The stream listener will automatically refresh
+      print('Refreshing user chat...');
+    }
+  }
+
+  // Method to get total unread count across all chats (for admin)
+  int get totalUnreadCount {
+    return _chats.fold(0, (total, chat) => total + chat.unreadCount);
+  }
+
+  // Method to search chats
+  List<ChatModel> searchChats(String query) {
+    if (query.isEmpty) return _chats;
+
+    return _chats.where((chat) {
+      return chat.username!.toLowerCase().contains(query.toLowerCase()) ||
+          (chat.lastMessage?.toLowerCase().contains(query.toLowerCase()) ?? false);
+    }).toList();
+  }
+
+  // Method to delete a chat (admin only)
+  Future<void> deleteChat(String chatId) async {
     if (!isAdmin) return;
 
-    for (int i = 0; i < _chats.length; i++) {
-      final chat = _chats[i];
-      final unreadCount = await getUnreadCount(chat.chatId);
+    try {
+      // Delete all messages in the chat
+      final messagesQuery = await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .get();
 
-      if (unreadCount != chat.unreadCount) {
-        _chats[i] = ChatModel(
-          chatId: chat.chatId,
-          username: chat.username,
-          lastMessage: chat.lastMessage,
-          lastMessageTime: chat.lastMessageTime,
-          isRead: chat.isRead,
-          unreadCount: unreadCount,
-          profileImage: chat.profileImage,
-          userId: chat.userId,
-          userStatus: chat.userStatus,
-        );
+      final batch = FirebaseFirestore.instance.batch();
+
+      for (var doc in messagesQuery.docs) {
+        batch.delete(doc.reference);
       }
-    }
 
-    notifyListeners();
+      // Delete the chat document
+      batch.delete(FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId));
+
+      await batch.commit();
+
+      print('Chat $chatId deleted successfully');
+    } catch (e) {
+      print('Error deleting chat: $e');
+    }
   }
 
   @override
   void dispose() {
+    print('Disposing AllChatsViewModel');
+
+    _chatsSubscription?.cancel();
+
+    // Cancel all unread count subscriptions
+    _unreadCountSubscriptions.forEach((key, subscription) {
+      subscription.cancel();
+    });
+    _unreadCountSubscriptions.clear();
+
     super.dispose();
   }
 }

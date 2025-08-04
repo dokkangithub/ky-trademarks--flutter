@@ -1,4 +1,3 @@
-// lib/presentation/Screens/chat screen/view_model/chat_provider.dart
 import 'dart:async';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
@@ -7,12 +6,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kyuser/utilits/Local_User_Data.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../../core/Constant/Api_Constant.dart';
 import '../model/message_model.dart';
-import '../model/chat_model.dart';
 
 class ChatViewModel extends ChangeNotifier {
   final String chatId;
