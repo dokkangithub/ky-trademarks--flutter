@@ -1,6 +1,7 @@
 // lib/presentation/Screens/chat screen/view/widgets/message_bubble.dart
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:iconly/iconly.dart';
 import '../../model/message_model.dart';
 import '../../../../../resources/Color_Manager.dart';
 
@@ -124,7 +125,14 @@ class MessageBubble extends StatelessWidget {
           errorWidget: (context, url, error) => Container(
             height: 150,
             color: Colors.grey.shade300,
-            child: Icon(Icons.error),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error, color: Colors.red),
+                SizedBox(height: 4),
+                Text('Failed to load image', style: TextStyle(fontSize: 12)),
+              ],
+            ),
           ),
         ),
       ),
@@ -227,19 +235,174 @@ class MessageBubble extends StatelessWidget {
 
   Widget _buildPdfMessage() {
     return Container(
-        padding: EdgeInsets.all(12),
-    decoration: BoxDecoration(
-    color: Colors.black.withOpacity(0.1),
-    borderRadius: BorderRadius.circular(8),
-    ),
-    child: Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-    Icon(
-    Icons.picture_as_pdf,
-    color: message.isFromCurrentUser ? Colors.white : Colors.red,
-    size: 32,
-    ),
-    SizedBox(width: 8),
-    Flexible(
-    child: Column(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.picture_as_pdf,
+            color: message.isFromCurrentUser ? Colors.white : Colors.red,
+            size: 32,
+          ),
+          SizedBox(width: 8),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  message.fileName ?? 'PDF Document',
+                  style: TextStyle(
+                    color: message.isFromCurrentUser ? Colors.white : Colors.black87,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (message.fileSize != null)
+                  Text(
+                    _formatFileSize(message.fileSize!),
+                    style: TextStyle(
+                      color: message.isFromCurrentUser
+                          ? Colors.white70
+                          : Colors.grey.shade600,
+                      fontSize: 12,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFileMessage() {
+    return Container(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            IconlyBroken.document,
+            color: message.isFromCurrentUser ? Colors.white : Colors.orange,
+            size: 32,
+          ),
+          SizedBox(width: 8),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  message.fileName ?? 'File',
+                  style: TextStyle(
+                    color: message.isFromCurrentUser ? Colors.white : Colors.black87,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (message.fileSize != null)
+                  Text(
+                    _formatFileSize(message.fileSize!),
+                    style: TextStyle(
+                      color: message.isFromCurrentUser
+                          ? Colors.white70
+                          : Colors.grey.shade600,
+                      fontSize: 12,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMessageInfo() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          _formatTime(message.createdAt),
+          style: TextStyle(
+            color: message.isFromCurrentUser
+                ? Colors.white70
+                : Colors.grey.shade500,
+            fontSize: 11,
+          ),
+        ),
+        if (message.isFromCurrentUser) ...[
+          SizedBox(width: 4),
+          _buildMessageStatusIcon(),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildMessageStatus() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        _buildMessageStatusIcon(),
+      ],
+    );
+  }
+
+  Widget _buildMessageStatusIcon() {
+    IconData icon;
+    Color color;
+
+    switch (message.status) {
+      case MessageStatus.sending:
+        icon = Icons.access_time;
+        color = Colors.grey;
+        break;
+      case MessageStatus.sent:
+        icon = Icons.check;
+        color = Colors.grey;
+        break;
+      case MessageStatus.delivered:
+        icon = Icons.done_all;
+        color = Colors.grey;
+        break;
+      case MessageStatus.seen:
+        icon = Icons.done_all;
+        color = Colors.blue;
+        break;
+    }
+
+    return Icon(
+      icon,
+      size: 16,
+      color: color,
+    );
+  }
+
+  String _formatTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final messageDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+
+    if (messageDate == today) {
+      return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+    } else {
+      return '${dateTime.day}/${dateTime.month} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+    }
+  }
+
+  String _formatFileSize(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
+  }
+}

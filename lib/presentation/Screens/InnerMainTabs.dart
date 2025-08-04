@@ -33,6 +33,8 @@ class InnerMainTabs extends StatefulWidget {
 class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateMixin {
   int _selectedIndex = 0;
   bool open = false;
+  bool isAdmin = false;
+  String? userId;
 
   List<IconData> iconList = [
     IconlyBroken.home,
@@ -44,39 +46,9 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
   List<String> iconLabels = ['home'.tr(), 'search'.tr(), 'add_reservation'.tr(), 'profile'.tr()];
 
   List<Widget> mainScreens = [];
+  late List<Widget?> allScreens;
 
   final contactUsKey = GlobalKey();
-  Future<Widget> _checkUserRole() async {
-    String userEmail = await globalAccountData.getEmail() ?? '';
-    bool isAdmin = userEmail == 'test@kytrademarks.com';
-
-    return isAdmin
-        ? AllChatsScreen()
-        : ChatScreen(chatId: '');
-  }
-
-  List<SpeedDialMenuData> speedDialMenuItems = [
-    SpeedDialMenuData(
-      icon: IconlyBroken.chat,
-      label: 'chat'.tr(),
-      widget:  await _checkUserRole(),
-    ),
-    SpeedDialMenuData(
-      icon: IconlyBroken.calling,
-      label: 'contact_us'.tr(),
-      widget: const Contacts(canBack: false),
-    ),
-    SpeedDialMenuData(
-      icon: Icons.android,
-      label: 'download_for_android'.tr(),
-      isExternalLink: true,
-    ),
-    SpeedDialMenuData(
-      icon: Icons.apple,
-      label: 'download_for_ios'.tr(),
-      isExternalLink: true,
-    ),
-  ];
 
   // Navigation items for the top header
   final List<NavTabItem> _navItems = [
@@ -117,9 +89,42 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
     ),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    // Get user data
+    String userEmail = await globalAccountData.getEmail() ?? '';
+    userId = await globalAccountData.getId();
+    isAdmin = userEmail == 'test@kytrademarks.com';
+
+    // Initialize main screens
+    mainScreens.addAll([
+      HomeScreen(contactUsKey: contactUsKey),
+      const SearchScreen(),
+      const AddReservation(),
+      const ProfileScreen(),
+    ]);
+
+    // Create all screens list including speed dial options
+    allScreens = [
+      ...mainScreens,
+      // Chat screen - different for admin vs user
+      isAdmin ? AllChatsScreen() : ChatScreen(chatId: userId ?? ''),
+      const Contacts(canBack: false),
+    ];
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   // Method to change tab from outside
   void changeTab(int index) {
-    if (mounted && index >= 0 && index < mainScreens.length + speedDialMenuItems.length) {
+    if (mounted && index >= 0 && index < allScreens.length) {
       setState(() {
         _selectedIndex = index;
       });
@@ -128,7 +133,7 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
 
   void _handleTopNavTap(int index) {
     final item = _navItems[index];
-    
+
     if (item.isSpecial) {
       // Handle special tabs (download links)
       if (item.title.contains('أندرويد')) {
@@ -146,48 +151,35 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
       });
     } else if (index == 4) { // تواصل معنا
       setState(() {
-        _selectedIndex = mainScreens.length; // Index of contacts in allScreens
+        _selectedIndex = mainScreens.length + 1; // Index of contacts in allScreens
       });
     }
   }
 
+  void _handleChatPressed() {
+    setState(() {
+      _selectedIndex = mainScreens.length; // Index of chat screen in allScreens
+    });
+  }
+
   void _launchAndroidDownload() {
-    print('ssss');
-    launch(
-      "https://play.google.com/store/apps/details?id=com.kytrademarks",
-    );
+    launch("https://play.google.com/store/apps/details?id=com.kytrademarks");
   }
 
   void _launchIOSDownload() {
-    print('ssss');
-    launch(
-      "https://apps.apple.com/app/id1605389392",
-    );
-  }
-
-  late List<Widget?> allScreens;
-
-  @override
-  void initState() {
-    mainScreens.addAll([
-      HomeScreen(contactUsKey: contactUsKey),
-      const SearchScreen(),
-      const AddReservation(),
-      const ProfileScreen(),
-    ]);
-
-    allScreens = [
-      ...mainScreens,
-      ...speedDialMenuItems.map((item) => item.widget),
-    ];
-
-    super.initState();
+    launch("https://apps.apple.com/app/id1605389392");
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isLargeScreen = screenWidth > 800;
+
+    if (allScreens.isEmpty) {
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       body: Column(
@@ -202,10 +194,8 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
           ),
         ],
       ),
-      floatingActionButton: !isLargeScreen ? _buildSpeedDial() : null,
-      floatingActionButtonLocation: !isLargeScreen && open == true
-          ? FloatingActionButtonLocation.startFloat
-          : FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: !isLargeScreen ? _buildChatFAB() : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: !isLargeScreen ? AnimatedBottomNavigationBar(
         backgroundGradient: LinearGradient(colors: [
           ColorManager.primary,
@@ -220,6 +210,32 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
         notchSmoothness: NotchSmoothness.softEdge,
         onTap: (index) => setState(() => _selectedIndex = index),
       ) : null,
+    );
+  }
+
+  Widget _buildChatFAB() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: Alignment.center,
+          radius: 0.7,
+          colors: [
+            ColorManager.primaryByOpacity,
+            ColorManager.primary,
+          ],
+        ),
+        shape: BoxShape.circle,
+      ),
+      child: FloatingActionButton(
+        onPressed: _handleChatPressed,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Icon(
+          IconlyBroken.chat,
+          color: Colors.white,
+          size: 32,
+        ),
+      ),
     );
   }
 
@@ -284,7 +300,7 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
                         final index = entry.key;
                         final item = entry.value;
                         final isSelected = _selectedIndex == index && index < mainScreens.length;
-                        
+
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: InkWell(
@@ -293,11 +309,11 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               decoration: BoxDecoration(
-                                color: isSelected 
+                                color: isSelected
                                     ? Colors.white.withOpacity(0.2)
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(8),
-                                border: isSelected 
+                                border: isSelected
                                     ? Border.all(color: Colors.white.withOpacity(0.3))
                                     : null,
                               ),
@@ -333,6 +349,46 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
                           ),
                         );
                       }).toList(),
+                    ),
+                  ),
+                ),
+                // Chat button for web
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: InkWell(
+                    onTap: _handleChatPressed,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: _selectedIndex == mainScreens.length
+                            ? Colors.white.withOpacity(0.2)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                        border: _selectedIndex == mainScreens.length
+                            ? Border.all(color: Colors.white.withOpacity(0.3))
+                            : null,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.chat,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'الدعم الفني',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: _selectedIndex == mainScreens.length ? FontWeight.bold : FontWeight.normal,
+                              fontFamily: StringConstant.fontName,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -404,60 +460,6 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
     );
   }
 
-  Widget _buildSpeedDial() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: RadialGradient(
-          center: Alignment.center,
-          radius: 0.7,
-          colors: [
-            ColorManager.primaryByOpacity,
-            ColorManager.primary,
-          ],
-        ),
-        shape: BoxShape.circle,
-      ),
-      child: SpeedDial(
-        icon: IconlyBroken.chat,
-        iconTheme: const IconThemeData(color: Colors.white, size: 32),
-        activeIcon: IconlyBroken.lock,
-        backgroundColor: Colors.transparent,
-        activeBackgroundColor: Colors.transparent,
-        childPadding: const EdgeInsets.all(5),
-        spaceBetweenChildren: 4,
-        onOpen: () => setState(() => open = true),
-        onClose: () => setState(() => open = false),
-        elevation: 8.0,
-        animationCurve: Curves.elasticInOut,
-        children: speedDialMenuItems.map((item) {
-          return SpeedDialChild(
-            child: Icon(item.icon),
-            backgroundColor: ColorManager.primaryByOpacity,
-            foregroundColor: Colors.white,
-            label: item.label,
-            labelBackgroundColor: Colors.white,
-            labelStyle: Theme.of(context).textTheme.displayLarge?.copyWith(
-                color: Colors.black,
-                fontWeight: FontWeight.w600,
-                fontSize: 14,fontFamily:  StringConstant.fontName,),
-            onTap: () {
-              if (item.isExternalLink) {
-                if (item.label == 'Download for Android'.tr()) {
-                  _launchAndroidDownload();
-                } else if (item.label == 'Download for iOS'.tr()) {
-                  _launchIOSDownload();
-                }
-              } else if (item.widget != null) {
-                int index = mainScreens.length + speedDialMenuItems.indexOf(item);
-                setState(() => _selectedIndex = index);
-              }
-            },
-          );
-        }).toList(),
-      ),
-    );
-  }
-
   Future<bool> handleWillPopScopeRoot() async {
     return await showDialog(
       context: context,
@@ -523,20 +525,6 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
       ),
     ) ?? false;
   }
-}
-
-class SpeedDialMenuData {
-  final IconData icon;
-  final String label;
-  final Widget? widget;
-  final bool isExternalLink;
-
-  SpeedDialMenuData({
-    required this.icon,
-    required this.label,
-    this.widget,
-    this.isExternalLink = false,
-  });
 }
 
 class NavTabItem {

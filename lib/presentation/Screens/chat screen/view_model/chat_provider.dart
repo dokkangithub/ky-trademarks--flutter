@@ -1,4 +1,5 @@
 // lib/presentation/Screens/chat screen/view_model/chat_provider.dart
+import 'dart:async';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -24,6 +25,7 @@ class ChatViewModel extends ChangeNotifier {
   UserStatus otherUserStatus = UserStatus.offline;
   bool isTyping = false;
   String? typingUserId;
+  Timer? _typingTimer;
 
   ChatViewModel(this.chatId) {
     _getUserData();
@@ -76,28 +78,43 @@ class ChatViewModel extends ChangeNotifier {
         msg.status != MessageStatus.seen)
         .toList();
 
+    if (unseenMessages.isEmpty) return;
+
+    final batch = FirebaseFirestore.instance.batch();
+
     for (final message in unseenMessages) {
-      await FirebaseFirestore.instance
+      final docRef = FirebaseFirestore.instance
           .collection('chats')
           .doc(chatId)
           .collection('messages')
-          .doc(message.id)
-          .update({
+          .doc(message.id);
+
+      batch.update(docRef, {
         'status': MessageStatus.seen.toString().split('.').last,
         'seenAt': DateTime.now().millisecondsSinceEpoch,
       });
+    }
+
+    try {
+      await batch.commit();
+    } catch (e) {
+      print('Error marking messages as seen: $e');
     }
   }
 
   Future<void> _setUserStatus(UserStatus status) async {
     currentUserStatus = status;
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .set({
-      'status': status.toString(),
-      'lastSeen': DateTime.now().millisecondsSinceEpoch,
-    }, SetOptions(merge: true));
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .set({
+        'status': status.toString(),
+        'lastSeen': DateTime.now().millisecondsSinceEpoch,
+      }, SetOptions(merge: true));
+    } catch (e) {
+      print('Error setting user status: $e');
+    }
 
     notifyListeners();
   }
@@ -140,15 +157,29 @@ class ChatViewModel extends ChangeNotifier {
   }
 
   Future<void> setTypingStatus(bool typing) async {
-    await FirebaseFirestore.instance
-        .collection('chats')
-        .doc(chatId)
-        .collection('typing')
-        .doc(userId)
-        .set({
-      'isTyping': typing,
-      'timestamp': DateTime.now().millisecondsSinceEpoch,
-    });
+    try {
+      await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .collection('typing')
+          .doc(userId)
+          .set({
+        'isTyping': typing,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+      });
+
+      // Clear typing after 3 seconds of inactivity
+      if (typing) {
+        _typingTimer?.cancel();
+        _typingTimer = Timer(Duration(seconds: 3), () {
+          setTypingStatus(false);
+        });
+      } else {
+        _typingTimer?.cancel();
+      }
+    } catch (e) {
+      print('Error setting typing status: $e');
+    }
   }
 
   Future<String?> _uploadFile(File file, String fileName) async {
@@ -166,12 +197,21 @@ class ChatViewModel extends ChangeNotifier {
       if (response.statusCode == 200) {
         var responseData = await response.stream.bytesToString();
         var jsonResponse = json.decode(responseData);
-        return jsonResponse['url']; // Assuming the API returns the file URL
+
+        // Handle different possible response structures
+        if (jsonResponse is Map<String, dynamic>) {
+          return jsonResponse['url'] ?? jsonResponse['file_url'] ?? jsonResponse['path'];
+        }
+
+        return null;
+      } else {
+        print('Upload failed with status: ${response.statusCode}');
+        return null;
       }
     } catch (e) {
       print('Upload error: $e');
+      return null;
     }
-    return null;
   }
 
   Future<void> sendMessage({
@@ -180,13 +220,21 @@ class ChatViewModel extends ChangeNotifier {
     String? fileName,
     MessageType type = MessageType.text,
   }) async {
+    if ((text?.trim().isEmpty ?? true) && file == null) return;
+
     String? mediaUrl;
+
+    // Show loading state for file upload
+    if (file != null) {
+      // You might want to show a loading indicator here
+    }
 
     // Upload file if provided
     if (file != null) {
       mediaUrl = await _uploadFile(file, fileName ?? 'file');
       if (mediaUrl == null) {
-        // Handle upload error
+        // Show error message to user
+        print('Failed to upload file');
         return;
       }
     }
@@ -194,9 +242,9 @@ class ChatViewModel extends ChangeNotifier {
     final message = MessageModel(
       id: '',
       senderId: userId!,
-      senderName: userName!,
+      senderName: userName ?? 'User',
       chatId: chatId,
-      text: text,
+      text: text?.trim(),
       mediaUrl: mediaUrl,
       fileName: fileName,
       fileSize: file != null ? await file.length() : null,
@@ -205,23 +253,28 @@ class ChatViewModel extends ChangeNotifier {
       createdAt: DateTime.now(),
     );
 
-    // Add to Firestore
-    final docRef = await FirebaseFirestore.instance
-        .collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .add(message.toJson());
+    try {
+      // Add to Firestore
+      final docRef = await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .add(message.toJson());
 
-    // Update message status to sent
-    await docRef.update({
-      'status': MessageStatus.sent.toString().split('.').last,
-    });
+      // Update message status to sent
+      await docRef.update({
+        'status': MessageStatus.sent.toString().split('.').last,
+      });
 
-    // Update chat metadata
-    await _updateChatMetadata(message);
+      // Update chat metadata
+      await _updateChatMetadata(message);
 
-    // Stop typing
-    await setTypingStatus(false);
+      // Stop typing
+      await setTypingStatus(false);
+    } catch (e) {
+      print('Error sending message: $e');
+      // You might want to show an error message to the user
+    }
   }
 
   Future<void> _updateChatMetadata(MessageModel message) async {
@@ -230,12 +283,18 @@ class ChatViewModel extends ChangeNotifier {
       'lastMessageTime': message.createdAt.millisecondsSinceEpoch,
       'lastSenderId': message.senderId,
       'updatedAt': DateTime.now().millisecondsSinceEpoch,
+      'username': userName ?? 'User',
+      'userId': userId,
     };
 
-    await FirebaseFirestore.instance
-        .collection('chats')
-        .doc(chatId)
-        .set(chatData, SetOptions(merge: true));
+    try {
+      await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .set(chatData, SetOptions(merge: true));
+    } catch (e) {
+      print('Error updating chat metadata: $e');
+    }
   }
 
   String _getMediaTypeText(MessageType type) {
@@ -271,8 +330,9 @@ class ChatViewModel extends ChangeNotifier {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            Wrap(
+              spacing: 20,
+              runSpacing: 20,
               children: [
                 _buildAttachmentOption(
                   context,
@@ -298,8 +358,15 @@ class ChatViewModel extends ChangeNotifier {
                   'PDF',
                       () => _pickMedia(context, MessageType.pdf),
                 ),
+                _buildAttachmentOption(
+                  context,
+                  Icons.insert_drive_file,
+                  'File',
+                      () => _pickMedia(context, MessageType.file),
+                ),
               ],
             ),
+            SizedBox(height: 20),
           ],
         ),
       ),
@@ -338,7 +405,12 @@ class ChatViewModel extends ChangeNotifier {
       switch (type) {
         case MessageType.image:
           final ImagePicker picker = ImagePicker();
-          final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+          final XFile? image = await picker.pickImage(
+            source: ImageSource.gallery,
+            maxWidth: 1920,
+            maxHeight: 1080,
+            imageQuality: 85,
+          );
           if (image != null) {
             await sendMessage(
               file: File(image.path),
@@ -350,7 +422,10 @@ class ChatViewModel extends ChangeNotifier {
 
         case MessageType.video:
           final ImagePicker picker = ImagePicker();
-          final XFile? video = await picker.pickVideo(source: ImageSource.gallery);
+          final XFile? video = await picker.pickVideo(
+            source: ImageSource.gallery,
+            maxDuration: Duration(minutes: 5),
+          );
           if (video != null) {
             await sendMessage(
               file: File(video.path),
@@ -363,8 +438,9 @@ class ChatViewModel extends ChangeNotifier {
         case MessageType.audio:
           final result = await FilePicker.platform.pickFiles(
             type: FileType.audio,
+            allowMultiple: false,
           );
-          if (result != null) {
+          if (result != null && result.files.isNotEmpty) {
             final file = result.files.single;
             await sendMessage(
               file: File(file.path!),
@@ -378,8 +454,9 @@ class ChatViewModel extends ChangeNotifier {
           final result = await FilePicker.platform.pickFiles(
             type: FileType.custom,
             allowedExtensions: ['pdf'],
+            allowMultiple: false,
           );
-          if (result != null) {
+          if (result != null && result.files.isNotEmpty) {
             final file = result.files.single;
             await sendMessage(
               file: File(file.path!),
@@ -389,16 +466,36 @@ class ChatViewModel extends ChangeNotifier {
           }
           break;
 
+        case MessageType.file:
+          final result = await FilePicker.platform.pickFiles(
+            type: FileType.any,
+            allowMultiple: false,
+          );
+          if (result != null && result.files.isNotEmpty) {
+            final file = result.files.single;
+            await sendMessage(
+              file: File(file.path!),
+              fileName: file.name,
+              type: MessageType.file,
+            );
+          }
+          break;
+
         default:
           break;
       }
     } catch (e) {
       print('Error picking media: $e');
+      // Show error message to user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to select file: ${e.toString()}')),
+      );
     }
   }
 
   @override
   void dispose() {
+    _typingTimer?.cancel();
     _setUserStatus(UserStatus.offline);
     super.dispose();
   }
