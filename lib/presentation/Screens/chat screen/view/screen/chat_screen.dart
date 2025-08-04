@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:kyuser/presentation/Widget/loading_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:io';
 import '../../../../../resources/Color_Manager.dart';
 import '../../model/message_model.dart';
 import '../../view_model/chat_provider.dart';
@@ -59,6 +60,11 @@ class ChatScreen extends StatelessWidget {
                   ),
                   ChatInput(
                     onSendMessage: (text) => viewModel.sendMessage(text: text),
+                    onSendAudio: (audioFile, fileName) => viewModel.sendMessage(
+                      file: audioFile,
+                      fileName: fileName,
+                      type: MessageType.audio,
+                    ),
                     onAttachmentPressed: () => viewModel.handleAttachmentPressed(context),
                     onTypingChanged: viewModel.setTypingStatus,
                   ),

@@ -83,6 +83,7 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
   }
 
   void _startVoiceRecording() {
+    print('ChatInput: Starting voice recording...');
     setState(() {
       _isRecording = true;
     });
@@ -90,6 +91,7 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
   }
 
   void _stopVoiceRecording() {
+    print('ChatInput: Stopping voice recording...');
     setState(() {
       _isRecording = false;
     });
@@ -97,11 +99,18 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
   }
 
   void _onAudioRecorded(File audioFile, String fileName) {
-    widget.onSendAudio?.call(audioFile, fileName);
+    print('ChatInput: Audio recorded - File: ${audioFile.path}, Name: $fileName');
+    if (widget.onSendAudio != null) {
+      widget.onSendAudio!(audioFile, fileName);
+      print('ChatInput: Audio sent to parent');
+    } else {
+      print('ChatInput: WARNING - onSendAudio is null!');
+    }
     _stopVoiceRecording();
   }
 
   void _onRecordingCancelled() {
+    print('ChatInput: Recording cancelled');
     _stopVoiceRecording();
   }
 
@@ -122,6 +131,7 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
   }
 
   Widget _buildRecordingWidget() {
+    print('ChatInput: Building recording widget');
     return VoiceRecordingWidget(
       onAudioRecorded: _onAudioRecorded,
       onCancel: _onRecordingCancelled,
@@ -231,11 +241,16 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
     return GestureDetector(
       key: ValueKey('voice'),
       onTap: () {
+        print('ChatInput: Voice button tapped');
         if (widget.onSendAudio != null) {
+          print('ChatInput: onSendAudio is available, starting recording');
           _startVoiceRecording();
+        } else {
+          print('ChatInput: onSendAudio is null - cannot record!');
         }
       },
       onLongPress: () {
+        print('ChatInput: Voice button long pressed');
         if (widget.onSendAudio != null) {
           _startVoiceRecording();
         }
