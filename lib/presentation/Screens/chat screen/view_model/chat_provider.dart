@@ -352,26 +352,14 @@ class ChatViewModel extends ChangeNotifier {
     final currentUserId = isAdmin ? 'admin' : userId!;
     final currentUserName = isAdmin ? 'Admin' : (userName ?? 'User');
 
-    String? mediaUrl;
-
-    // Upload file if provided
-    if (file != null) {
-      print('Uploading file before sending message...');
-      mediaUrl = await _uploadFile(file, fileName ?? 'file');
-      if (mediaUrl == null) {
-        print('Failed to upload file');
-        // You might want to show an error message to user here
-        return;
-      }
-    }
-
+    // Create message immediately with sending status
     final message = MessageModel(
       id: '',
       senderId: currentUserId,
       senderName: currentUserName,
       chatId: chatId,
       text: text?.trim(),
-      mediaUrl: mediaUrl,
+      mediaUrl: null, // Will be updated after upload
       fileName: fileName,
       fileSize: file != null ? await file.length() : null,
       type: type,
@@ -382,20 +370,52 @@ class ChatViewModel extends ChangeNotifier {
     try {
       print('Sending message: ${message.text ?? 'Media message'}');
 
-      // Add to Firestore
+      // Add to Firestore immediately with sending status
       final docRef = await FirebaseFirestore.instance
           .collection('chats')
           .doc(chatId)
           .collection('messages')
           .add(message.toJson());
 
-      // Update message status to sent
+      // Update message ID
+      final updatedMessage = MessageModel(
+        id: docRef.id,
+        senderId: currentUserId,
+        senderName: currentUserName,
+        chatId: chatId,
+        text: text?.trim(),
+        mediaUrl: null,
+        fileName: fileName,
+        fileSize: file != null ? await file.length() : null,
+        type: type,
+        status: MessageStatus.sending,
+        createdAt: DateTime.now(),
+      );
+
+      // Upload file if provided
+      String? mediaUrl;
+      if (file != null) {
+        print('Uploading file after adding message...');
+        mediaUrl = await _uploadFile(file, fileName ?? 'file');
+        if (mediaUrl == null) {
+          print('Failed to upload file');
+          // Update message status to failed
+          await docRef.update({
+            'status': 'failed',
+            'error': 'Upload failed',
+          });
+          return;
+        }
+      }
+
+      // Update message with media URL and sent status
       await docRef.update({
+        'mediaUrl': mediaUrl,
         'status': MessageStatus.sent.toString().split('.').last,
       });
 
       // Update chat metadata
-      await _updateChatMetadata(message);
+      await _updateChatMetadata(updatedMessage);
 
       // Stop typing
       await setTypingStatus(false);

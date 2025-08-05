@@ -1,4 +1,3 @@
-// lib/presentation/Screens/chat screen/view/screen/all_chats_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
@@ -324,9 +323,9 @@ class ChatTile extends StatelessWidget {
     switch (status) {
       case UserStatus.online:
       case UserStatus.typing:
-        return Colors.green;
+        return Colors.green.shade400;
       case UserStatus.offline:
-        return Colors.grey;
+        return Colors.grey.shade400;
     }
   }
 

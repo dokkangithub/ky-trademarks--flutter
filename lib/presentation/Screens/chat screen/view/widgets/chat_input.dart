@@ -4,18 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 import '../../../../../resources/Color_Manager.dart';
 import 'voice_recording_widget.dart';
+import 'attachment_picker.dart';
 
 class ChatInput extends StatefulWidget {
   final Function(String) onSendMessage;
   final Function(File, String)? onSendAudio;
-  final VoidCallback? onAttachmentPressed;
+  final Function(File, String, String)? onAttachmentSelected;
   final Function(bool)? onTypingChanged;
 
   const ChatInput({
     Key? key,
     required this.onSendMessage,
     this.onSendAudio,
-    this.onAttachmentPressed,
+    this.onAttachmentSelected,
     this.onTypingChanged,
   }) : super(key: key);
 
@@ -28,6 +29,7 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
   final FocusNode _focusNode = FocusNode();
   bool _isTyping = false;
   bool _isRecording = false;
+  bool _isAttachmentPickerVisible = false;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
@@ -123,6 +125,25 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
     _stopVoiceRecording();
   }
 
+  void _showAttachmentPicker() {
+    setState(() {
+      _isAttachmentPickerVisible = true;
+    });
+  }
+
+  void _hideAttachmentPicker() {
+    setState(() {
+      _isAttachmentPickerVisible = false;
+    });
+  }
+
+  void _onFileSelected(File file, String fileName, String type) {
+    if (widget.onAttachmentSelected != null) {
+      widget.onAttachmentSelected!(file, fileName, type);
+    }
+    _hideAttachmentPicker();
+  }
+
   @override
   void dispose() {
     _textController.dispose();
@@ -133,21 +154,52 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: Duration(milliseconds: 400),
-      transitionBuilder: (Widget child, Animation<double> animation) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: Offset(0, 1),
-            end: Offset.zero,
-          ).animate(animation),
-          child: FadeTransition(
-            opacity: animation,
-            child: child,
+    return Column(
+      children: [
+        // Attachment Picker
+        if (_isAttachmentPickerVisible)
+          AnimatedSwitcher(
+            duration: Duration(milliseconds: 400),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: Offset(0, 1),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                )),
+                child: FadeTransition(
+                  opacity: animation,
+                  child: child,
+                ),
+              );
+            },
+            child: AttachmentPicker(
+              key: ValueKey('attachment_picker'),
+              onFileSelected: _onFileSelected,
+              onClose: _hideAttachmentPicker,
+            ),
           ),
-        );
-      },
-      child: _isRecording ? _buildRecordingWidget() : _buildNormalInput(),
+        
+        // Main Input
+        AnimatedSwitcher(
+          duration: Duration(milliseconds: 400),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: Offset(0, 1),
+                end: Offset.zero,
+              ).animate(animation),
+              child: FadeTransition(
+                opacity: animation,
+                child: child,
+              ),
+            );
+          },
+          child: _isRecording ? _buildRecordingWidget() : _buildNormalInput(),
+        ),
+      ],
     );
   }
 
@@ -161,7 +213,7 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
 
   Widget _buildNormalInput() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -177,7 +229,7 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
         child: Row(
           children: [
             // Attachment button
-            if (widget.onAttachmentPressed != null)
+            if (widget.onAttachmentSelected != null)
               _buildAttachmentButton(),
 
             SizedBox(width: 12),
@@ -187,7 +239,7 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: BorderRadius.circular(24),
                   border: Border.all(
                     color: _focusNode.hasFocus 
                         ? ColorManager.primary.withOpacity(0.3)
@@ -266,9 +318,16 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
           end: Alignment.bottomRight,
         ),
         shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: ColorManager.primary.withOpacity(0.1),
+            blurRadius: 8,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: IconButton(
-        onPressed: widget.onAttachmentPressed,
+        onPressed: _showAttachmentPicker,
         icon: Icon(
           IconlyBroken.paper_plus,
           color: ColorManager.primary,

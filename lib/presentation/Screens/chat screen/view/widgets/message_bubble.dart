@@ -5,6 +5,8 @@ import 'package:iconly/iconly.dart';
 import '../../model/message_model.dart';
 import '../../../../../resources/Color_Manager.dart';
 import 'audio_message_bubble.dart';
+import 'video_message_bubble.dart';
+import 'pdf_message_bubble.dart';
 
 class MessageBubble extends StatelessWidget {
   final MessageModel message;
@@ -174,6 +176,57 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildImageMessage() {
+    // Show loading state if message is sending and no mediaUrl yet
+    if (message.status == MessageStatus.sending && message.mediaUrl == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (message.text?.isNotEmpty == true) ...[
+            _buildTextMessage(),
+            SizedBox(height: 12),
+          ],
+          Container(
+            constraints: BoxConstraints(
+              maxHeight: 280,
+              maxWidth: 280,
+              minHeight: 160,
+              minWidth: 160,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        message.isFromCurrentUser ? Colors.white : ColorManager.primary,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  Text(
+                    'Uploading image...',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
     if (message.mediaUrl == null) {
       return _buildErrorMessage('Image not available');
     }
@@ -249,16 +302,65 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildVideoMessage() {
-    return _buildMediaMessage(
-      icon: Icons.play_circle_fill,
-      color: Colors.red.shade500,
-      title: message.fileName ?? 'Video',
-      subtitle: 'Tap to play',
-      gradient: LinearGradient(
-        colors: [Colors.red.shade400, Colors.red.shade600],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
+    // Show loading state if message is sending and no mediaUrl yet
+    if (message.status == MessageStatus.sending && message.mediaUrl == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (message.text?.isNotEmpty == true) ...[
+            _buildTextMessage(),
+            SizedBox(height: 12),
+          ],
+          Container(
+            constraints: BoxConstraints(
+              maxHeight: 280,
+              maxWidth: 280,
+              minHeight: 160,
+              minWidth: 160,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        message.isFromCurrentUser ? Colors.white : ColorManager.primary,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  Text(
+                    'Uploading video...',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (message.mediaUrl == null) {
+      return _buildErrorMessage('Video not available');
+    }
+
+    return VideoMessageBubble(
+      videoUrl: message.mediaUrl!,
+      isFromCurrentUser: message.isFromCurrentUser,
+      caption: message.text,
     );
   }
 
@@ -290,20 +392,35 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildPdfMessage() {
-    return _buildMediaMessage(
-      icon: Icons.picture_as_pdf,
-      color: Colors.red.shade500,
-      title: message.fileName ?? 'PDF Document',
-      subtitle: 'Tap to open',
-      gradient: LinearGradient(
-        colors: [Colors.red.shade400, Colors.red.shade600],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
+    if (message.mediaUrl == null) {
+      return _buildErrorMessage('PDF not available');
+    }
+
+    return PdfMessageBubble(
+      pdfUrl: message.mediaUrl!,
+      fileName: message.fileName ?? 'Document.pdf',
+      isFromCurrentUser: message.isFromCurrentUser,
+      caption: message.text,
     );
   }
 
   Widget _buildFileMessage() {
+    // Show loading state if message is sending and no mediaUrl yet
+    if (message.status == MessageStatus.sending && message.mediaUrl == null) {
+      return _buildMediaMessage(
+        icon: IconlyBroken.document,
+        color: Colors.orange.shade500,
+        title: message.fileName ?? 'File',
+        subtitle: 'Uploading...',
+        gradient: LinearGradient(
+          colors: [Colors.orange.shade400, Colors.orange.shade600],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        isLoading: true,
+      );
+    }
+
     return _buildMediaMessage(
       icon: IconlyBroken.document,
       color: Colors.orange.shade500,
@@ -323,6 +440,7 @@ class MessageBubble extends StatelessWidget {
     required String title,
     required String subtitle,
     required Gradient gradient,
+    bool isLoading = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -353,11 +471,20 @@ class MessageBubble extends StatelessWidget {
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 24,
-                ),
+                child: isLoading
+                    ? SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Icon(
+                        icon,
+                        color: Colors.white,
+                        size: 24,
+                      ),
               ),
               SizedBox(width: 16),
               Flexible(
@@ -383,7 +510,7 @@ class MessageBubble extends StatelessWidget {
                         fontWeight: FontWeight.w400,
                       ),
                     ),
-                    if (message.fileSize != null) ...[
+                    if (message.fileSize != null && !isLoading) ...[
                       SizedBox(height: 4),
                       Text(
                         _formatFileSize(message.fileSize!),
@@ -472,6 +599,10 @@ class MessageBubble extends StatelessWidget {
       case MessageStatus.seen:
         icon = Icons.done_all;
         color = Colors.blue.shade400;
+        break;
+      case MessageStatus.failed:
+        icon = Icons.error_outline;
+        color = Colors.red.shade400;
         break;
     }
 

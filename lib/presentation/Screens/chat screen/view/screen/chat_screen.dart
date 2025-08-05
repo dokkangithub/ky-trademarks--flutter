@@ -3,15 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kyuser/presentation/Widget/loading_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'dart:io';
 import '../../../../../resources/Color_Manager.dart';
 import '../../model/message_model.dart';
 import '../../view_model/chat_provider.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/typing_indicator.dart';
 import '../widgets/chat_input.dart';
-import '../widgets/video_player.dart';
 
 class ChatScreen extends StatelessWidget {
   final String chatId;
@@ -84,7 +81,11 @@ class ChatScreen extends StatelessWidget {
                               fileName: fileName,
                               type: MessageType.audio,
                             ),
-                            onAttachmentPressed: () => viewModel.handleAttachmentPressed(context),
+                            onAttachmentSelected: (file, fileName, type) => viewModel.sendMessage(
+                              file: file,
+                              fileName: fileName,
+                              type: _getMessageTypeFromString(type),
+                            ),
                             onTypingChanged: viewModel.setTypingStatus,
                           ),
                         ],
@@ -98,6 +99,7 @@ class ChatScreen extends StatelessWidget {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context, ChatViewModel viewModel) {
+    print('ssss${viewModel.userName }');
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -174,7 +176,7 @@ class ChatScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  viewModel.isAdmin ? 'User Chat' : 'Admin Support',
+                  viewModel.isAdmin ? viewModel.userName ?? 'User' : 'Admin Support',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -241,6 +243,21 @@ class ChatScreen extends StatelessWidget {
     }
   }
 
+  MessageType _getMessageTypeFromString(String type) {
+    switch (type.toLowerCase()) {
+      case 'image':
+        return MessageType.image;
+      case 'video':
+        return MessageType.video;
+      case 'pdf':
+        return MessageType.pdf;
+      case 'file':
+        return MessageType.file;
+      default:
+        return MessageType.file;
+    }
+  }
+
   void _handleMessageTap(BuildContext context, MessageModel message, ChatViewModel viewModel) {
     if (message.mediaUrl == null) return;
 
@@ -249,17 +266,10 @@ class ChatScreen extends StatelessWidget {
         _showImageViewer(context, message.mediaUrl!);
         break;
       case MessageType.video:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => VideoPlayerScreen(videoUrl: message.mediaUrl!),
-          ),
-        );
-        break;
       case MessageType.pdf:
       case MessageType.file:
       case MessageType.audio:
-        _openFileUrl(message.mediaUrl!);
+        // These are now handled by their respective widgets
         break;
       default:
         break;
@@ -327,17 +337,5 @@ class ChatScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _openFileUrl(String url) async {
-    try {
-      if (await canLaunch(url)) {
-        await launch(url);
-      } else {
-        print('Could not launch $url');
-      }
-    } catch (e) {
-      print('Error launching URL: $e');
-    }
   }
 }

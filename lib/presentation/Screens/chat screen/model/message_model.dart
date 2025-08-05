@@ -1,5 +1,5 @@
 enum MessageType { text, image, video, audio, pdf, file }
-enum MessageStatus { sending, sent, delivered, seen }
+enum MessageStatus { sending, sent, delivered, seen, failed }
 enum UserStatus { online, offline, typing }
 
 class MessageModel {

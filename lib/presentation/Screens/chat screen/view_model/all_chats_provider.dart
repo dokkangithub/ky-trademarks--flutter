@@ -15,6 +15,7 @@ class AllChatsViewModel extends ChangeNotifier {
   bool isAdmin = false;
   StreamSubscription? _chatsSubscription;
   final Map<String, StreamSubscription> _unreadCountSubscriptions = {};
+  final Map<String, StreamSubscription> _userStatusSubscriptions = {};
 
   AllChatsViewModel() {
     _initializeChat();
@@ -66,6 +67,9 @@ class AllChatsViewModel extends ChangeNotifier {
 
       // Set up real-time unread count listeners for each chat
       _setupUnreadCountListeners();
+      
+      // Set up real-time user status listeners for each chat
+      _setupUserStatusListeners();
     }, onError: (error) {
       print('Error fetching chats: $error');
       isLoading = false;
@@ -112,6 +116,48 @@ class AllChatsViewModel extends ChangeNotifier {
     }
   }
 
+  void _setupUserStatusListeners() {
+    // Cancel existing subscriptions
+    _userStatusSubscriptions.forEach((key, subscription) {
+      subscription.cancel();
+    });
+    _userStatusSubscriptions.clear();
+
+    // Set up new subscriptions for each chat
+    for (var chat in _chats) {
+      _userStatusSubscriptions[chat.chatId] = FirebaseFirestore.instance
+          .collection('users')
+          .doc(chat.userId)
+          .snapshots()
+          .listen((snapshot) {
+        if (snapshot.exists) {
+          final userData = snapshot.data() as Map<String, dynamic>;
+          final newStatus = UserStatus.values.firstWhere(
+            (e) => e.toString() == userData['status'],
+            orElse: () => UserStatus.offline,
+          );
+
+          // Update the specific chat's user status
+          final chatIndex = _chats.indexWhere((c) => c.chatId == chat.chatId);
+          if (chatIndex != -1) {
+            _chats[chatIndex] = ChatModel(
+              chatId: _chats[chatIndex].chatId,
+              username: _chats[chatIndex].username,
+              lastMessage: _chats[chatIndex].lastMessage,
+              lastMessageTime: _chats[chatIndex].lastMessageTime,
+              isRead: _chats[chatIndex].isRead,
+              unreadCount: _chats[chatIndex].unreadCount,
+              profileImage: _chats[chatIndex].profileImage,
+              userId: _chats[chatIndex].userId,
+              userStatus: newStatus,
+            );
+            notifyListeners();
+          }
+        }
+      });
+    }
+  }
+
   void _fetchUserChat() {
     print('Fetching user chat for user: $userId');
 
@@ -142,11 +188,23 @@ class AllChatsViewModel extends ChangeNotifier {
             isRead: data['lastSenderId'] == userId,
             unreadCount: unreadCount,
             userId: 'admin',
-            userStatus: UserStatus.offline,
+            userStatus: UserStatus.online, // Set admin as online by default
           )
         ];
       } else {
-        _chats = [];
+        // Create empty chat for user if it doesn't exist
+        _chats = [
+          ChatModel(
+            chatId: userChatId,
+            username: 'Admin Support',
+            lastMessage: null,
+            lastMessageTime: null,
+            isRead: true,
+            unreadCount: 0,
+            userId: 'admin',
+            userStatus: UserStatus.online,
+          )
+        ];
       }
 
       isLoading = false;
@@ -169,6 +227,9 @@ class AllChatsViewModel extends ChangeNotifier {
         unreadCount = await _getAdminUnreadCount(doc.id);
       }
 
+      // Use default offline status - will be updated by real-time listener
+      UserStatus userStatus = UserStatus.offline;
+
       return ChatModel(
         chatId: doc.id,
         username: data['username'] ?? 'Unknown User',
@@ -179,7 +240,7 @@ class AllChatsViewModel extends ChangeNotifier {
         isRead: data['lastSenderId'] == (isAdmin ? 'admin' : userId),
         unreadCount: unreadCount,
         userId: data['userId'] ?? doc.id,
-        userStatus: UserStatus.offline,
+        userStatus: userStatus,
       );
     } catch (e) {
       print('Error creating chat model from doc ${doc.id}: $e');
@@ -361,6 +422,12 @@ class AllChatsViewModel extends ChangeNotifier {
       subscription.cancel();
     });
     _unreadCountSubscriptions.clear();
+
+    // Cancel all user status subscriptions
+    _userStatusSubscriptions.forEach((key, subscription) {
+      subscription.cancel();
+    });
+    _userStatusSubscriptions.clear();
 
     super.dispose();
   }
