@@ -4,15 +4,15 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../../resources/Color_Manager.dart';
 
-class PdfMessageBubble extends StatelessWidget {
-  final String pdfUrl;
+class FileMessageBubble extends StatelessWidget {
+  final String fileUrl;
   final String fileName;
   final bool isFromCurrentUser;
   final String? caption;
 
-  const PdfMessageBubble({
+  const FileMessageBubble({
     Key? key,
-    required this.pdfUrl,
+    required this.fileUrl,
     required this.fileName,
     required this.isFromCurrentUser,
     this.caption,
@@ -36,7 +36,7 @@ class PdfMessageBubble extends StatelessWidget {
           SizedBox(height: 12),
         ],
         GestureDetector(
-          onTap: () => _openPdf(context),
+          onTap: () => _openFile(context),
           child: Container(
             padding: EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -68,8 +68,8 @@ class PdfMessageBubble extends StatelessWidget {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.red.shade500,
-                        Colors.red.shade600,
+                        Colors.orange.shade500,
+                        Colors.orange.shade600,
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -77,7 +77,7 @@ class PdfMessageBubble extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.red.shade500.withOpacity(0.3),
+                        color: Colors.orange.shade500.withOpacity(0.3),
                         blurRadius: 8,
                         offset: Offset(0, 2),
                       ),
@@ -106,7 +106,7 @@ class PdfMessageBubble extends StatelessWidget {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        'pdf_document'.tr(),
+                        'file'.tr(),
                         style: TextStyle(
                           color: isFromCurrentUser 
                               ? Colors.white.withOpacity(0.8) 
@@ -149,9 +149,9 @@ class PdfMessageBubble extends StatelessWidget {
     );
   }
 
-  Future<void> _openPdf(BuildContext context) async {
+  Future<void> _openFile(BuildContext context) async {
     try {
-      final Uri url = Uri.parse(pdfUrl);
+      final Uri url = Uri.parse(fileUrl);
       
       // محاولة فتح الملف في تطبيق خارجي أولاً
       if (await canLaunchUrl(url)) {
@@ -175,57 +175,40 @@ class PdfMessageBubble extends StatelessWidget {
             mode: LaunchMode.externalApplication,
           );
         } catch (e) {
-          // محاولة فتح في متصفح كخيار أخير
-          try {
-            await launchUrl(
-              url,
-              mode: LaunchMode.externalNonBrowserApplication,
-            );
-          } catch (browserError) {
-            // إذا فشل كل شيء، اعرض رسالة خطأ
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('could_not_open_pdf'.tr()),
-                  backgroundColor: Colors.red.shade400,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            }
-          }
-        }
-      }
-    } catch (e) {
-      print('Error opening PDF: $e');
-      
-      // محاولة أخيرة بفتح في متصفح
-      try {
-        final Uri url = Uri.parse(pdfUrl);
-        await launchUrl(
-          url,
-          mode: LaunchMode.externalApplication,
-        );
-      } catch (finalError) {
-        print('Final error opening PDF: $finalError');
-        
-        // محاولة أخيرة في متصفح
-        try {
-          final Uri url = Uri.parse(pdfUrl);
-          await launchUrl(
-            url,
-            mode: LaunchMode.externalNonBrowserApplication,
-          );
-        } catch (browserFinalError) {
-          // إذا فشل كلاهما، اعرض رسالة خطأ
+          // إذا فشل كل شيء، اعرض رسالة خطأ
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('could_not_open_pdf'.tr()),
+                content: Text('could_not_open_file'.tr()),
                 backgroundColor: Colors.red.shade400,
                 behavior: SnackBarBehavior.floating,
               ),
             );
           }
+        }
+      }
+    } catch (e) {
+      print('Error opening file: $e');
+      
+      // محاولة أخيرة بفتح في متصفح
+      try {
+        final Uri url = Uri.parse(fileUrl);
+        await launchUrl(
+          url,
+          mode: LaunchMode.externalApplication,
+        );
+      } catch (finalError) {
+        print('Final error opening file: $finalError');
+        
+        // إذا فشل كلاهما، اعرض رسالة خطأ
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('could_not_open_file'.tr()),
+              backgroundColor: Colors.red.shade400,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
         }
       }
     }

@@ -7,10 +7,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:kyuser/utilits/Local_User_Data.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/Constant/Api_Constant.dart';
 import '../model/message_model.dart';
 import 'package:mime/mime.dart'; // لـ lookupMimeType
 import 'package:http_parser/http_parser.dart'; // لـ MediaType
+import 'dart:math' as math; // لـ _generateRandomString
 
 
 class ChatViewModel extends ChangeNotifier {
@@ -309,14 +311,20 @@ class ChatViewModel extends ChangeNotifier {
       final mimeType = lookupMimeType(file.path); // e.g., video/mp4
       final mediaType = mimeType != null ? MediaType.parse(mimeType) : null;
 
+      // إنشاء اسم فريد للملف
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final randomString = _generateRandomString(8);
+      final fileExtension = fileName.split('.').last;
+      final uniqueFileName = '${customerId}_${timestamp}_${randomString}.$fileExtension';
+
       var request = http.MultipartRequest('POST', Uri.parse(uploadEndpoint));
 
       request.files.add(
         await http.MultipartFile.fromPath(
           'file',
           file.path,
-          filename: fileName,
-          contentType: mediaType, // ← هنا السحر
+          filename: uniqueFileName, // استخدام الاسم الفريد
+          contentType: mediaType,
         ),
       );
 
@@ -329,7 +337,7 @@ class ChatViewModel extends ChangeNotifier {
         });
       }
 
-      print('Uploading file: $fileName for customer: $customerId');
+      print('Uploading file: $uniqueFileName (original: $fileName) for customer: $customerId');
 
       var response = await request.send();
 
@@ -364,6 +372,15 @@ class ChatViewModel extends ChangeNotifier {
     }
   }
 
+  // دالة لإنشاء سلسلة عشوائية
+  String _generateRandomString(int length) {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final random = math.Random();
+    return String.fromCharCodes(
+      Iterable.generate(length, (_) => chars.codeUnitAt(random.nextInt(chars.length))),
+    );
+  }
+
   Future<void> sendMessage({
     String? text,
     File? file,
@@ -375,6 +392,9 @@ class ChatViewModel extends ChangeNotifier {
     final currentUserId = isAdmin ? 'admin' : userId!;
     final currentUserName = isAdmin ? 'Admin' : (userName ?? 'User');
 
+    // حفظ الاسم الأصلي للملف للعرض في الرسالة
+    final originalFileName = fileName;
+
     // Create message immediately with sending status
     final message = MessageModel(
       id: '',
@@ -383,7 +403,7 @@ class ChatViewModel extends ChangeNotifier {
       chatId: chatId,
       text: text?.trim(),
       mediaUrl: null, // Will be updated after upload
-      fileName: fileName,
+      fileName: originalFileName, // استخدام الاسم الأصلي للعرض
       fileSize: file != null ? await file.length() : null,
       type: type,
       status: MessageStatus.sending,
@@ -409,7 +429,7 @@ class ChatViewModel extends ChangeNotifier {
         chatId: chatId,
         text: text?.trim(),
         mediaUrl: null,
-        fileName: fileName,
+        fileName: originalFileName, // استخدام الاسم الأصلي للعرض
         fileSize: file != null ? await file.length() : null,
         type: type,
         status: MessageStatus.sending,
@@ -477,15 +497,15 @@ class ChatViewModel extends ChangeNotifier {
   String _getMediaTypeText(MessageType type) {
     switch (type) {
       case MessageType.image:
-        return '📷 صورة';
+        return '📷 ${'image'.tr()}';
       case MessageType.video:
-        return '🎥 فيديو';
+        return '🎥 ${'video'.tr()}';
       case MessageType.audio:
-        return '🎵 صوت';
+        return '🎵 ${'audio'.tr()}';
       case MessageType.pdf:
-        return '📄 ملف PDF';
+        return '📄 ${'pdf'.tr()}';
       case MessageType.file:
-        return '📎 ملف';
+        return '📎 ${'file'.tr()}';
       default:
         return 'رسالة';
     }
@@ -503,7 +523,7 @@ class ChatViewModel extends ChangeNotifier {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'إرفق ملف',
+              'attach_file'.tr(),
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 20),
@@ -514,31 +534,31 @@ class ChatViewModel extends ChangeNotifier {
                 _buildAttachmentOption(
                   context,
                   Icons.photo,
-                  'صورة',
+                  'image'.tr(),
                       () => _pickMedia(context, MessageType.image),
                 ),
                 _buildAttachmentOption(
                   context,
                   Icons.videocam,
-                  'فيديو',
+                  'video'.tr(),
                       () => _pickMedia(context, MessageType.video),
                 ),
                 _buildAttachmentOption(
                   context,
                   Icons.audiotrack,
-                  'صوت',
+                  'audio'.tr(),
                       () => _pickMedia(context, MessageType.audio),
                 ),
                 _buildAttachmentOption(
                   context,
                   Icons.picture_as_pdf,
-                  'PDF',
+                  'pdf'.tr(),
                       () => _pickMedia(context, MessageType.pdf),
                 ),
                 _buildAttachmentOption(
                   context,
                   Icons.insert_drive_file,
-                  'ملف',
+                  'file'.tr(),
                       () => _pickMedia(context, MessageType.file),
                 ),
               ],
@@ -665,7 +685,7 @@ class ChatViewModel extends ChangeNotifier {
       print('Error picking media: $e');
       // Show error message to user
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('فشل في تحديد الملف: ${e.toString()}')),
+        SnackBar(content: Text('failed_pick_document'.tr() + ': ${e.toString()}')),
       );
     }
   }

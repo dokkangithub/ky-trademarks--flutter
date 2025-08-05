@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -20,24 +21,7 @@ class AllChatsScreen extends StatelessWidget {
           builder: (context, viewModel, child) {
             return Scaffold(
               backgroundColor: Colors.grey.shade50,
-              appBar: AppBar(
-                title: Text(
-                  'chats'.tr(),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                centerTitle: true,
-                backgroundColor: ColorManager.primary,
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(
-                    bottom: Radius.circular(20),
-                  ),
-                ),
-              ),
+              appBar: _buildAppBar(context),
               body: viewModel.isLoading
                   ? Center(
                       child: Column(
@@ -57,19 +41,9 @@ class AllChatsScreen extends StatelessWidget {
                         ],
                       ),
                     )
-                  : Column(
-                      children: [
-                        // Search Bar
-                        _buildSearchBar(),
-
-                        // Chat List or Empty State
-                        Expanded(
-                          child: viewModel.chats.isEmpty
-                              ? _buildEmptyState(viewModel)
-                              : _buildChatList(viewModel),
-                        ),
-                      ],
-                    ),
+                  : viewModel.chats.isEmpty
+                      ? _buildEmptyState(viewModel)
+                      : _buildChatList(viewModel),
               floatingActionButton: !viewModel.isAdmin
                   ? Container(
                       margin: EdgeInsets.only(bottom: 16),
@@ -94,34 +68,68 @@ class AllChatsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchBar() {
-    return Container(
-      margin: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: Offset(0, 2),
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      toolbarHeight: 70,
+      systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+      ),
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              ColorManager.primary,
+              ColorManager.primaryByOpacity,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: ColorManager.primary.withOpacity(0.3),
+              blurRadius: 20,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+      ),
+      leading: Container(
+        margin: EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.2),
+          shape: BoxShape.circle,
+        ),
+        child: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
+      ),
+      title: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'chats'.tr(),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
-      ),
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: 'search_chats'.tr(),
-          hintStyle: TextStyle(
-            color: Colors.grey.shade400,
-            fontSize: 15,
-          ),
-          prefixIcon: Icon(
-            Icons.search,
-            color: Colors.grey.shade500,
-          ),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        ),
       ),
     );
   }

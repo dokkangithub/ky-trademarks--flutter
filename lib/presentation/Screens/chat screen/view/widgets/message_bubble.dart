@@ -8,6 +8,7 @@ import '../../../../../resources/Color_Manager.dart';
 import 'audio_message_bubble.dart';
 import 'video_message_bubble.dart';
 import 'pdf_message_bubble.dart';
+import 'file_message_bubble.dart';
 
 class MessageBubble extends StatelessWidget {
   final MessageModel message;
@@ -41,16 +42,16 @@ class MessageBubble extends StatelessWidget {
               decoration: BoxDecoration(
                 color: message.isFromCurrentUser
                     ? ColorManager.primary
-                    : Colors.grey,
+                    : Colors.grey.shade50,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
+                  topLeft: Radius.circular(15),
+                  topRight: Radius.circular(15),
                   bottomLeft: message.isFromCurrentUser
-                      ? Radius.circular(20)
-                      : Radius.circular(8),
+                      ? Radius.circular(2)
+                      : Radius.circular(15),
                   bottomRight: message.isFromCurrentUser
-                      ? Radius.circular(8)
-                      : Radius.circular(20),
+                      ? Radius.circular(15)
+                      : Radius.circular(2),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -63,29 +64,29 @@ class MessageBubble extends StatelessWidget {
                 border: message.isFromCurrentUser
                     ? null
                     : Border.all(
-                        color: Colors.grey.shade200,
-                        width: 1,
-                      ),
+                  color: Colors.grey.shade200,
+                  width: 1,
+                ),
               ),
               child: GestureDetector(
                 onTap: onTap,
                 child: Padding(
-                  padding: EdgeInsets.all(4),
+                  padding: EdgeInsets.all(message.text!=null? 8:4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (!message.isFromCurrentUser && message.senderName.isNotEmpty)
-                        Padding(
-                          padding: EdgeInsets.only(bottom: 6),
-                          child: Text(
-                            message.senderName,
-                            style: TextStyle(
-                              color: ColorManager.primary,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
+                      // if (!message.isFromCurrentUser && message.senderName.isNotEmpty)
+                      //   Padding(
+                      //     padding: EdgeInsets.only(bottom: 6),
+                      //     child: Text(
+                      //       message.senderName,
+                      //       style: TextStyle(
+                      //         color: ColorManager.primary,
+                      //         fontSize: 13,
+                      //         fontWeight: FontWeight.w600,
+                      //       ),
+                      //     ),
+                      //   ),
                       _buildMessageContent(context),
                       SizedBox(height: 8),
                       _buildMessageInfo(),
@@ -421,11 +422,11 @@ class MessageBubble extends StatelessWidget {
         AudioMessageBubble(
           audioUrl: message.mediaUrl!,
           isFromCurrentUser: message.isFromCurrentUser,
-          bubbleColor: message.isFromCurrentUser 
-              ? ColorManager.primary 
+          bubbleColor: message.isFromCurrentUser
+              ? ColorManager.primary
               : Colors.grey.shade50,
-          duration: message.fileSize != null 
-              ? Duration(milliseconds: message.fileSize!) 
+          duration: message.fileSize != null
+              ? Duration(milliseconds: message.fileSize!)
               : null,
           isEmbedded: true,
         ),
@@ -434,8 +435,20 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildPdfMessage() {
-    if (message.mediaUrl == null) {
-      return _buildErrorMessage('pdf_not_available'.tr());
+    // Show loading state if message is sending or mediaUrl is null
+    if (message.status == MessageStatus.sending || message.mediaUrl == null) {
+      return _buildMediaMessage(
+        icon: IconlyBroken.document,
+        color: Colors.red.shade500,
+        title: message.fileName ?? 'document'.tr() + '.pdf',
+        subtitle: message.status == MessageStatus.sending ? 'uploading'.tr() : 'loading'.tr(),
+        gradient: LinearGradient(
+          colors: [Colors.red.shade400, Colors.red.shade600],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        isLoading: true,
+      );
     }
 
     return PdfMessageBubble(
@@ -463,16 +476,11 @@ class MessageBubble extends StatelessWidget {
       );
     }
 
-    return _buildMediaMessage(
-      icon: IconlyBroken.document,
-      color: Colors.orange.shade500,
-      title: message.fileName ?? 'file'.tr(),
-      subtitle: 'tap_to_download'.tr(),
-      gradient: LinearGradient(
-        colors: [Colors.orange.shade400, Colors.orange.shade600],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
+    return FileMessageBubble(
+      fileUrl: message.mediaUrl!,
+      fileName: message.fileName ?? 'file'.tr(),
+      isFromCurrentUser: message.isFromCurrentUser,
+      caption: message.text,
     );
   }
 
@@ -515,18 +523,18 @@ class MessageBubble extends StatelessWidget {
                 ),
                 child: isLoading
                     ? SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
                     : Icon(
-                        icon,
-                        color: Colors.white,
-                        size: 24,
-                      ),
+                  icon,
+                  color: Colors.white,
+                  size: 24,
+                ),
               ),
               SizedBox(width: 16),
               Flexible(
