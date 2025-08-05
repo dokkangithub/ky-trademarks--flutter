@@ -22,7 +22,7 @@ class ChatViewModel extends ChangeNotifier {
   String? userId;
   String? userName;
   String? userEmail;
-  bool isAdmin = false;
+  bool isAdmin = true;
   UserStatus currentUserStatus = UserStatus.online;
   UserStatus otherUserStatus = UserStatus.offline;
   bool isTyping = false;

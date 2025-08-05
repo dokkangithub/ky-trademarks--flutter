@@ -1,4 +1,4 @@
-// lib/presentation/Screens/chat screen/view/screen/chat_screen.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -13,8 +13,9 @@ import '../widgets/chat_input.dart';
 
 class ChatScreen extends StatelessWidget {
   final String chatId;
+  final String userName;
 
-  const ChatScreen({Key? key, required this.chatId}) : super(key: key);
+  const ChatScreen({Key? key, required this.chatId, required this.userName}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +128,7 @@ class ChatScreen extends StatelessWidget {
           ],
         ),
       ),
-      leading: Container(
+      leading:kIsWeb?SizedBox.shrink(): Container(
         margin: EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.2),
@@ -150,7 +151,7 @@ class ChatScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  viewModel.isAdmin ? viewModel.userName ?? 'User' : 'admin_support'.tr(),
+                  viewModel.isAdmin ? userName ?? 'User' : 'admin_support'.tr(),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,

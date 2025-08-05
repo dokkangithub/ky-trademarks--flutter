@@ -76,6 +76,11 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
       isSpecial: false,
     ),
     NavTabItem(
+      icon: Icons.chat,
+      title: 'الدعم الفني',
+      isSpecial: false,
+    ),
+    NavTabItem(
       icon: Icons.android,
       title: 'تحميل على الأندرويد',
       isSpecial: true,
@@ -101,6 +106,16 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
 
     print('User initialized - ID: $userId, Email: $userEmail, IsAdmin: $isAdmin');
 
+    // Update chat navigation item title based on admin status
+    if (_navItems.length > 5) {
+      _navItems[5] = NavTabItem(
+        icon: Icons.chat,
+        title: 'الدعم الفني',
+        isSpecial: false,
+        dynamicTitle: isAdmin ? 'جميع المحادثات' : 'الدعم الفني',
+      );
+    }
+
     // Initialize main screens
     mainScreens.addAll([
       HomeScreen(contactUsKey: contactUsKey),
@@ -113,7 +128,7 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
     allScreens = [
       ...mainScreens,
       // Chat screen - different for admin vs user
-      isAdmin ? AllChatsScreen() : ChatScreen(chatId: userId ?? ''),
+      isAdmin ? AllChatsScreen() : ChatScreen(chatId: userId ?? '', userName: 'Admin',),
       const Contacts(canBack: false),
     ];
 
@@ -152,6 +167,10 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
     } else if (index == 4) { // تواصل معنا
       setState(() {
         _selectedIndex = mainScreens.length + 1; // Index of contacts in allScreens
+      });
+    } else if (index == 5) { // الدعم الفني (Chat)
+      setState(() {
+        _selectedIndex = mainScreens.length; // Index of chat screen in allScreens
       });
     }
   }
@@ -234,7 +253,7 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
             : Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (_) => ChatScreen(chatId: userId??''))),
+                builder: (_) => ChatScreen(chatId: userId??'', userName: 'Admin',))),
         backgroundColor: Colors.transparent,
         elevation: 0,
         child: Icon(
@@ -306,7 +325,17 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
                       children: _navItems.asMap().entries.map((entry) {
                         final index = entry.key;
                         final item = entry.value;
-                        final isSelected = _selectedIndex == index && index < mainScreens.length;
+                        bool isSelected;
+                        
+                        if (index < mainScreens.length) {
+                          isSelected = _selectedIndex == index;
+                        } else if (index == 4) { // تواصل معنا
+                          isSelected = _selectedIndex == mainScreens.length + 1;
+                        } else if (index == 5) { // الدعم الفني (Chat)
+                          isSelected = _selectedIndex == mainScreens.length;
+                        } else {
+                          isSelected = false;
+                        }
 
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
@@ -334,7 +363,7 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    item.title,
+                                    item.displayTitle,
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 14,
@@ -356,46 +385,6 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
                           ),
                         );
                       }).toList(),
-                    ),
-                  ),
-                ),
-                // Chat button for web
-                Padding(
-                  padding: const EdgeInsets.only(left: 8),
-                  child: InkWell(
-                    onTap: _handleChatPressed,
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: _selectedIndex == mainScreens.length
-                            ? Colors.white.withOpacity(0.2)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
-                        border: _selectedIndex == mainScreens.length
-                            ? Border.all(color: Colors.white.withOpacity(0.3))
-                            : null,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.chat,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            isAdmin ? 'جميع المحادثات' : 'الدعم الفني',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: _selectedIndex == mainScreens.length ? FontWeight.bold : FontWeight.normal,
-                              fontFamily: StringConstant.fontName,
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                   ),
                 ),
@@ -555,10 +544,14 @@ class NavTabItem {
   final IconData icon;
   final String title;
   final bool isSpecial;
+  final String? dynamicTitle;
 
   NavTabItem({
     required this.icon,
     required this.title,
     required this.isSpecial,
+    this.dynamicTitle,
   });
+
+  String get displayTitle => dynamicTitle ?? title;
 }

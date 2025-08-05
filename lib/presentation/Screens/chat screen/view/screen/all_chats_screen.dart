@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -44,23 +45,6 @@ class AllChatsScreen extends StatelessWidget {
                   : viewModel.chats.isEmpty
                       ? _buildEmptyState(viewModel)
                       : _buildChatList(viewModel),
-              floatingActionButton: !viewModel.isAdmin
-                  ? Container(
-                      margin: EdgeInsets.only(bottom: 16),
-                      child: FloatingActionButton.extended(
-                        onPressed: () => _startChatWithAdmin(context, viewModel),
-                        backgroundColor: ColorManager.primary,
-                        icon: Icon(Icons.chat, color: Colors.white),
-                        label: Text(
-                          'start_conversation'.tr(),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    )
-                  : null,
             );
           },
         ),
@@ -96,7 +80,7 @@ class AllChatsScreen extends StatelessWidget {
           ],
         ),
       ),
-      leading: Container(
+      leading: kIsWeb?SizedBox.shrink(): Container(
         margin: EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.2),
@@ -216,21 +200,11 @@ class AllChatsScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ChatScreen(chatId: chat.chatId),
+        builder: (context) => ChatScreen(chatId: chat.chatId, userName: chat.username??'',),
       ),
     );
   }
 
-  void _startChatWithAdmin(BuildContext context, AllChatsViewModel viewModel) async {
-    await viewModel.startChatWithAdmin();
-    // Navigate to chat screen with user's ID as chatId
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ChatScreen(chatId: viewModel.userId!),
-      ),
-    );
-  }
 }
 
 class ChatTile extends StatelessWidget {
