@@ -147,7 +147,7 @@ class MessageBubble extends StatelessWidget {
     if (message.mediaUrl == null) {
       return _buildErrorMessage('صورة غير متاحة');
     }
-
+print('ddd${message.mediaUrl!}');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

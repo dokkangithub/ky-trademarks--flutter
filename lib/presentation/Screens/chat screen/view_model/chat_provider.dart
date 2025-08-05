@@ -318,7 +318,7 @@ class ChatViewModel extends ChangeNotifier {
         if (jsonResponse is Map<String, dynamic>) {
           var data = jsonResponse['data'];
           if (data != null && data is Map<String, dynamic>) {
-            fileUrl = '${data['file_url'].toString().replaceFirst('/', '')}';
+            fileUrl = '${data['file_url'].toString().replaceFirst(' ', '')}';
           }
         }
 
