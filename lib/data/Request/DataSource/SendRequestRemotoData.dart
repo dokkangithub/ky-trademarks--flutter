@@ -8,16 +8,8 @@ import 'package:kyuser/network/SuccessResponse.dart';
 import '../../../core/Constant/Api_Constant.dart';
 import '../../../network/RestApi/Comman.dart';
 
-import 'dart:io' as file;
-import 'package:kyuser/network/SuccessResponse.dart';
-import 'dart:convert';
 import 'package:flutter/foundation.dart'; // For kIsWeb
-import 'package:http/http.dart' as http;
-import 'dart:io' as file;
 import 'package:image_picker/image_picker.dart'; // For XFile
-import 'package:kyuser/network/SuccessResponse.dart';
-import '../../../core/Constant/Api_Constant.dart';
-import '../../../network/RestApi/Comman.dart';
 
 abstract class BaseSendRequestRemotoData {
   Future<SuccessResponse> sendRequestToRemote({

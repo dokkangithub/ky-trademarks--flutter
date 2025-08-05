@@ -24,7 +24,6 @@ import '../../../Controllar/GetCompanyProvider.dart';
 import '../../../Controllar/Issues/GetIssuesProvider.dart';
 import '../../../Controllar/Issues/GetIssuesSummaryProvider.dart';
 import '../../../Widget/loading_widget.dart';
-import '../../../Widget/BrandWidget.dart';
 import '../../add request/AddRequest.dart';
 import '../../brand details/BrandDetails.dart';
 import '../../notification screen/NotificationScreen.dart';

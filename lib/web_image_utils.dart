@@ -3,7 +3,6 @@
 
 import 'dart:html' as html;
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:ui_web' as ui_web;
 

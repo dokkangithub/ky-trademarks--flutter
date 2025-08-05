@@ -1,5 +1,4 @@
  import 'package:kyuser/domain/Request/Entities/RequestDataEntity.dart';
-import 'package:kyuser/domain/Reservation/Entities/ReservationDataEntity.dart';
 
 class RequestDataModel extends RequestDataEntity {
   const RequestDataModel(

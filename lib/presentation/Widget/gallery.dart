@@ -13,7 +13,6 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
-import '../../utilits/Local_User_Data.dart';
 
 class GalleryPage extends StatefulWidget {
   GalleryPage({

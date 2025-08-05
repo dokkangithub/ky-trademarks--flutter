@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:kyuser/network/SuccessResponse.dart';
 
 import '../../../app/Failure.dart';
 import '../Entities/BrandDetailsDataEntity.dart';

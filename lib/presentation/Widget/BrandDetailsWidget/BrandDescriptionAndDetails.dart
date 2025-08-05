@@ -22,8 +22,7 @@ class BrandDescriptionAndDetails extends StatelessWidget {
       children: [
         model.brandDetails!.brand.markOrModel == 1
             ? const SizedBox()
-            : model.brandDetails!.brand.brandDescription == '' ||
-                    model.brandDetails!.brand.brandDescription == null
+            : model.brandDetails!.brand.brandDescription == ''
                 ? SizedBox()
                 : Row(
                     children: [
@@ -43,8 +42,7 @@ class BrandDescriptionAndDetails extends StatelessWidget {
                       ),
                     ],
                   ),
-        model.brandDetails!.brand.brandDetails == '' ||
-                model.brandDetails!.brand.brandDetails == null
+        model.brandDetails!.brand.brandDetails == ''
             ? SizedBox()
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,17 +1,10 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:kyuser/resources/ImagesConstant.dart';
 import 'package:url_launcher/url_launcher.dart' as launcher;
 import '../../../data/Brand/DataSource/GetBrandRemotoData.dart';
-import '../../../resources/Color_Manager.dart';
-import '../../../resources/StringManager.dart';
-import 'package:provider/provider.dart';
 import 'package:kyuser/presentation/Controllar/LoginProvider.dart'; // Assuming this path is correct
 import 'package:kyuser/network/RestApi/Comman.dart';
 
-import '../add request/AddRequest.dart';
-import '../payment ways/PaymentWays.dart';
 import 'widgets/mobile_view.dart';
 import 'widgets/web_view.dart';
 

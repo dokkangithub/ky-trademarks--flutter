@@ -1,15 +1,12 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:kyuser/core/Constant/Api_Constant.dart';
-import 'package:kyuser/presentation/Screens/home%20screen/HomeScreen.dart';
 
 import '../../../../network/RestApi/Comman.dart';
 import '../../../../resources/Color_Manager.dart';
 import '../../../../resources/StringManager.dart';
 import '../../../../utilits/Local_User_Data.dart';
 import '../../../Controllar/GetBrandDetailsProvider.dart';
-import '../../../Widget/BrandDetailsWidget/BrandImages.dart';
 import '../../../Widget/BrandDetailsWidget/BrandOrderFinishedOrTawkel.dart';
 import '../../../Widget/BrandStatusWidget/AcceptWidget.dart';
 import '../../../Widget/BrandStatusWidget/AppealBrandRegistration.dart';

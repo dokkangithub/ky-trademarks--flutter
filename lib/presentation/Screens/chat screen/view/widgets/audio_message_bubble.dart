@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:iconly/iconly.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../../../../../resources/Color_Manager.dart';
 import 'dart:math' as math;

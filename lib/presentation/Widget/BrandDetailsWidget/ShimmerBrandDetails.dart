@@ -1,34 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
-import 'package:kyuser/resources/Color_Manager.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ShimmerBrandDetails extends StatelessWidget {

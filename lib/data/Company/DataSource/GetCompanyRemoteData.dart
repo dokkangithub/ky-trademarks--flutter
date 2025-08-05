@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:kyuser/utilits/Local_User_Data.dart';
 import '../../../core/Constant/Api_Constant.dart';
 import '../../../network/ErrorModel.dart';
-import '../../../presentation/Screens/disactive_accounts_screen.dart';
 import '../../../presentation/Screens/login/Login.dart';
 
 abstract class BaseGetCompanyRemoteData {

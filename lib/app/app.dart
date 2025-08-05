@@ -1,13 +1,10 @@
-import 'dart:typed_data';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 
 import '../main.dart';
-import '../notification.dart';
 import '../presentation/Controllar/GetBrandBySearchProvider.dart';
 import '../presentation/Controllar/GetBrandDetailsProvider.dart';
 import '../presentation/Controllar/GetBrandProvider.dart';
@@ -216,7 +213,7 @@ class _MyAppState extends State<MyApp> {
           builder: (BuildContext context, Widget? child) {
             return MediaQuery(
               data: MediaQuery.of(context).copyWith(
-                textScaleFactor: 1.0,
+                textScaler: TextScaler.linear(1.0),
               ),
               child: child!,
             );

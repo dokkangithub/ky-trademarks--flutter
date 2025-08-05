@@ -10,7 +10,6 @@ import 'package:oktoast/oktoast.dart';
 import 'app/app.dart';
 import 'core/Services_locator.dart';
 import 'firebase_options.dart';
-import 'notification.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {

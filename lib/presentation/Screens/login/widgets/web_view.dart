@@ -673,7 +673,7 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
           SizedBox(width: isLargeScreen ? 10 : 8),
           OutlinedButton(
             style: ButtonStyle(
-              side: MaterialStateProperty.all(
+              side: WidgetStateProperty.all(
                 const BorderSide(color: Colors.white70),
               ),
             ),

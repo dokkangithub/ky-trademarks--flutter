@@ -1,10 +1,7 @@
-import 'dart:convert';
-import 'dart:io' as file;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart'; // For XFile
+// For XFile
 import 'package:kyuser/app/RequestState/RequestState.dart';
 import 'package:kyuser/network/RestApi/Comman.dart';
 import '../../core/Services_locator.dart';

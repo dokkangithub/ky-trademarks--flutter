@@ -19,7 +19,6 @@ class BrandNameAndNumber extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         model.brandDetails == null ||
-                model.brandDetails!.brand.brandName == null ||
                 model.brandDetails!.brand.brandName == ''
             ? const SizedBox()
             : Row(

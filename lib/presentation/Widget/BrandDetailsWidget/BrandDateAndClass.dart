@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../../resources/StringManager.dart';
 import '../../Controllar/GetBrandDetailsProvider.dart';
-import 'CurrentBrandStatus.dart';
 
 class BrandDateAndClass extends StatelessWidget {
   const BrandDateAndClass({
@@ -62,7 +61,7 @@ class BrandDateAndClass extends StatelessWidget {
         //     ),
         //   ],
         // ),
-        model.brandDetails!.brand.notes==''||model.brandDetails!.brand.notes==null?SizedBox():
+        model.brandDetails!.brand.notes==''?SizedBox():
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -85,7 +84,7 @@ class BrandDateAndClass extends StatelessWidget {
             ),
           ],
         ),
-        model.brandDetails!.brand.paymentStatus==''|| model.brandDetails!.brand.paymentStatus==null?SizedBox():
+        model.brandDetails!.brand.paymentStatus==''?SizedBox():
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

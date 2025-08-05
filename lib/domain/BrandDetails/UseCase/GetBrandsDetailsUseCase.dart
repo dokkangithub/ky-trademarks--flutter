@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:kyuser/domain/BrandDetails/DominRepositery/BaseBrandDetailsRepositery.dart';
 import 'package:kyuser/domain/BrandDetails/Entities/BrandDetailsDataEntity.dart';
-import 'package:kyuser/network/SuccessResponse.dart';
 import '../../../app/Failure.dart';
 
 class GetBrandsDetailsUseCase {

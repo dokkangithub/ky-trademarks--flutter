@@ -99,7 +99,6 @@ class ChatScreen extends StatelessWidget {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context, ChatViewModel viewModel) {
-    print('ssss${viewModel.userName }');
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -144,32 +143,6 @@ class ChatScreen extends StatelessWidget {
       ),
       title: Row(
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.white.withOpacity(0.3),
-                  Colors.white.withOpacity(0.1),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                viewModel.isAdmin ? 'U' : 'A',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,21 +1,15 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 import '../../../../app/RequestState/RequestState.dart';
 import '../../../../network/RestApi/Comman.dart';
 import '../../../../resources/Color_Manager.dart';
-import '../../../../resources/ImagesConstant.dart';
 import '../../../../resources/StringManager.dart';
 import '../../../Controllar/GetBrandBySearchProvider.dart';
 import '../../../Controllar/Issues/SearchIssuesProvider.dart';
-import '../../../../domain/Issues/Entities/IssuesEntity.dart' as issues_entities;
 import '../../../../utilits/Local_User_Data.dart';
 import '../../../Widget/BrandWidget.dart';
-import '../../../Widget/SearchWidget/NoDataFound.dart';
-import '../../../Widget/SearchWidget/SearchShimmer.dart';
 import '../../../Widget/loading_widget.dart';
 import '../../../../resources/Route_Manager.dart';
 

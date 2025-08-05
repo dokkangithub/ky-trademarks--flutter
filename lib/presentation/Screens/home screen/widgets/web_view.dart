@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:im_stepper/stepper.dart';
-import 'package:intl/intl.dart' as s;
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:simple_grid/simple_grid.dart';
 
@@ -25,7 +21,6 @@ import '../../../Controllar/Issues/GetIssuesProvider.dart';
 import '../../../Controllar/Issues/GetIssuesSummaryProvider.dart';
 import '../../../Widget/loading_widget.dart';
 import '../../brand details/BrandDetails.dart';
-import '../../notification screen/NotificationScreen.dart';
 import '../../../../utilits/Local_User_Data.dart';
 import '../../../../network/RestApi/Comman.dart';
 import '../../../../resources/Route_Manager.dart';

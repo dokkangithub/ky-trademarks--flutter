@@ -2,9 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:kyuser/resources/Color_Manager.dart';
 
-import '../../../core/Constant/Api_Constant.dart';
 import '../../../data/Brand/models/BrandDataModel.dart';
-import '../../../domain/BrandDetails/Entities/BrandDetailsDataEntity.dart';
 import '../../../resources/StringManager.dart';
 import '../../Controllar/GetBrandDetailsProvider.dart';
 import '../gallery.dart';

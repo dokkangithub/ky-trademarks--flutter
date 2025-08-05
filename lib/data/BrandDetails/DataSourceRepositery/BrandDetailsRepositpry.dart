@@ -3,7 +3,6 @@ import 'package:kyuser/app/Failure.dart';
 import 'package:kyuser/data/BrandDetails/DataSource/GetBrandDetailsRemotoData.dart';
 import 'package:kyuser/domain/BrandDetails/DominRepositery/BaseBrandDetailsRepositery.dart';
 import 'package:kyuser/domain/BrandDetails/Entities/BrandDetailsDataEntity.dart';
-import 'package:kyuser/network/SuccessResponse.dart';
 
 import '../../../network/ErrorModel.dart';
 

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:iconly/iconly.dart';
-import '../../../../../resources/Color_Manager.dart';
 
 class AttachmentPicker extends StatefulWidget {
   final Function(File file, String fileName, String type) onFileSelected;

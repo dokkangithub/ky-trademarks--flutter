@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:easy_localization/easy_localization.dart';
 import '../../../domain/Issues/Entities/IssuesEntity.dart';
-import '../../../resources/Color_Manager.dart';
 import '../../../resources/StringManager.dart';
 
 class IssuesStatsCard extends StatelessWidget {

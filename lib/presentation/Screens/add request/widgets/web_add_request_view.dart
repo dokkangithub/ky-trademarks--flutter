@@ -1,5 +1,4 @@
 import 'package:dotted_border/dotted_border.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,9 +9,7 @@ import 'dart:io';
 import '../../../../app/RequestState/RequestState.dart';
 import '../../../../resources/Color_Manager.dart';
 import '../../../../resources/StringManager.dart';
-import '../../../../resources/ImagesConstant.dart';
 import '../../../Controllar/RequestProvider.dart';
-import '../../../Widget/loading_widget.dart';
 
 class WebAddRequestView extends StatelessWidget {
   final GlobalKey<FormState> formKey;
