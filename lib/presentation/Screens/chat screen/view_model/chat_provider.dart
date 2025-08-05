@@ -10,6 +10,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../../core/Constant/Api_Constant.dart';
 import '../model/message_model.dart';
+import 'package:mime/mime.dart'; // لـ lookupMimeType
+import 'package:http_parser/http_parser.dart'; // لـ MediaType
+
 
 class ChatViewModel extends ChangeNotifier {
   final String chatId;
@@ -272,27 +275,35 @@ class ChatViewModel extends ChangeNotifier {
   // Upload file to server with new endpoint
   Future<String?> _uploadFile(File file, String fileName) async {
     try {
-      // Get customer_id and auth from local storage
       String? customerId = await globalAccountData.getId();
-      String? authToken = await globalAccountData.getToken(); // Assuming you have getToken method
+      String? authToken = await globalAccountData.getToken();
 
       if (customerId == null) {
         print('Customer ID is null');
         return null;
       }
 
+      final mimeType = lookupMimeType(file.path); // e.g., video/mp4
+      final mediaType = mimeType != null ? MediaType.parse(mimeType) : null;
+
       var request = http.MultipartRequest('POST', Uri.parse(uploadEndpoint));
 
-      // Add the file
-      request.files.add(await http.MultipartFile.fromPath('file', file.path, filename: fileName));
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'file',
+          file.path,
+          filename: fileName,
+          contentType: mediaType, // ← هنا السحر
+        ),
+      );
 
-      // Add customer_id to the request body
       request.fields['customer_id'] = customerId;
-      print('aaaBearer $authToken');
-      // Add auth header if available
+
       if (authToken != null) {
-        request.headers['Authorization'] = 'Bearer $authToken';
-        // or use: request.headers['auth'] = authToken;
+        request.headers.addAll({
+          'Authorization': 'Bearer $authToken',
+          'Accept': 'application/json',
+        });
       }
 
       print('Uploading file: $fileName for customer: $customerId');
@@ -303,18 +314,13 @@ class ChatViewModel extends ChangeNotifier {
         var responseData = await response.stream.bytesToString();
         var jsonResponse = json.decode(responseData);
 
-        print('Upload response: $jsonResponse');
-
-        // Handle different possible response structures
         String? fileUrl;
         if (jsonResponse is Map<String, dynamic>) {
           var data = jsonResponse['data'];
           if (data != null && data is Map<String, dynamic>) {
-            fileUrl = '${ApiConstant.baseUrl}${data['file_url'].toString().replaceFirst('/', '')}';
-
+            fileUrl = '${data['file_url'].toString().replaceFirst('/', '')}';
           }
         }
-
 
         if (fileUrl != null) {
           print('File uploaded successfully: $fileUrl');
@@ -334,7 +340,6 @@ class ChatViewModel extends ChangeNotifier {
       return null;
     }
   }
-
 
   Future<void> sendMessage({
     String? text,
