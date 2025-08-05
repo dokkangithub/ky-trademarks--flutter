@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:iconly/iconly.dart';
 import '../../model/message_model.dart';
 import '../../../../../resources/Color_Manager.dart';
+import 'audio_message_bubble.dart';
 
 class MessageBubble extends StatelessWidget {
   final MessageModel message;
@@ -18,74 +19,72 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       child: Row(
         mainAxisAlignment: message.isFromCurrentUser
             ? MainAxisAlignment.end
             : MainAxisAlignment.start,
         children: [
           if (!message.isFromCurrentUser) ...[
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: ColorManager.primary.withOpacity(0.1),
-              child: Text(
-                message.senderName.isNotEmpty ? message.senderName[0].toUpperCase() : 'U',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: ColorManager.primary,
-                ),
-              ),
-            ),
-            SizedBox(width: 8),
+            _buildAvatar(),
+            SizedBox(width: 12),
           ],
           Flexible(
             child: Container(
               constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.75,
-                minWidth: 80,
+                maxWidth: MediaQuery.of(context).size.width * 0.72,
+                minWidth: 100,
               ),
               decoration: BoxDecoration(
                 color: message.isFromCurrentUser
                     ? ColorManager.primary
-                    : Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(18).copyWith(
+                    : Colors.grey.shade50,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
                   bottomLeft: message.isFromCurrentUser
-                      ? Radius.circular(18)
-                      : Radius.circular(4),
+                      ? Radius.circular(20)
+                      : Radius.circular(8),
                   bottomRight: message.isFromCurrentUser
-                      ? Radius.circular(4)
-                      : Radius.circular(18),
+                      ? Radius.circular(8)
+                      : Radius.circular(20),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 5,
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 8,
                     offset: Offset(0, 2),
+                    spreadRadius: 0,
                   ),
                 ],
+                border: message.isFromCurrentUser
+                    ? null
+                    : Border.all(
+                        color: Colors.grey.shade200,
+                        width: 1,
+                      ),
               ),
               child: GestureDetector(
                 onTap: onTap,
                 child: Padding(
-                  padding: EdgeInsets.all(12),
+                  padding: EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (!message.isFromCurrentUser && message.senderName.isNotEmpty)
                         Padding(
-                          padding: EdgeInsets.only(bottom: 4),
+                          padding: EdgeInsets.only(bottom: 6),
                           child: Text(
                             message.senderName,
                             style: TextStyle(
                               color: ColorManager.primary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
                       _buildMessageContent(context),
-                      SizedBox(height: 4),
+                      SizedBox(height: 8),
                       _buildMessageInfo(),
                     ],
                   ),
@@ -94,15 +93,45 @@ class MessageBubble extends StatelessWidget {
             ),
           ),
           if (message.isFromCurrentUser) ...[
-            SizedBox(width: 8),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                _buildMessageStatusIcon(),
-              ],
-            ),
+            SizedBox(width: 12),
+            _buildMessageStatus(),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildAvatar() {
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            ColorManager.primary.withOpacity(0.8),
+            ColorManager.primaryByOpacity,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: ColorManager.primary.withOpacity(0.3),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          message.senderName.isNotEmpty ? message.senderName[0].toUpperCase() : 'U',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }
@@ -138,63 +167,80 @@ class MessageBubble extends StatelessWidget {
       style: TextStyle(
         color: message.isFromCurrentUser ? Colors.white : Colors.black87,
         fontSize: 16,
-        height: 1.3,
+        height: 1.4,
+        fontWeight: FontWeight.w400,
       ),
     );
   }
 
   Widget _buildImageMessage() {
     if (message.mediaUrl == null) {
-      return _buildErrorMessage('صورة غير متاحة');
+      return _buildErrorMessage('Image not available');
     }
-print('ddd${message.mediaUrl!}');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (message.text?.isNotEmpty == true) ...[
           _buildTextMessage(),
-          SizedBox(height: 8),
+          SizedBox(height: 12),
         ],
         Container(
           constraints: BoxConstraints(
-            maxHeight: 250,
-            maxWidth: 250,
-            minHeight: 150,
-            minWidth: 150,
+            maxHeight: 280,
+            maxWidth: 280,
+            minHeight: 160,
+            minWidth: 160,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             child: CachedNetworkImage(
               imageUrl: message.mediaUrl!,
               fit: BoxFit.cover,
               placeholder: (context, url) => Container(
-                height: 150,
+                height: 160,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(12),
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          message.isFromCurrentUser ? Colors.white : ColorManager.primary,
+                      SizedBox(
+                        width: 32,
+                        height: 32,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            message.isFromCurrentUser ? Colors.white : ColorManager.primary,
+                          ),
                         ),
                       ),
-                      SizedBox(height: 8),
+                      SizedBox(height: 12),
                       Text(
-                        'جاري التحميل...',
+                        'Loading...',
                         style: TextStyle(
                           color: Colors.grey.shade600,
-                          fontSize: 12,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-              errorWidget: (context, url, error) => _buildErrorMessage('فشل في تحميل الصورة'),
+              errorWidget: (context, url, error) => _buildErrorMessage('Failed to load image'),
             ),
           ),
         ),
@@ -205,36 +251,69 @@ print('ddd${message.mediaUrl!}');
   Widget _buildVideoMessage() {
     return _buildMediaMessage(
       icon: Icons.play_circle_fill,
-      color: Colors.red,
-      title: message.fileName ?? 'فيديو',
-      subtitle: 'اضغط للتشغيل',
+      color: Colors.red.shade500,
+      title: message.fileName ?? 'Video',
+      subtitle: 'Tap to play',
+      gradient: LinearGradient(
+        colors: [Colors.red.shade400, Colors.red.shade600],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
     );
   }
 
   Widget _buildAudioMessage() {
-    return _buildMediaMessage(
-      icon: Icons.audiotrack,
-      color: Colors.green,
-      title: message.fileName ?? 'ملف صوتي',
-      subtitle: 'اضغط للاستماع',
+    if (message.mediaUrl == null) {
+      return _buildErrorMessage('Audio not available');
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (message.text?.isNotEmpty == true) ...[
+          _buildTextMessage(),
+          SizedBox(height: 12),
+        ],
+        AudioMessageBubble(
+          audioUrl: message.mediaUrl!,
+          isFromCurrentUser: message.isFromCurrentUser,
+          bubbleColor: message.isFromCurrentUser 
+              ? ColorManager.primary 
+              : Colors.grey.shade50,
+          duration: message.fileSize != null 
+              ? Duration(milliseconds: message.fileSize!) 
+              : null,
+          isEmbedded: true,
+        ),
+      ],
     );
   }
 
   Widget _buildPdfMessage() {
     return _buildMediaMessage(
       icon: Icons.picture_as_pdf,
-      color: Colors.red,
-      title: message.fileName ?? 'ملف PDF',
-      subtitle: 'اضغط للفتح',
+      color: Colors.red.shade500,
+      title: message.fileName ?? 'PDF Document',
+      subtitle: 'Tap to open',
+      gradient: LinearGradient(
+        colors: [Colors.red.shade400, Colors.red.shade600],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
     );
   }
 
   Widget _buildFileMessage() {
     return _buildMediaMessage(
       icon: IconlyBroken.document,
-      color: Colors.orange,
-      title: message.fileName ?? 'ملف',
-      subtitle: 'اضغط للتحميل',
+      color: Colors.orange.shade500,
+      title: message.fileName ?? 'File',
+      subtitle: 'Tap to download',
+      gradient: LinearGradient(
+        colors: [Colors.orange.shade400, Colors.orange.shade600],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
     );
   }
 
@@ -243,38 +322,44 @@ print('ddd${message.mediaUrl!}');
     required Color color,
     required String title,
     required String subtitle,
+    required Gradient gradient,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (message.text?.isNotEmpty == true) ...[
           _buildTextMessage(),
-          SizedBox(height: 8),
+          SizedBox(height: 12),
         ],
         Container(
-          padding: EdgeInsets.all(12),
+          padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: message.isFromCurrentUser
-                ? Colors.white.withOpacity(0.1)
-                : Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(8),
+            gradient: gradient,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: color.withOpacity(0.3),
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: EdgeInsets.all(8),
+                padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
                   icon,
-                  color: color,
+                  color: Colors.white,
                   size: 24,
                 ),
               ),
-              SizedBox(width: 12),
+              SizedBox(width: 16),
               Flexible(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,33 +367,33 @@ print('ddd${message.mediaUrl!}');
                     Text(
                       title,
                       style: TextStyle(
-                        color: message.isFromCurrentUser ? Colors.white : Colors.black87,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 15,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 2),
+                    SizedBox(height: 4),
                     Text(
                       subtitle,
                       style: TextStyle(
-                        color: message.isFromCurrentUser
-                            ? Colors.white70
-                            : Colors.grey.shade600,
-                        fontSize: 12,
+                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
-                    if (message.fileSize != null)
+                    if (message.fileSize != null) ...[
+                      SizedBox(height: 4),
                       Text(
                         _formatFileSize(message.fileSize!),
                         style: TextStyle(
-                          color: message.isFromCurrentUser
-                              ? Colors.white70
-                              : Colors.grey.shade500,
-                          fontSize: 11,
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
+                    ],
                   ],
                 ),
               ),
@@ -321,23 +406,24 @@ print('ddd${message.mediaUrl!}');
 
   Widget _buildErrorMessage(String errorText) {
     return Container(
-      height: 100,
+      height: 120,
       decoration: BoxDecoration(
         color: Colors.red.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red.shade200),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.red.shade200, width: 1),
       ),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, color: Colors.red, size: 24),
-            SizedBox(height: 4),
+            Icon(Icons.error_outline, color: Colors.red.shade400, size: 28),
+            SizedBox(height: 8),
             Text(
               errorText,
               style: TextStyle(
                 color: Colors.red.shade700,
-                fontSize: 12,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
             ),
@@ -356,46 +442,50 @@ print('ddd${message.mediaUrl!}');
           _formatTime(message.createdAt),
           style: TextStyle(
             color: message.isFromCurrentUser
-                ? Colors.white70
+                ? Colors.white.withOpacity(0.8)
                 : Colors.grey.shade500,
-            fontSize: 11,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
           ),
         ),
-        if (message.isFromCurrentUser) ...[
-          SizedBox(width: 4),
-          _buildMessageStatusIcon(),
-        ],
       ],
     );
   }
 
-  Widget _buildMessageStatusIcon() {
+  Widget _buildMessageStatus() {
     IconData icon;
     Color color;
 
     switch (message.status) {
       case MessageStatus.sending:
         icon = Icons.access_time;
-        color = message.isFromCurrentUser ? Colors.white70 : Colors.grey;
+        color = Colors.grey.shade400;
         break;
       case MessageStatus.sent:
         icon = Icons.check;
-        color = message.isFromCurrentUser ? Colors.white70 : Colors.grey;
+        color = Colors.grey.shade400;
         break;
       case MessageStatus.delivered:
         icon = Icons.done_all;
-        color = message.isFromCurrentUser ? Colors.white70 : Colors.grey;
+        color = Colors.grey.shade400;
         break;
       case MessageStatus.seen:
         icon = Icons.done_all;
-        color = Colors.blue;
+        color = Colors.blue.shade400;
         break;
     }
 
-    return Icon(
-      icon,
-      size: 16,
-      color: color,
+    return Container(
+      padding: EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        icon,
+        size: 16,
+        color: color,
+      ),
     );
   }
 
@@ -408,16 +498,16 @@ print('ddd${message.mediaUrl!}');
     if (messageDate == today) {
       return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     } else if (messageDate == yesterday) {
-      return 'أمس ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+      return 'Yesterday ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     } else {
       return '${dateTime.day}/${dateTime.month} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     }
   }
 
   String _formatFileSize(int bytes) {
-    if (bytes < 1024) return '$bytes بايت';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} ك.ب';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} م.ب';
-    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} ج.ب';
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 }

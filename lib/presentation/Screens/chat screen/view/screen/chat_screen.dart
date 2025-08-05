@@ -21,55 +21,75 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       body: ChangeNotifierProvider(
         create: (_) => ChatViewModel(chatId),
         child: Consumer<ChatViewModel>(
           builder: (context, viewModel, child) {
             return Scaffold(
-              appBar: _buildAppBar(viewModel),
+              backgroundColor: Colors.grey.shade50,
+              appBar: _buildAppBar(context, viewModel),
               body: viewModel.isLoading
                   ? Center(child: LoadingWidget())
-                  : Column(
-                children: [
-                  Expanded(
-                    child: ListView.builder(
-                      reverse: true,
-                      physics: BouncingScrollPhysics(),
-                      itemCount: viewModel.messages.length +
-                          (viewModel.isTyping ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        // Show typing indicator at the top (index 0 when reversed)
-                        if (viewModel.isTyping && index == 0) {
-                          return TypingIndicator(
-                            userName: viewModel.isAdmin ? 'User' : 'Admin',
-                          );
-                        }
+                  : Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.grey.shade50,
+                            Colors.white,
+                          ],
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                              ),
+                              child: ListView.builder(
+                                reverse: true,
+                                physics: BouncingScrollPhysics(),
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                itemCount: viewModel.messages.length +
+                                    (viewModel.isTyping ? 1 : 0),
+                                itemBuilder: (context, index) {
+                                  // Show typing indicator at the top (index 0 when reversed)
+                                  if (viewModel.isTyping && index == 0) {
+                                    return TypingIndicator(
+                                      userName: viewModel.isAdmin ? 'User' : 'Admin',
+                                    );
+                                  }
 
-                        // Adjust index for messages
-                        final messageIndex = viewModel.isTyping
-                            ? index - 1
-                            : index;
-                        final message = viewModel.messages[messageIndex];
+                                  // Adjust index for messages
+                                  final messageIndex = viewModel.isTyping
+                                      ? index - 1
+                                      : index;
+                                  final message = viewModel.messages[messageIndex];
 
-                        return MessageBubble(
-                          message: message,
-                          onTap: () => _handleMessageTap(context, message, viewModel),
-                        );
-                      },
+                                  return MessageBubble(
+                                    message: message,
+                                    onTap: () => _handleMessageTap(context, message, viewModel),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          ChatInput(
+                            onSendMessage: (text) => viewModel.sendMessage(text: text),
+                            onSendAudio: (audioFile, fileName) => viewModel.sendMessage(
+                              file: audioFile,
+                              fileName: fileName,
+                              type: MessageType.audio,
+                            ),
+                            onAttachmentPressed: () => viewModel.handleAttachmentPressed(context),
+                            onTypingChanged: viewModel.setTypingStatus,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  ChatInput(
-                    onSendMessage: (text) => viewModel.sendMessage(text: text),
-                    onSendAudio: (audioFile, fileName) => viewModel.sendMessage(
-                      file: audioFile,
-                      fileName: fileName,
-                      type: MessageType.audio,
-                    ),
-                    onAttachmentPressed: () => viewModel.handleAttachmentPressed(context),
-                    onTypingChanged: viewModel.setTypingStatus,
-                  ),
-                ],
-              ),
             );
           },
         ),
@@ -77,41 +97,99 @@ class ChatScreen extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(ChatViewModel viewModel) {
+  PreferredSizeWidget _buildAppBar(BuildContext context, ChatViewModel viewModel) {
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      toolbarHeight: 60,
+      toolbarHeight: 70,
       systemOverlayStyle: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
+        statusBarIconBrightness: Brightness.dark,
       ),
       flexibleSpace: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              ColorManager.primaryByOpacity.withOpacity(0.9),
               ColorManager.primary,
+              ColorManager.primaryByOpacity,
             ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: ColorManager.primary.withOpacity(0.3),
+              blurRadius: 20,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+      ),
+      leading: Container(
+        margin: EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.2),
+          shape: BoxShape.circle,
+        ),
+        child: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+            size: 20,
           ),
         ),
       ),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      title: Row(
         children: [
-          Text(
-            viewModel.isAdmin ? 'User Chat' : 'Admin Support',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.white.withOpacity(0.3),
+                  Colors.white.withOpacity(0.1),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Text(
+                viewModel.isAdmin ? 'U' : 'A',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
-          Text(
-            _getStatusText(viewModel.otherUserStatus),
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  viewModel.isAdmin ? 'User Chat' : 'Admin Support',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  _getStatusText(viewModel.otherUserStatus),
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -127,6 +205,13 @@ class ChatScreen extends StatelessWidget {
                 color: _getStatusColor(viewModel.otherUserStatus),
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: _getStatusColor(viewModel.otherUserStatus).withOpacity(0.4),
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
+                  ),
+                ],
               ),
             ),
           ),
@@ -150,9 +235,9 @@ class ChatScreen extends StatelessWidget {
     switch (status) {
       case UserStatus.online:
       case UserStatus.typing:
-        return Colors.green;
+        return Colors.green.shade400;
       case UserStatus.offline:
-        return Colors.grey;
+        return Colors.grey.shade400;
     }
   }
 
@@ -184,8 +269,10 @@ class ChatScreen extends StatelessWidget {
   void _showImageViewer(BuildContext context, String imageUrl) {
     showDialog(
       context: context,
+      barrierDismissible: true,
       builder: (context) => Dialog(
         backgroundColor: Colors.black,
+        insetPadding: EdgeInsets.zero,
         child: Stack(
           children: [
             Center(
@@ -195,11 +282,28 @@ class ChatScreen extends StatelessWidget {
                   fit: BoxFit.contain,
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) return child;
-                    return Center(child: CircularProgressIndicator());
+                    return Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    );
                   },
                   errorBuilder: (context, error, stackTrace) {
                     return Center(
-                      child: Icon(Icons.error, color: Colors.white, size: 50),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.error_outline, color: Colors.white, size: 50),
+                          SizedBox(height: 16),
+                          Text(
+                            'Failed to load image',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),
@@ -208,9 +312,15 @@ class ChatScreen extends StatelessWidget {
             Positioned(
               top: 40,
               right: 20,
-              child: IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: Icon(Icons.close, color: Colors.white, size: 30),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: Icon(Icons.close, color: Colors.white, size: 24),
+                ),
               ),
             ),
           ],

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import '../../../../../resources/Color_Manager.dart';
 
 class TypingIndicator extends StatefulWidget {
   final String userName;
 
-  const TypingIndicator({Key? key, required this.userName}) : super(key: key);
+  const TypingIndicator({
+    Key? key,
+    required this.userName,
+  }) : super(key: key);
 
   @override
   _TypingIndicatorState createState() => _TypingIndicatorState();
@@ -12,19 +16,43 @@ class TypingIndicator extends StatefulWidget {
 class _TypingIndicatorState extends State<TypingIndicator>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
-  late Animation<double> _animation;
+  late Animation<double> _animation1;
+  late Animation<double> _animation2;
+  late Animation<double> _animation3;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1500),
+      duration: Duration(milliseconds: 1200),
       vsync: this,
     );
-    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-    _animationController.repeat(reverse: true);
+
+    _animation1 = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Interval(0.0, 0.6, curve: Curves.easeInOut),
+    ));
+
+    _animation2 = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Interval(0.2, 0.8, curve: Curves.easeInOut),
+    ));
+
+    _animation3 = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Interval(0.4, 1.0, curve: Curves.easeInOut),
+    ));
+
+    _animationController.repeat();
   }
 
   @override
@@ -36,42 +64,89 @@ class _TypingIndicatorState extends State<TypingIndicator>
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       child: Row(
         children: [
           // Avatar
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: Colors.grey.shade300,
-            child: Text(
-              widget.userName.isNotEmpty ? widget.userName[0].toUpperCase() : 'U',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  ColorManager.primary.withOpacity(0.8),
+                  ColorManager.primaryByOpacity,
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: ColorManager.primary.withOpacity(0.3),
+                  blurRadius: 4,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Text(
+                widget.userName.isNotEmpty ? widget.userName[0].toUpperCase() : 'U',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
-          SizedBox(width: 8),
-
+          SizedBox(width: 12),
+          
           // Typing bubble
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(18).copyWith(
-                bottomLeft: Radius.circular(4),
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+                bottomLeft: Radius.circular(8),
+                bottomRight: Radius.circular(20),
               ),
+              border: Border.all(
+                color: Colors.grey.shade200,
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  '${widget.userName} is typing',
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 14,
-                    fontStyle: FontStyle.italic,
-                  ),
+                // Typing dots
+                Row(
+                  children: [
+                    _buildDot(_animation1),
+                    SizedBox(width: 4),
+                    _buildDot(_animation2),
+                    SizedBox(width: 4),
+                    _buildDot(_animation3),
+                  ],
                 ),
                 SizedBox(width: 8),
-                _buildTypingDots(),
+                Text(
+                  '${widget.userName} is typing...',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           ),
@@ -80,28 +155,20 @@ class _TypingIndicatorState extends State<TypingIndicator>
     );
   }
 
-  Widget _buildTypingDots() {
+  Widget _buildDot(Animation<double> animation) {
     return AnimatedBuilder(
-      animation: _animation,
+      animation: animation,
       builder: (context, child) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: List.generate(3, (index) {
-            // Fixed opacity calculation to ensure value stays between 0.0 and 1.0
-            double opacity = 0.4 + 0.6 * ((_animation.value + (index * 0.2)) % 1.0);
-            // Clamp to ensure it's within valid range
-            opacity = opacity.clamp(0.0, 1.0);
-
-            return Container(
-              margin: EdgeInsets.symmetric(horizontal: 1),
-              height: 6,
-              width: 6,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade500.withOpacity(opacity),
-                shape: BoxShape.circle,
-              ),
-            );
-          }),
+        return Transform.scale(
+          scale: 0.5 + 0.5 * animation.value,
+          child: Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: ColorManager.primary.withOpacity(0.6),
+              shape: BoxShape.circle,
+            ),
+          ),
         );
       },
     );

@@ -10,6 +10,7 @@ class AudioMessageBubble extends StatefulWidget {
   final bool isFromCurrentUser;
   final Color bubbleColor;
   final Duration? duration;
+  final bool isEmbedded;
 
   const AudioMessageBubble({
     Key? key,
@@ -17,6 +18,7 @@ class AudioMessageBubble extends StatefulWidget {
     required this.isFromCurrentUser,
     required this.bubbleColor,
     this.duration,
+    this.isEmbedded = false,
   }) : super(key: key);
 
   @override
@@ -31,7 +33,9 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
   Duration _currentPosition = Duration.zero;
   Duration _totalDuration = Duration.zero;
   late AnimationController _waveController;
+  late AnimationController _pulseController;
   late Animation<double> _waveAnimation;
+  late Animation<double> _pulseAnimation;
   StreamSubscription? _positionSubscription;
   StreamSubscription? _durationSubscription;
   StreamSubscription? _stateSubscription;
@@ -45,7 +49,12 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
 
   void _setupAnimations() {
     _waveController = AnimationController(
-      duration: Duration(milliseconds: 1500),
+      duration: Duration(milliseconds: 2000),
+      vsync: this,
+    );
+
+    _pulseController = AnimationController(
+      duration: Duration(milliseconds: 1000),
       vsync: this,
     );
 
@@ -55,6 +64,14 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
     ).animate(CurvedAnimation(
       parent: _waveController,
       curve: Curves.easeInOut,
+    ));
+
+    _pulseAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.1,
+    ).animate(CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.elasticOut,
     ));
   }
 
@@ -87,8 +104,10 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
 
         if (_isPlaying) {
           _waveController.repeat();
+          _pulseController.repeat(reverse: true);
         } else {
           _waveController.stop();
+          _pulseController.stop();
         }
 
         // Auto stop when completed
@@ -117,7 +136,11 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
     } catch (e) {
       print('Error playing audio: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to play audio')),
+        SnackBar(
+          content: Text('Failed to play audio'),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     }
   }
@@ -133,6 +156,7 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
   void dispose() {
     _audioPlayer.dispose();
     _waveController.dispose();
+    _pulseController.dispose();
     _positionSubscription?.cancel();
     _durationSubscription?.cancel();
     _stateSubscription?.cancel();
@@ -141,8 +165,12 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isEmbedded) {
+      return _buildEmbeddedAudioPlayer();
+    }
+
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 2),
+      margin: EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: widget.isFromCurrentUser
             ? MainAxisAlignment.end
@@ -150,199 +178,300 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
         children: [
           Container(
             constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.7,
-              minWidth: 200,
+              maxWidth: MediaQuery.of(context).size.width * 0.75,
+              minWidth: 220,
             ),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: widget.bubbleColor,
+              gradient: LinearGradient(
+                colors: widget.isFromCurrentUser
+                    ? [
+                        ColorManager.primary,
+                        ColorManager.primaryByOpacity,
+                      ]
+                    : [
+                        Colors.grey.shade50,
+                        Colors.grey.shade100,
+                      ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
                 bottomLeft: widget.isFromCurrentUser
-                    ? Radius.circular(20)
-                    : Radius.circular(5),
+                    ? Radius.circular(24)
+                    : Radius.circular(8),
                 bottomRight: widget.isFromCurrentUser
-                    ? Radius.circular(5)
-                    : Radius.circular(20),
+                    ? Radius.circular(8)
+                    : Radius.circular(24),
               ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.1),
-                  blurRadius: 3,
-                  offset: Offset(0, 1),
+                  blurRadius: 12,
+                  offset: Offset(0, 4),
+                  spreadRadius: 0,
                 ),
               ],
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Play/Pause button
-                GestureDetector(
-                  onTap: _togglePlayPause,
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: widget.isFromCurrentUser
-                          ? Colors.white.withOpacity(0.2)
-                          : ColorManager.primary.withOpacity(0.1),
-                      shape: BoxShape.circle,
+              border: widget.isFromCurrentUser
+                  ? null
+                  : Border.all(
+                      color: Colors.grey.shade200,
+                      width: 1,
                     ),
-                    child: _isLoading
-                        ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          widget.isFromCurrentUser
-                              ? Colors.white
-                              : ColorManager.primary,
-                        ),
-                      ),
-                    )
-                        : Icon(
-                      _isPlaying ? Icons.pause : Icons.play_arrow,
-                      color: widget.isFromCurrentUser
-                          ? Colors.white
-                          : ColorManager.primary,
-                      size: 20,
-                    ),
-                  ),
-                ),
-
-                SizedBox(width: 12),
-
-                // Waveform and duration
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Waveform visualization
-                      Container(
-                        height: 30,
-                        child: AnimatedBuilder(
-                          animation: _waveAnimation,
-                          builder: (context, child) {
-                            return CustomPaint(
-                              painter: AudioWaveformPainter(
-                                animationValue: _isPlaying ? _waveAnimation.value : 0.0,
-                                progress: _totalDuration.inMilliseconds > 0
-                                    ? _currentPosition.inMilliseconds / _totalDuration.inMilliseconds
-                                    : 0.0,
-                                color: widget.isFromCurrentUser
-                                    ? Colors.white.withOpacity(0.8)
-                                    : ColorManager.primary.withOpacity(0.6),
-                                progressColor: widget.isFromCurrentUser
-                                    ? Colors.white
-                                    : ColorManager.primary,
-                              ),
-                              size: Size(double.infinity, 30),
-                            );
-                          },
-                        ),
-                      ),
-
-                      SizedBox(height: 4),
-
-                      // Duration text
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _formatDuration(_currentPosition),
-                            style: TextStyle(
-                              color: widget.isFromCurrentUser
-                                  ? Colors.white.withOpacity(0.8)
-                                  : Colors.grey.shade600,
-                              fontSize: 11,
-                            ),
-                          ),
-                          Text(
-                            _formatDuration(_totalDuration),
-                            style: TextStyle(
-                              color: widget.isFromCurrentUser
-                                  ? Colors.white.withOpacity(0.8)
-                                  : Colors.grey.shade600,
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(width: 8),
-
-                // Audio icon
-                Icon(
-                  IconlyBroken.voice,
-                  color: widget.isFromCurrentUser
-                      ? Colors.white.withOpacity(0.8)
-                      : ColorManager.primary.withOpacity(0.6),
-                  size: 16,
-                ),
-              ],
             ),
+            child: _buildAudioPlayerContent(),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildEmbeddedAudioPlayer() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: widget.isFromCurrentUser
+              ? [
+                  Colors.white.withOpacity(0.1),
+                  Colors.white.withOpacity(0.05),
+                ]
+              : [
+                  ColorManager.primary.withOpacity(0.1),
+                  ColorManager.primaryByOpacity.withOpacity(0.05),
+                ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: widget.isFromCurrentUser
+              ? Colors.white.withOpacity(0.2)
+              : ColorManager.primary.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: _buildAudioPlayerContent(),
+    );
+  }
+
+  Widget _buildAudioPlayerContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Play button and waveform
+        Row(
+          children: [
+            // Play/Pause button
+            GestureDetector(
+              onTap: _togglePlayPause,
+              child: AnimatedBuilder(
+                animation: _pulseAnimation,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: _isPlaying ? _pulseAnimation.value : 1.0,
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: widget.isFromCurrentUser
+                              ? [
+                                  Colors.white.withOpacity(0.3),
+                                  Colors.white.withOpacity(0.1),
+                                ]
+                              : [
+                                  ColorManager.primary.withOpacity(0.2),
+                                  ColorManager.primary.withOpacity(0.1),
+                                ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: widget.isFromCurrentUser
+                                ? Colors.white.withOpacity(0.3)
+                                : ColorManager.primary.withOpacity(0.3),
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: _isLoading
+                          ? Center(
+                              child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    widget.isFromCurrentUser
+                                        ? Colors.white
+                                        : ColorManager.primary,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Icon(
+                              _isPlaying ? Icons.pause : Icons.play_arrow,
+                              color: widget.isFromCurrentUser
+                                  ? Colors.white
+                                  : ColorManager.primary,
+                              size: 24,
+                            ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            SizedBox(width: 16),
+
+            // Waveform and progress
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Waveform visualization
+                  Container(
+                    height: 40,
+                    child: AnimatedBuilder(
+                      animation: _waveAnimation,
+                      builder: (context, child) {
+                        return CustomPaint(
+                          painter: ModernAudioWaveformPainter(
+                            animationValue: _isPlaying ? _waveAnimation.value : 0.0,
+                            progress: _totalDuration.inMilliseconds > 0
+                                ? _currentPosition.inMilliseconds / _totalDuration.inMilliseconds
+                                : 0.0,
+                            color: widget.isFromCurrentUser
+                                ? Colors.white.withOpacity(0.4)
+                                : ColorManager.primary.withOpacity(0.3),
+                            progressColor: widget.isFromCurrentUser
+                                ? Colors.white
+                                : ColorManager.primary,
+                            isPlaying: _isPlaying,
+                          ),
+                          size: Size(double.infinity, 40),
+                        );
+                      },
+                    ),
+                  ),
+
+                  SizedBox(height: 8),
+
+                  // Time indicators
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _formatDuration(_currentPosition),
+                        style: TextStyle(
+                          color: widget.isFromCurrentUser
+                              ? Colors.white.withOpacity(0.8)
+                              : Colors.grey.shade600,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        _formatDuration(_totalDuration),
+                        style: TextStyle(
+                          color: widget.isFromCurrentUser
+                              ? Colors.white.withOpacity(0.8)
+                              : Colors.grey.shade600,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 }
 
-class AudioWaveformPainter extends CustomPainter {
+class ModernAudioWaveformPainter extends CustomPainter {
   final double animationValue;
   final double progress;
   final Color color;
   final Color progressColor;
+  final bool isPlaying;
 
-  AudioWaveformPainter({
+  ModernAudioWaveformPainter({
     required this.animationValue,
     required this.progress,
     required this.color,
     required this.progressColor,
+    required this.isPlaying,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..strokeWidth = 2
+      ..strokeWidth = 3
       ..strokeCap = StrokeCap.round;
 
     final progressPaint = Paint()
-      ..strokeWidth = 2
+      ..strokeWidth = 3
       ..strokeCap = StrokeCap.round
       ..color = progressColor;
 
     final centerY = size.height / 2;
-    final barWidth = 2.0;
-    final barSpacing = 3.0;
+    final barWidth = 3.0;
+    final barSpacing = 4.0;
     final totalBars = (size.width / (barWidth + barSpacing)).floor();
     final progressX = size.width * progress;
 
     for (int i = 0; i < totalBars; i++) {
       final x = i * (barWidth + barSpacing);
 
-      // Create varying heights with animation
+      // Create more dynamic heights with animation
       final normalizedPosition = i / totalBars;
-      final baseHeight = 0.2 + 0.6 * (0.5 + 0.3 * math.sin(normalizedPosition * 8));
-      final animatedHeight = animationValue > 0
-          ? baseHeight + 0.2 * (0.5 + 0.5 * math.sin(animationValue * 4 * math.pi + normalizedPosition * 6))
-          : baseHeight;
+      final baseHeight = 0.15 + 0.7 * (0.5 + 0.3 * math.sin(normalizedPosition * 6));
+      
+      double animatedHeight;
+      if (isPlaying) {
+        animatedHeight = baseHeight + 0.3 * (0.5 + 0.5 * math.sin(animationValue * 3 * math.pi + normalizedPosition * 8));
+      } else {
+        animatedHeight = baseHeight;
+      }
 
-      final barHeight = size.height * animatedHeight * 0.8;
+      final barHeight = size.height * animatedHeight * 0.9;
       final startY = centerY - barHeight / 2;
       final endY = centerY + barHeight / 2;
 
       // Use progress color if this bar is before the current position
       paint.color = x <= progressX ? progressColor : color;
 
-      canvas.drawLine(
-        Offset(x, startY),
-        Offset(x, endY),
+      // Add gradient effect to bars
+      final gradient = LinearGradient(
+        colors: [
+          paint.color.withOpacity(0.8),
+          paint.color,
+          paint.color.withOpacity(0.8),
+        ],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      );
+
+      final rect = Rect.fromLTWH(x, startY, barWidth, barHeight);
+      final shader = gradient.createShader(rect);
+      paint.shader = shader;
+
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(x, startY, barWidth, barHeight),
+          Radius.circular(2),
+        ),
         paint,
       );
     }

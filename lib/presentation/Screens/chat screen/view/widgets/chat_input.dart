@@ -30,6 +30,7 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
   bool _isRecording = false;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
@@ -38,11 +39,19 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
     _focusNode.addListener(_onFocusChanged);
 
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 200),
+      duration: Duration(milliseconds: 300),
       vsync: this,
     );
 
     _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+
+    _fadeAnimation = Tween<double>(
       begin: 1.0,
       end: 0.0,
     ).animate(CurvedAnimation(
@@ -125,7 +134,19 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
-      duration: Duration(milliseconds: 300),
+      duration: Duration(milliseconds: 400),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: Offset(0, 1),
+            end: Offset.zero,
+          ).animate(animation),
+          child: FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+        );
+      },
       child: _isRecording ? _buildRecordingWidget() : _buildNormalInput(),
     );
   }
@@ -140,15 +161,15 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
 
   Widget _buildNormalInput() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: Offset(0, -2),
+            color: Colors.black.withOpacity(0.08),
+            spreadRadius: 0,
+            blurRadius: 20,
+            offset: Offset(0, -4),
           ),
         ],
       ),
@@ -157,23 +178,29 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
           children: [
             // Attachment button
             if (widget.onAttachmentPressed != null)
-              IconButton(
-                onPressed: widget.onAttachmentPressed,
-                icon: Icon(
-                  IconlyBroken.paper_plus,
-                  color: ColorManager.primary,
-                  size: 24,
-                ),
-                padding: EdgeInsets.all(8),
-                constraints: BoxConstraints(minWidth: 40, minHeight: 40),
-              ),
+              _buildAttachmentButton(),
+
+            SizedBox(width: 12),
 
             // Text input field
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(25),
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: _focusNode.hasFocus 
+                        ? ColorManager.primary.withOpacity(0.3)
+                        : Colors.grey.shade200,
+                    width: 1.5,
+                  ),
+                  boxShadow: _focusNode.hasFocus ? [
+                    BoxShadow(
+                      color: ColorManager.primary.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ] : null,
                 ),
                 child: TextField(
                   controller: _textController,
@@ -187,32 +214,68 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
                     hintStyle: TextStyle(
                       color: Colors.grey.shade500,
                       fontSize: 16,
+                      fontWeight: FontWeight.w400,
                     ),
                     contentPadding: EdgeInsets.symmetric(
                       horizontal: 20,
-                      vertical: 12,
+                      vertical: 16,
                     ),
                     border: InputBorder.none,
+                    suffixIcon: _isTyping ? null : _buildVoiceButton(),
                   ),
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.black87,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ),
             ),
 
-            SizedBox(width: 8),
+            SizedBox(width: 12),
 
-            // Send button or Voice button
+            // Send button
             AnimatedSwitcher(
-              duration: Duration(milliseconds: 200),
-              child: _isTyping
-                  ? _buildSendButton()
-                  : _buildVoiceButton(),
+              duration: Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return ScaleTransition(
+                  scale: animation,
+                  child: FadeTransition(
+                    opacity: animation,
+                    child: child,
+                  ),
+                );
+              },
+              child: _isTyping ? _buildSendButton() : SizedBox.shrink(),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildAttachmentButton() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            ColorManager.primary.withOpacity(0.1),
+            ColorManager.primaryByOpacity.withOpacity(0.1),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+        onPressed: widget.onAttachmentPressed,
+        icon: Icon(
+          IconlyBroken.paper_plus,
+          color: ColorManager.primary,
+          size: 22,
+        ),
+        padding: EdgeInsets.all(12),
+        constraints: BoxConstraints(minWidth: 48, minHeight: 48),
       ),
     );
   }
@@ -221,8 +284,22 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
     return Container(
       key: ValueKey('send'),
       decoration: BoxDecoration(
-        color: ColorManager.primary,
+        gradient: LinearGradient(
+          colors: [
+            ColorManager.primary,
+            ColorManager.primaryByOpacity,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: ColorManager.primary.withOpacity(0.3),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: IconButton(
         onPressed: _sendMessage,
@@ -231,8 +308,8 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
           color: Colors.white,
           size: 20,
         ),
-        padding: EdgeInsets.all(10),
-        constraints: BoxConstraints(minWidth: 44, minHeight: 44),
+        padding: EdgeInsets.all(12),
+        constraints: BoxConstraints(minWidth: 48, minHeight: 48),
       ),
     );
   }
@@ -256,18 +333,15 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
         }
       },
       child: Container(
+        padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.grey.shade300,
+          color: Colors.grey.shade200,
           shape: BoxShape.circle,
         ),
-        child: Container(
-          padding: EdgeInsets.all(10),
-          constraints: BoxConstraints(minWidth: 44, minHeight: 44),
-          child: Icon(
-            IconlyBroken.voice,
-            color: Colors.grey.shade600,
-            size: 20,
-          ),
+        child: Icon(
+          IconlyBroken.voice,
+          color: Colors.grey.shade600,
+          size: 20,
         ),
       ),
     );
