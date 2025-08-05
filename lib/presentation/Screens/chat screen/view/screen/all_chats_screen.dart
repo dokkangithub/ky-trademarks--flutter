@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:kyuser/presentation/Screens/chat%20screen/view/screen/chat_screen.dart';
 import 'package:kyuser/presentation/Widget/loading_widget.dart';
 import '../../../../../resources/Color_Manager.dart';
@@ -12,38 +13,79 @@ class AllChatsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       body: ChangeNotifierProvider(
         create: (_) => AllChatsViewModel(),
         child: Consumer<AllChatsViewModel>(
           builder: (context, viewModel, child) {
             return Scaffold(
+              backgroundColor: Colors.grey.shade50,
               appBar: AppBar(
-                title: const Text('Chats', style: TextStyle(color: Colors.white)),
+                title: Text(
+                  'chats'.tr(),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 centerTitle: true,
                 backgroundColor: ColorManager.primary,
                 elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(20),
+                  ),
+                ),
               ),
               body: viewModel.isLoading
-                  ? Center(child: LoadingWidget())
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(ColorManager.primary),
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'loading_chats'.tr(),
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
                   : Column(
-                children: [
-                  // Search Bar
-                  _buildSearchBar(),
+                      children: [
+                        // Search Bar
+                        _buildSearchBar(),
 
-                  // Chat List or Empty State
-                  Expanded(
-                    child: viewModel.chats.isEmpty
-                        ? _buildEmptyState(viewModel)
-                        : _buildChatList(viewModel),
-                  ),
-                ],
-              ),
+                        // Chat List or Empty State
+                        Expanded(
+                          child: viewModel.chats.isEmpty
+                              ? _buildEmptyState(viewModel)
+                              : _buildChatList(viewModel),
+                        ),
+                      ],
+                    ),
               floatingActionButton: !viewModel.isAdmin
-                  ? FloatingActionButton(
-                onPressed: () => _startChatWithAdmin(context, viewModel),
-                backgroundColor: ColorManager.primary,
-                child: Icon(Icons.chat, color: Colors.white),
-              )
+                  ? Container(
+                      margin: EdgeInsets.only(bottom: 16),
+                      child: FloatingActionButton.extended(
+                        onPressed: () => _startChatWithAdmin(context, viewModel),
+                        backgroundColor: ColorManager.primary,
+                        icon: Icon(Icons.chat, color: Colors.white),
+                        label: Text(
+                          'start_conversation'.tr(),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    )
                   : null,
             );
           },
@@ -53,18 +95,32 @@ class AllChatsScreen extends StatelessWidget {
   }
 
   Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return Container(
+      margin: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
       child: TextField(
         decoration: InputDecoration(
-          hintText: 'Search chats',
-          prefixIcon: const Icon(Icons.search),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(25),
-            borderSide: const BorderSide(color: Colors.grey),
+          hintText: 'search_chats'.tr(),
+          hintStyle: TextStyle(
+            color: Colors.grey.shade400,
+            fontSize: 15,
           ),
-          filled: true,
-          fillColor: Colors.grey[200],
+          prefixIcon: Icon(
+            Icons.search,
+            color: Colors.grey.shade500,
+          ),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         ),
       ),
     );
@@ -75,30 +131,45 @@ class AllChatsScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.chat_bubble_outline,
-            size: 80,
-            color: Colors.grey.shade400,
-          ),
-          SizedBox(height: 16),
-          Text(
-            viewModel.isAdmin
-                ? 'No chats yet'
-                : 'Start chatting with admin',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w500,
+          Container(
+            padding: EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.chat_bubble_outline,
+              size: 60,
+              color: ColorManager.primary.withOpacity(0.6),
             ),
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 24),
           Text(
             viewModel.isAdmin
-                ? 'Chats will appear here when users start conversations'
-                : 'Tap the chat button to start a conversation',
+                ? 'no_chats_yet'.tr()
+                : 'start_chat_support'.tr(),
             style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey.shade500,
+              fontSize: 20,
+              color: Colors.black87,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(height: 12),
+          Text(
+            viewModel.isAdmin
+                ? 'chats_will_appear'.tr()
+                : 'press_chat_button'.tr(),
+            style: TextStyle(
+              fontSize: 15,
+              color: Colors.grey.shade600,
+              height: 1.4,
             ),
             textAlign: TextAlign.center,
           ),
@@ -111,14 +182,15 @@ class AllChatsScreen extends StatelessWidget {
     return AnimationLimiter(
       child: ListView.builder(
         physics: const BouncingScrollPhysics(),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: viewModel.chats.length,
         itemBuilder: (context, index) {
           final chat = viewModel.chats[index];
           return AnimationConfiguration.staggeredList(
             position: index,
-            duration: const Duration(milliseconds: 500),
+            duration: const Duration(milliseconds: 400),
             child: SlideAnimation(
-              verticalOffset: 50.0,
+              verticalOffset: 30.0,
               child: FadeInAnimation(
                 child: ChatTile(
                   chat: chat,
@@ -161,23 +233,25 @@ class ChatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 1,
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
+    return Container(
+      margin: EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            spreadRadius: 0,
+            blurRadius: 8,
+            offset: Offset(0, 2),
           ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: EdgeInsets.all(16),
             child: Row(
@@ -185,22 +259,26 @@ class ChatTile extends StatelessWidget {
                 // Profile Avatar
                 Stack(
                   children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: ColorManager.primary.withOpacity(0.1),
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: ColorManager.primary.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
                       child: chat.profileImage != null
                           ? ClipRRect(
-                        borderRadius: BorderRadius.circular(28),
-                        child: Image.network(
-                          chat.profileImage!,
-                          width: 56,
-                          height: 56,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return _buildDefaultAvatar();
-                          },
-                        ),
-                      )
+                              borderRadius: BorderRadius.circular(28),
+                              child: Image.network(
+                                chat.profileImage!,
+                                width: 56,
+                                height: 56,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return _buildDefaultAvatar();
+                                },
+                              ),
+                            )
                           : _buildDefaultAvatar(),
                     ),
                     // Online status indicator
@@ -208,12 +286,19 @@ class ChatTile extends StatelessWidget {
                       bottom: 2,
                       right: 2,
                       child: Container(
-                        width: 14,
-                        height: 14,
+                        width: 16,
+                        height: 16,
                         decoration: BoxDecoration(
                           color: _getStatusColor(chat.userStatus),
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: _getStatusColor(chat.userStatus).withOpacity(0.3),
+                              blurRadius: 4,
+                              offset: Offset(0, 1),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -231,9 +316,9 @@ class ChatTile extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              chat.username ?? 'Unknown User',
+                              chat.username ?? 'unknown_user'.tr(),
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                                 fontSize: 16,
                                 color: Colors.black87,
                               ),
@@ -247,32 +332,49 @@ class ChatTile extends StatelessWidget {
                               style: TextStyle(
                                 color: Colors.grey.shade500,
                                 fontSize: 12,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                         ],
                       ),
 
-                      SizedBox(height: 4),
+                      SizedBox(height: 6),
 
                       Row(
                         children: [
                           Expanded(
                             child: Text(
-                              chat.lastMessage ?? 'Start a conversation',
+                              chat.lastMessage ?? 'start_conversation_hint'.tr(),
                               style: TextStyle(
                                 color: Colors.grey.shade600,
                                 fontSize: 14,
+                                height: 1.3,
                               ),
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (chat.unreadCount > 0)
+                          if (chat.unreadCount > 0) ...[
+                            SizedBox(width: 8),
                             Container(
                               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: ColorManager.primary,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    ColorManager.primary,
+                                    ColorManager.primaryByOpacity,
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: ColorManager.primary.withOpacity(0.3),
+                                    blurRadius: 4,
+                                    offset: Offset(0, 1),
+                                  ),
+                                ],
                               ),
                               child: Text(
                                 '${chat.unreadCount}',
@@ -283,6 +385,7 @@ class ChatTile extends StatelessWidget {
                                 ),
                               ),
                             ),
+                          ],
                         ],
                       ),
                     ],
@@ -301,14 +404,21 @@ class ChatTile extends StatelessWidget {
       width: 56,
       height: 56,
       decoration: BoxDecoration(
-        color: ColorManager.primary,
+        gradient: LinearGradient(
+          colors: [
+            ColorManager.primary,
+            ColorManager.primaryByOpacity,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         shape: BoxShape.circle,
       ),
       child: Center(
         child: Text(
           chat.username?.isNotEmpty == true
               ? chat.username![0].toUpperCase()
-              : 'U',
+              : 'م',
           style: TextStyle(
             color: Colors.white,
             fontSize: 24,
@@ -338,7 +448,7 @@ class ChatTile extends StatelessWidget {
     if (messageDate == today) {
       return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     } else if (messageDate == yesterday) {
-      return 'Yesterday';
+      return 'yesterday'.tr();
     } else {
       return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
     }

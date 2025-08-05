@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../../resources/Color_Manager.dart';
 import 'dart:math' as math;
 
@@ -136,7 +137,7 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
       print('Error playing audio: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to play audio'),
+          content: Text('failed_play_audio'.tr()),
           backgroundColor: Colors.red.shade400,
           behavior: SnackBarBehavior.floating,
         ),

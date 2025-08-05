@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../../resources/Color_Manager.dart';
 
 class PdfMessageBubble extends StatelessWidget {
@@ -105,7 +106,7 @@ class PdfMessageBubble extends StatelessWidget {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        'PDF Document',
+                        'pdf_document'.tr(),
                         style: TextStyle(
                           color: isFromCurrentUser 
                               ? Colors.white.withOpacity(0.8) 
@@ -126,7 +127,7 @@ class PdfMessageBubble extends StatelessWidget {
                           ),
                           SizedBox(width: 4),
                           Text(
-                            'Tap to open',
+                            'tap_to_open'.tr(),
                             style: TextStyle(
                               color: isFromCurrentUser 
                                   ? Colors.white.withOpacity(0.8) 
@@ -155,7 +156,7 @@ class PdfMessageBubble extends StatelessWidget {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Could not open PDF'),
+            content: Text('could_not_open_pdf'.tr()),
             backgroundColor: Colors.red.shade400,
             behavior: SnackBarBehavior.floating,
           ),
@@ -164,7 +165,7 @@ class PdfMessageBubble extends StatelessWidget {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error opening PDF: $e'),
+          content: Text('error_opening_pdf'.tr() + ': $e'),
           backgroundColor: Colors.red.shade400,
           behavior: SnackBarBehavior.floating,
         ),

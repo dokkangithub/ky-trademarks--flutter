@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../../resources/Color_Manager.dart';
 
 class TypingIndicator extends StatefulWidget {
@@ -140,7 +141,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
                 ),
                 SizedBox(width: 8),
                 Text(
-                  '${widget.userName} is typing...',
+                  '${widget.userName} ${'typing'.tr()}',
                   style: TextStyle(
                     color: Colors.grey.shade600,
                     fontSize: 12,

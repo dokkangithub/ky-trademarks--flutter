@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:iconly/iconly.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../model/message_model.dart';
 import '../../../../../resources/Color_Manager.dart';
 import 'audio_message_bubble.dart';
@@ -40,7 +41,7 @@ class MessageBubble extends StatelessWidget {
               decoration: BoxDecoration(
                 color: message.isFromCurrentUser
                     ? ColorManager.primary
-                    : Colors.grey.shade50,
+                    : Colors.grey,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
@@ -69,7 +70,7 @@ class MessageBubble extends StatelessWidget {
               child: GestureDetector(
                 onTap: onTap,
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -212,7 +213,7 @@ class MessageBubble extends StatelessWidget {
                   ),
                   SizedBox(height: 12),
                   Text(
-                    message.status == MessageStatus.sending ? 'Uploading image...' : 'Loading image...',
+                    message.status == MessageStatus.sending ? 'uploading_image'.tr() : 'loading_image'.tr(),
                     style: TextStyle(
                       color: Colors.grey.shade600,
                       fontSize: 13,
@@ -278,7 +279,7 @@ class MessageBubble extends StatelessWidget {
                       ),
                       SizedBox(height: 12),
                       Text(
-                        'Loading...',
+                        'loading'.tr(),
                         style: TextStyle(
                           color: Colors.grey.shade600,
                           fontSize: 13,
@@ -289,7 +290,7 @@ class MessageBubble extends StatelessWidget {
                   ),
                 ),
               ),
-              errorWidget: (context, url, error) => _buildErrorMessage('Failed to load image'),
+              errorWidget: (context, url, error) => _buildErrorMessage('failed_load_image'.tr()),
             ),
           ),
         ),
@@ -334,7 +335,7 @@ class MessageBubble extends StatelessWidget {
                   ),
                   SizedBox(height: 12),
                   Text(
-                    message.status == MessageStatus.sending ? 'Uploading video...' : 'Loading video...',
+                    message.status == MessageStatus.sending ? 'uploading_video'.tr() : 'loading_video'.tr(),
                     style: TextStyle(
                       color: Colors.grey.shade600,
                       fontSize: 13,
@@ -396,7 +397,7 @@ class MessageBubble extends StatelessWidget {
                 ),
                 SizedBox(width: 16),
                 Text(
-                  message.status == MessageStatus.sending ? 'Uploading audio...' : 'Loading audio...',
+                  message.status == MessageStatus.sending ? 'uploading_audio'.tr() : 'loading_audio'.tr(),
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -434,12 +435,12 @@ class MessageBubble extends StatelessWidget {
 
   Widget _buildPdfMessage() {
     if (message.mediaUrl == null) {
-      return _buildErrorMessage('PDF not available');
+      return _buildErrorMessage('pdf_not_available'.tr());
     }
 
     return PdfMessageBubble(
       pdfUrl: message.mediaUrl!,
-      fileName: message.fileName ?? 'Document.pdf',
+      fileName: message.fileName ?? 'document'.tr() + '.pdf',
       isFromCurrentUser: message.isFromCurrentUser,
       caption: message.text,
     );
@@ -451,8 +452,8 @@ class MessageBubble extends StatelessWidget {
       return _buildMediaMessage(
         icon: IconlyBroken.document,
         color: Colors.orange.shade500,
-        title: message.fileName ?? 'File',
-        subtitle: message.status == MessageStatus.sending ? 'Uploading...' : 'Loading...',
+        title: message.fileName ?? 'file'.tr(),
+        subtitle: message.status == MessageStatus.sending ? 'uploading'.tr() : 'loading'.tr(),
         gradient: LinearGradient(
           colors: [Colors.orange.shade400, Colors.orange.shade600],
           begin: Alignment.topLeft,
@@ -465,8 +466,8 @@ class MessageBubble extends StatelessWidget {
     return _buildMediaMessage(
       icon: IconlyBroken.document,
       color: Colors.orange.shade500,
-      title: message.fileName ?? 'File',
-      subtitle: 'Tap to download',
+      title: message.fileName ?? 'file'.tr(),
+      subtitle: 'tap_to_download'.tr(),
       gradient: LinearGradient(
         colors: [Colors.orange.shade400, Colors.orange.shade600],
         begin: Alignment.topLeft,
@@ -670,7 +671,7 @@ class MessageBubble extends StatelessWidget {
     if (messageDate == today) {
       return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     } else if (messageDate == yesterday) {
-      return 'Yesterday ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+      return 'yesterday'.tr() + ' ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     } else {
       return '${dateTime.day}/${dateTime.month} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     }

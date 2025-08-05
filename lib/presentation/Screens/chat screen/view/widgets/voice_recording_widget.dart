@@ -7,6 +7,7 @@ import 'package:iconly/iconly.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart'; // Full import
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../../resources/Color_Manager.dart';
 import 'dart:math' as math;
 
@@ -137,7 +138,7 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
 
     } catch (e) {
       print('Error starting recording: $e');
-      _showErrorDialog('Failed to start recording');
+      _showErrorDialog('failed_start_recording'.tr());
     }
   }
 
@@ -188,7 +189,7 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
 
     } catch (e) {
       print('Error stopping recording: $e');
-      _showErrorDialog('Failed to save recording');
+      _showErrorDialog('failed_save_recording'.tr());
     }
   }
 
@@ -227,14 +228,14 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
           borderRadius: BorderRadius.circular(20),
         ),
         title: Text(
-          'Microphone Permission',
+          'microphone_permission'.tr(),
           style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 18,
           ),
         ),
         content: Text(
-          'Please allow microphone access to record voice messages.',
+          'microphone_permission_message'.tr(),
           style: TextStyle(fontSize: 16),
         ),
         actions: [
@@ -244,7 +245,7 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
               widget.onCancel?.call();
             },
             child: Text(
-              'Cancel',
+              'cancel'.tr(),
               style: TextStyle(
                 color: Colors.grey.shade600,
                 fontWeight: FontWeight.w500,
@@ -263,7 +264,7 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
               ),
             ),
             child: Text(
-              'Settings',
+              'settings'.tr(),
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
@@ -283,7 +284,7 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
           borderRadius: BorderRadius.circular(20),
         ),
         title: Text(
-          'Error',
+          'error'.tr(),
           style: TextStyle(
             fontWeight: FontWeight.w600,
             fontSize: 18,
@@ -306,7 +307,7 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
               ),
             ),
             child: Text(
-              'OK',
+              'ok'.tr(),
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w600,

@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../../../resources/Color_Manager.dart';
 import 'voice_recording_widget.dart';
 import 'attachment_picker.dart';
@@ -261,7 +262,7 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
                   keyboardType: TextInputType.multiline,
                   textAlignVertical: TextAlignVertical.center,
                   decoration: InputDecoration(
-                    hintText: 'اكتب رسالة...',
+                    hintText: 'write_message'.tr(),
                     hintStyle: TextStyle(
                       color: Colors.grey.shade400,
                       fontSize: 15,

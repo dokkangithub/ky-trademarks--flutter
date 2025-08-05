@@ -1,6 +1,7 @@
 // lib/presentation/Screens/chat screen/view/screen/chat_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:kyuser/presentation/Widget/loading_widget.dart';
 import 'package:provider/provider.dart';
 import '../../../../../resources/Color_Manager.dart';
@@ -145,64 +146,69 @@ class ChatScreen extends StatelessWidget {
         children: [
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  viewModel.isAdmin ? viewModel.userName ?? 'User' : 'Admin Support',
+                  viewModel.isAdmin ? viewModel.userName ?? 'User' : 'admin_support'.tr(),
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                Text(
-                  _getStatusText(viewModel.otherUserStatus),
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
               ],
             ),
           ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                margin: EdgeInsets.only(right: 16),
+                child: Center(
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(viewModel.otherUserStatus),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _getStatusColor(viewModel.otherUserStatus).withOpacity(0.4),
+                          blurRadius: 8,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 4),
+              Text(
+                _getStatusText(viewModel.otherUserStatus),
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.9),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
-      actions: [
-        Container(
-          margin: EdgeInsets.only(right: 16),
-          child: Center(
-            child: Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: _getStatusColor(viewModel.otherUserStatus),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: _getStatusColor(viewModel.otherUserStatus).withOpacity(0.4),
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 
   String _getStatusText(UserStatus status) {
     switch (status) {
       case UserStatus.online:
-        return 'Online';
-      case UserStatus.typing:
-        return 'Typing...';
+        return 'online'.tr();
       case UserStatus.offline:
-        return 'Last seen recently';
+        return 'offline'.tr();
+      case UserStatus.typing:
+        return 'typing'.tr();
     }
   }
 

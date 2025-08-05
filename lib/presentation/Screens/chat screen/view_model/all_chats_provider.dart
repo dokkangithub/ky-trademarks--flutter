@@ -54,22 +54,28 @@ class AllChatsViewModel extends ChangeNotifier {
 
       List<ChatModel> newChats = [];
 
-      for (var doc in snapshot.docs) {
-        final chatModel = await _createChatModelFromDoc(doc);
-        if (chatModel != null && chatModel.userId != 'admin') {
-          newChats.add(chatModel);
+      try {
+        for (var doc in snapshot.docs) {
+          final chatModel = await _createChatModelFromDoc(doc);
+          if (chatModel != null && chatModel.userId != 'admin') {
+            newChats.add(chatModel);
+          }
         }
+
+        _chats = newChats;
+        isLoading = false;
+        notifyListeners();
+
+        // Set up real-time unread count listeners for each chat
+        _setupUnreadCountListeners();
+        
+        // Set up real-time user status listeners for each chat
+        _setupUserStatusListeners();
+      } catch (e) {
+        print('Error processing chats: $e');
+        isLoading = false;
+        notifyListeners();
       }
-
-      _chats = newChats;
-      isLoading = false;
-      notifyListeners();
-
-      // Set up real-time unread count listeners for each chat
-      _setupUnreadCountListeners();
-      
-      // Set up real-time user status listeners for each chat
-      _setupUserStatusListeners();
     }, onError: (error) {
       print('Error fetching chats: $error');
       isLoading = false;
@@ -171,44 +177,50 @@ class AllChatsViewModel extends ChangeNotifier {
         .listen((snapshot) async {
       print('User chat snapshot exists: ${snapshot.exists}');
 
-      if (snapshot.exists) {
-        final data = snapshot.data() as Map<String, dynamic>;
+      try {
+        if (snapshot.exists) {
+          final data = snapshot.data() as Map<String, dynamic>;
 
-        // Get unread count for user
-        final unreadCount = await _getUserUnreadCount(userChatId);
+          // Get unread count for user
+          final unreadCount = await _getUserUnreadCount(userChatId);
 
-        _chats = [
-          ChatModel(
-            chatId: userChatId,
-            username: 'Admin Support',
-            lastMessage: data['lastMessage'],
-            lastMessageTime: data['lastMessageTime'] != null
-                ? DateTime.fromMillisecondsSinceEpoch(data['lastMessageTime'])
-                : null,
-            isRead: data['lastSenderId'] == userId,
-            unreadCount: unreadCount,
-            userId: 'admin',
-            userStatus: UserStatus.online, // Set admin as online by default
-          )
-        ];
-      } else {
-        // Create empty chat for user if it doesn't exist
-        _chats = [
-          ChatModel(
-            chatId: userChatId,
-            username: 'Admin Support',
-            lastMessage: null,
-            lastMessageTime: null,
-            isRead: true,
-            unreadCount: 0,
-            userId: 'admin',
-            userStatus: UserStatus.online,
-          )
-        ];
+          _chats = [
+            ChatModel(
+              chatId: userChatId,
+              username: 'Admin Support',
+              lastMessage: data['lastMessage'],
+              lastMessageTime: data['lastMessageTime'] != null
+                  ? DateTime.fromMillisecondsSinceEpoch(data['lastMessageTime'])
+                  : null,
+              isRead: data['lastSenderId'] == userId,
+              unreadCount: unreadCount,
+              userId: 'admin',
+              userStatus: UserStatus.online, // Set admin as online by default
+            )
+          ];
+        } else {
+          // Create empty chat for user if it doesn't exist
+          _chats = [
+            ChatModel(
+              chatId: userChatId,
+              username: 'Admin Support',
+              lastMessage: null,
+              lastMessageTime: null,
+              isRead: true,
+              unreadCount: 0,
+              userId: 'admin',
+              userStatus: UserStatus.online,
+            )
+          ];
+        }
+
+        isLoading = false;
+        notifyListeners();
+      } catch (e) {
+        print('Error processing user chat: $e');
+        isLoading = false;
+        notifyListeners();
       }
-
-      isLoading = false;
-      notifyListeners();
     }, onError: (error) {
       print('Error fetching user chat: $error');
       isLoading = false;

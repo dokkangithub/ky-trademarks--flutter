@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:iconly/iconly.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class AttachmentPicker extends StatefulWidget {
   final Function(File file, String fileName, String type) onFileSelected;
@@ -116,7 +117,7 @@ class _AttachmentPickerState extends State<AttachmentPicker>
                   child: Row(
                     children: [
                       Text(
-                        'إرفق ملف',
+                        'attach_file'.tr(),
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -152,7 +153,7 @@ class _AttachmentPickerState extends State<AttachmentPicker>
                         child: _buildAttachmentOption(
                           context,
                           icon: IconlyBroken.image,
-                          title: 'صورة',
+                          title: 'image'.tr(),
                           subtitle: 'Gallery',
                           color: Colors.blue.shade500,
                           onTap: () => _pickImage(context),
@@ -163,7 +164,7 @@ class _AttachmentPickerState extends State<AttachmentPicker>
                         child: _buildAttachmentOption(
                           context,
                           icon: IconlyBroken.video,
-                          title: 'فيديو',
+                          title: 'video'.tr(),
                           subtitle: 'Gallery',
                           color: Colors.red.shade500,
                           onTap: () => _pickVideo(context),
@@ -174,7 +175,7 @@ class _AttachmentPickerState extends State<AttachmentPicker>
                         child: _buildAttachmentOption(
                           context,
                           icon: IconlyBroken.document,
-                          title: 'ملف',
+                          title: 'file'.tr(),
                           subtitle: 'Document',
                           color: Colors.orange.shade500,
                           onTap: () => _pickDocument(context),
@@ -276,7 +277,7 @@ class _AttachmentPickerState extends State<AttachmentPicker>
         widget.onFileSelected(file, fileName, 'image');
       }
     } catch (e) {
-      _showErrorSnackBar(context, 'Failed to pick image');
+      _showErrorSnackBar(context, 'failed_pick_image'.tr());
     }
   }
 
@@ -294,7 +295,7 @@ class _AttachmentPickerState extends State<AttachmentPicker>
         widget.onFileSelected(file, fileName, 'video');
       }
     } catch (e) {
-      _showErrorSnackBar(context, 'Failed to pick video');
+      _showErrorSnackBar(context, 'failed_pick_video'.tr());
     }
   }
 
@@ -319,7 +320,7 @@ class _AttachmentPickerState extends State<AttachmentPicker>
         widget.onFileSelected(file, fileName, type);
       }
     } catch (e) {
-      _showErrorSnackBar(context, 'Failed to pick document');
+      _showErrorSnackBar(context, 'failed_pick_document'.tr());
     }
   }
 
