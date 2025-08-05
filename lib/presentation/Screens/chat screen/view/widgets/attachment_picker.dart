@@ -84,14 +84,14 @@ class _AttachmentPickerState extends State<AttachmentPicker>
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(24),
-              topRight: Radius.circular(24),
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                blurRadius: 20,
-                offset: Offset(0, -8),
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 15,
+                offset: Offset(0, -5),
                 spreadRadius: 0,
               ),
             ],
@@ -102,8 +102,8 @@ class _AttachmentPickerState extends State<AttachmentPicker>
               children: [
                 // Handle bar
                 Container(
-                  margin: EdgeInsets.only(top: 12, bottom: 8),
-                  width: 40,
+                  margin: EdgeInsets.only(top: 8, bottom: 4),
+                  width: 36,
                   height: 4,
                   decoration: BoxDecoration(
                     color: Colors.grey.shade300,
@@ -113,13 +113,13 @@ class _AttachmentPickerState extends State<AttachmentPicker>
 
                 // Header
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   child: Row(
                     children: [
                       Text(
-                        'Add Media',
+                        'إرفق ملف',
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: Colors.black87,
                         ),
@@ -128,15 +128,15 @@ class _AttachmentPickerState extends State<AttachmentPicker>
                       GestureDetector(
                         onTap: _closeWithAnimation,
                         child: Container(
-                          padding: EdgeInsets.all(8),
+                          padding: EdgeInsets.all(6),
                           decoration: BoxDecoration(
                             color: Colors.grey.shade100,
-                            shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
                             Icons.close,
                             color: Colors.grey.shade600,
-                            size: 20,
+                            size: 18,
                           ),
                         ),
                       ),
@@ -146,34 +146,37 @@ class _AttachmentPickerState extends State<AttachmentPicker>
 
                 // Attachment Options
                 Padding(
-                  padding: EdgeInsets.fromLTRB(24, 0, 24, 32),
+                  padding: EdgeInsets.fromLTRB(20, 0, 20, 24),
                   child: Row(
                     children: [
                       Expanded(
                         child: _buildAttachmentOption(
                           context,
                           icon: IconlyBroken.image,
-                          title: 'Photo',
+                          title: 'صورة',
+                          subtitle: 'Gallery',
                           color: Colors.blue.shade500,
                           onTap: () => _pickImage(context),
                         ),
                       ),
-                      SizedBox(width: 16),
+                      SizedBox(width: 12),
                       Expanded(
                         child: _buildAttachmentOption(
                           context,
                           icon: IconlyBroken.video,
-                          title: 'Video',
+                          title: 'فيديو',
+                          subtitle: 'Gallery',
                           color: Colors.red.shade500,
                           onTap: () => _pickVideo(context),
                         ),
                       ),
-                      SizedBox(width: 16),
+                      SizedBox(width: 12),
                       Expanded(
                         child: _buildAttachmentOption(
                           context,
                           icon: IconlyBroken.document,
-                          title: 'Document',
+                          title: 'ملف',
+                          subtitle: 'Document',
                           color: Colors.orange.shade500,
                           onTap: () => _pickDocument(context),
                         ),
@@ -193,6 +196,7 @@ class _AttachmentPickerState extends State<AttachmentPicker>
     BuildContext context, {
     required IconData icon,
     required String title,
+    required String subtitle,
     required Color color,
     required VoidCallback onTap,
   }) {
@@ -201,45 +205,57 @@ class _AttachmentPickerState extends State<AttachmentPicker>
       child: Container(
         height: 100,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withOpacity(0.05),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: color.withOpacity(0.2),
+            color: color.withOpacity(0.1),
             width: 1,
           ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ],
-              ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 24,
-              ),
+                  child: Center(
+                    child: Icon(
+                      icon,
+                      color: Colors.white,
+                      size: 22,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.grey.shade500,
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 8),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

@@ -336,15 +336,14 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
         return Transform.scale(
           scale: _scaleAnimation.value,
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(28),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 20,
-                  offset: Offset(0, -4),
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 12,
+                  offset: Offset(0, -2),
                   spreadRadius: 0,
                 ),
               ],
@@ -352,37 +351,34 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
             child: Row(
               children: [
                 // Cancel button
-                GestureDetector(
-                  onTap: _cancelRecording,
-                  child: Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.red.shade100,
-                          Colors.red.shade50,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.red.withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Colors.red.shade200,
+                      width: 1,
                     ),
-                    child: Icon(
-                      Icons.close,
-                      color: Colors.red.shade600,
-                      size: 20,
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _cancelRecording,
+                      borderRadius: BorderRadius.circular(20),
+                      child: Center(
+                        child: Icon(
+                          Icons.close,
+                          color: Colors.red.shade600,
+                          size: 18,
+                        ),
+                      ),
                     ),
                   ),
                 ),
 
-                SizedBox(width: 20),
+                SizedBox(width: 12),
 
                 // Recording animation and time
                 Expanded(
@@ -395,40 +391,33 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
                           return Transform.scale(
                             scale: _pulseAnimation.value,
                             child: Container(
-                              padding: EdgeInsets.all(12),
+                              width: 48,
+                              height: 48,
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    ColorManager.primary.withOpacity(0.2),
-                                    ColorManager.primaryByOpacity.withOpacity(0.2),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
+                                color: ColorManager.primary.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(
+                                  color: ColorManager.primary.withOpacity(0.2),
+                                  width: 1,
                                 ),
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: ColorManager.primary.withOpacity(0.3),
-                                    blurRadius: 12,
-                                    offset: Offset(0, 4),
-                                  ),
-                                ],
                               ),
-                              child: Icon(
-                                IconlyBroken.voice,
-                                color: ColorManager.primary,
-                                size: 24,
+                              child: Center(
+                                child: Icon(
+                                  IconlyBroken.voice,
+                                  color: ColorManager.primary,
+                                  size: 22,
+                                ),
                               ),
                             ),
                           );
                         },
                       ),
 
-                      SizedBox(height: 16),
+                      SizedBox(height: 8),
 
                       // Wave animation
                       Container(
-                        height: 40,
+                        height: 28,
                         child: AnimatedBuilder(
                           animation: _waveAnimation,
                           builder: (context, child) {
@@ -437,27 +426,20 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
                                 animationValue: _waveAnimation.value,
                                 color: ColorManager.primary,
                               ),
-                              size: Size(double.infinity, 40),
+                              size: Size(double.infinity, 28),
                             );
                           },
                         ),
                       ),
 
-                      SizedBox(height: 12),
+                      SizedBox(height: 6),
 
                       // Recording time
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              ColorManager.primary.withOpacity(0.1),
-                              ColorManager.primaryByOpacity.withOpacity(0.1),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(20),
+                          color: ColorManager.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: ColorManager.primary.withOpacity(0.2),
                             width: 1,
@@ -468,7 +450,7 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
                           style: TextStyle(
                             color: ColorManager.primary,
                             fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                            fontSize: 12,
                           ),
                         ),
                       ),
@@ -476,35 +458,42 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
                   ),
                 ),
 
-                SizedBox(width: 20),
+                SizedBox(width: 12),
 
                 // Send button
-                GestureDetector(
-                  onTap: _stopRecording,
-                  child: Container(
-                    padding: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          ColorManager.primary,
-                          ColorManager.primaryByOpacity,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: ColorManager.primary.withOpacity(0.4),
-                          blurRadius: 12,
-                          offset: Offset(0, 4),
-                        ),
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        ColorManager.primary,
+                        ColorManager.primaryByOpacity,
                       ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    child: Icon(
-                      IconlyBroken.send,
-                      color: Colors.white,
-                      size: 20,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: ColorManager.primary.withOpacity(0.3),
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: _stopRecording,
+                      borderRadius: BorderRadius.circular(20),
+                      child: Center(
+                        child: Icon(
+                          IconlyBroken.send,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -529,13 +518,13 @@ class ModernWaveformPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color.withOpacity(0.6)
-      ..strokeWidth = 3
+      ..color = color.withOpacity(0.8)
+      ..strokeWidth = 2
       ..strokeCap = StrokeCap.round;
 
     final centerY = size.height / 2;
-    final barWidth = 4.0;
-    final barSpacing = 6.0;
+    final barWidth = 2.5;
+    final barSpacing = 3.0;
     final totalBars = (size.width / (barWidth + barSpacing)).floor();
 
     for (int i = 0; i < totalBars; i++) {
@@ -543,19 +532,19 @@ class ModernWaveformPainter extends CustomPainter {
 
       // Create more dynamic heights with animation
       final normalizedPosition = i / totalBars;
-      final heightFactor = 0.2 +
-          0.8 * (0.5 + 0.5 * math.sin(animationValue * 3 * math.pi + normalizedPosition * 6));
+      final heightFactor = 0.4 +
+          0.6 * (0.5 + 0.5 * math.sin(animationValue * 1.5 * math.pi + normalizedPosition * 3));
 
-      final barHeight = size.height * heightFactor * 0.9;
+      final barHeight = size.height * heightFactor * 0.7;
       final startY = centerY - barHeight / 2;
       final endY = centerY + barHeight / 2;
 
-      // Add gradient effect to bars
+      // Add subtle gradient effect
       final gradient = LinearGradient(
         colors: [
-          color.withOpacity(0.8),
+          color.withOpacity(0.7),
           color,
-          color.withOpacity(0.8),
+          color.withOpacity(0.7),
         ],
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
@@ -568,7 +557,7 @@ class ModernWaveformPainter extends CustomPainter {
       canvas.drawRRect(
         RRect.fromRectAndRadius(
           Rect.fromLTWH(x, startY, barWidth, barHeight),
-          Radius.circular(2),
+          Radius.circular(1.2),
         ),
         paint,
       );

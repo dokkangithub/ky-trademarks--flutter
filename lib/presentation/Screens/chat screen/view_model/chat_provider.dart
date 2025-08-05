@@ -104,8 +104,32 @@ class ChatViewModel extends ChangeNotifier {
       _messages = snapshot.docs
           .map((doc) {
         final message = MessageModel.fromJson(doc.data(), doc.id);
+        final currentUserId = isAdmin ? 'admin' : userId;
+        
+        // Determine message ownership
+        bool isFromCurrentUser;
+        
+        if (currentUserId != null) {
+          // If we have a valid currentUserId, compare with senderId
+          isFromCurrentUser = message.senderId == currentUserId;
+        } else {
+          // If userId is not available yet, use heuristics:
+          // 1. If it's a sending message, it's from current user
+          // 2. If it's an admin message and current user is admin, it's from current user
+          // 3. Otherwise, assume it's from other user
+          if (message.status == MessageStatus.sending) {
+            isFromCurrentUser = true;
+          } else if (isAdmin && message.senderId == 'admin') {
+            isFromCurrentUser = true;
+          } else if (!isAdmin && message.senderId != 'admin') {
+            isFromCurrentUser = true;
+          } else {
+            isFromCurrentUser = false;
+          }
+        }
+        
         return message.copyWith(
-          isFromCurrentUser: message.senderId == (isAdmin ? 'admin' : userId),
+          isFromCurrentUser: isFromCurrentUser,
         );
       })
           .toList();
@@ -365,6 +389,7 @@ class ChatViewModel extends ChangeNotifier {
       type: type,
       status: MessageStatus.sending,
       createdAt: DateTime.now(),
+      isFromCurrentUser: true, // Ensure it's marked as from current user
     );
 
     try {
@@ -390,6 +415,7 @@ class ChatViewModel extends ChangeNotifier {
         type: type,
         status: MessageStatus.sending,
         createdAt: DateTime.now(),
+        isFromCurrentUser: true, // Ensure it's marked as from current user
       );
 
       // Upload file if provided

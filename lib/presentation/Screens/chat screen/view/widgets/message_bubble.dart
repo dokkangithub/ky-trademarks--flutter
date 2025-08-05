@@ -176,8 +176,8 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildImageMessage() {
-    // Show loading state if message is sending and no mediaUrl yet
-    if (message.status == MessageStatus.sending && message.mediaUrl == null) {
+    // Show loading state if message is sending or mediaUrl is null
+    if (message.status == MessageStatus.sending || message.mediaUrl == null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -212,7 +212,7 @@ class MessageBubble extends StatelessWidget {
                   ),
                   SizedBox(height: 12),
                   Text(
-                    'Uploading image...',
+                    message.status == MessageStatus.sending ? 'Uploading image...' : 'Loading image...',
                     style: TextStyle(
                       color: Colors.grey.shade600,
                       fontSize: 13,
@@ -225,10 +225,6 @@ class MessageBubble extends StatelessWidget {
           ),
         ],
       );
-    }
-
-    if (message.mediaUrl == null) {
-      return _buildErrorMessage('Image not available');
     }
 
     return Column(
@@ -302,8 +298,8 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildVideoMessage() {
-    // Show loading state if message is sending and no mediaUrl yet
-    if (message.status == MessageStatus.sending && message.mediaUrl == null) {
+    // Show loading state if message is sending or mediaUrl is null
+    if (message.status == MessageStatus.sending || message.mediaUrl == null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -338,7 +334,7 @@ class MessageBubble extends StatelessWidget {
                   ),
                   SizedBox(height: 12),
                   Text(
-                    'Uploading video...',
+                    message.status == MessageStatus.sending ? 'Uploading video...' : 'Loading video...',
                     style: TextStyle(
                       color: Colors.grey.shade600,
                       fontSize: 13,
@@ -353,10 +349,6 @@ class MessageBubble extends StatelessWidget {
       );
     }
 
-    if (message.mediaUrl == null) {
-      return _buildErrorMessage('Video not available');
-    }
-
     return VideoMessageBubble(
       videoUrl: message.mediaUrl!,
       isFromCurrentUser: message.isFromCurrentUser,
@@ -365,8 +357,57 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildAudioMessage() {
-    if (message.mediaUrl == null) {
-      return _buildErrorMessage('Audio not available');
+    // Show loading state if message is sending or mediaUrl is null
+    if (message.status == MessageStatus.sending || message.mediaUrl == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (message.text?.isNotEmpty == true) ...[
+            _buildTextMessage(),
+            SizedBox(height: 12),
+          ],
+          Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.purple.shade400, Colors.purple.shade600],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 16),
+                Text(
+                  message.status == MessageStatus.sending ? 'Uploading audio...' : 'Loading audio...',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
     }
 
     return Column(
@@ -405,13 +446,13 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildFileMessage() {
-    // Show loading state if message is sending and no mediaUrl yet
-    if (message.status == MessageStatus.sending && message.mediaUrl == null) {
+    // Show loading state if message is sending or mediaUrl is null
+    if (message.status == MessageStatus.sending || message.mediaUrl == null) {
       return _buildMediaMessage(
         icon: IconlyBroken.document,
         color: Colors.orange.shade500,
         title: message.fileName ?? 'File',
-        subtitle: 'Uploading...',
+        subtitle: message.status == MessageStatus.sending ? 'Uploading...' : 'Loading...',
         gradient: LinearGradient(
           colors: [Colors.orange.shade400, Colors.orange.shade600],
           begin: Alignment.topLeft,

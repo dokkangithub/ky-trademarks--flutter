@@ -71,6 +71,7 @@ class MessageModel {
       'status': status.toString().split('.').last,
       'createdAt': createdAt.millisecondsSinceEpoch,
       'seenAt': seenAt?.millisecondsSinceEpoch,
+      // Note: isFromCurrentUser is not included as it's determined locally
     };
   }
 

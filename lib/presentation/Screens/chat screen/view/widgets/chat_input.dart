@@ -213,82 +213,85 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
 
   Widget _buildNormalInput() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: EdgeInsets.fromLTRB(16, 8, 16, 16),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withOpacity(0.04),
             spreadRadius: 0,
-            blurRadius: 20,
-            offset: Offset(0, -4),
+            blurRadius: 12,
+            offset: Offset(0, -1),
           ),
         ],
       ),
       child: SafeArea(
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             // Attachment button
             if (widget.onAttachmentSelected != null)
               _buildAttachmentButton(),
 
-            SizedBox(width: 12),
+            SizedBox(width: 8),
 
             // Text input field
             Expanded(
               child: Container(
+                constraints: BoxConstraints(
+                  minHeight: 44,
+                  maxHeight: 120,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(22),
                   border: Border.all(
                     color: _focusNode.hasFocus 
-                        ? ColorManager.primary.withOpacity(0.3)
+                        ? ColorManager.primary.withOpacity(0.4)
                         : Colors.grey.shade200,
-                    width: 1.5,
+                    width: 1,
                   ),
-                  boxShadow: _focusNode.hasFocus ? [
-                    BoxShadow(
-                      color: ColorManager.primary.withOpacity(0.1),
-                      blurRadius: 8,
-                      offset: Offset(0, 2),
-                    ),
-                  ] : null,
                 ),
                 child: TextField(
                   controller: _textController,
                   focusNode: _focusNode,
-                  maxLines: 5,
+                  maxLines: null,
                   minLines: 1,
-                  textInputAction: TextInputAction.send,
-                  onSubmitted: (_) => _sendMessage(),
+                  textInputAction: TextInputAction.newline,
+                  keyboardType: TextInputType.multiline,
+                  textAlignVertical: TextAlignVertical.center,
                   decoration: InputDecoration(
-                    hintText: 'Type a message...',
+                    hintText: 'اكتب رسالة...',
                     hintStyle: TextStyle(
-                      color: Colors.grey.shade500,
-                      fontSize: 16,
+                      color: Colors.grey.shade400,
+                      fontSize: 15,
                       fontWeight: FontWeight.w400,
                     ),
                     contentPadding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
+                      horizontal: 16,
+                      vertical: 12,
                     ),
                     border: InputBorder.none,
-                    suffixIcon: _isTyping ? null : _buildVoiceButton(),
+                    isDense: true,
                   ),
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     color: Colors.black87,
                     fontWeight: FontWeight.w400,
+                    height: 1.3,
                   ),
+                  onChanged: (text) {
+                    _onTextChanged();
+                  },
                 ),
               ),
             ),
 
-            SizedBox(width: 12),
+            SizedBox(width: 8),
 
-            // Send button
+            // Action button (Send or Voice)
             AnimatedSwitcher(
-              duration: Duration(milliseconds: 300),
+              duration: Duration(milliseconds: 200),
               transitionBuilder: (Widget child, Animation<double> animation) {
                 return ScaleTransition(
                   scale: animation,
@@ -298,7 +301,7 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
                   ),
                 );
               },
-              child: _isTyping ? _buildSendButton() : SizedBox.shrink(),
+              child: _isTyping ? _buildSendButton() : _buildVoiceButton(),
             ),
           ],
         ),
@@ -308,33 +311,29 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
 
   Widget _buildAttachmentButton() {
     return Container(
+      width: 44,
+      height: 44,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            ColorManager.primary.withOpacity(0.1),
-            ColorManager.primaryByOpacity.withOpacity(0.1),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: Colors.grey.shade200,
+          width: 1,
         ),
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: ColorManager.primary.withOpacity(0.1),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
       ),
-      child: IconButton(
-        onPressed: _showAttachmentPicker,
-        icon: Icon(
-          IconlyBroken.paper_plus,
-          color: ColorManager.primary,
-          size: 22,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: _showAttachmentPicker,
+          borderRadius: BorderRadius.circular(22),
+          child: Center(
+            child: Icon(
+              IconlyBroken.paper_plus,
+              color: Colors.grey.shade600,
+              size: 20,
+            ),
+          ),
         ),
-        padding: EdgeInsets.all(12),
-        constraints: BoxConstraints(minWidth: 48, minHeight: 48),
       ),
     );
   }
@@ -342,6 +341,8 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
   Widget _buildSendButton() {
     return Container(
       key: ValueKey('send'),
+      width: 44,
+      height: 44,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -351,56 +352,71 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        shape: BoxShape.circle,
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
             color: ColorManager.primary.withOpacity(0.3),
             blurRadius: 8,
-            offset: Offset(0, 4),
+            offset: Offset(0, 2),
           ),
         ],
       ),
-      child: IconButton(
-        onPressed: _sendMessage,
-        icon: Icon(
-          IconlyBroken.send,
-          color: Colors.white,
-          size: 20,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: _sendMessage,
+          borderRadius: BorderRadius.circular(22),
+          child: Center(
+            child: Icon(
+              IconlyBroken.send,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
         ),
-        padding: EdgeInsets.all(12),
-        constraints: BoxConstraints(minWidth: 48, minHeight: 48),
       ),
     );
   }
 
   Widget _buildVoiceButton() {
-    return GestureDetector(
+    return Container(
       key: ValueKey('voice'),
-      onTap: () {
-        print('ChatInput: Voice button tapped');
-        if (widget.onSendAudio != null) {
-          print('ChatInput: onSendAudio is available, starting recording');
-          _startVoiceRecording();
-        } else {
-          print('ChatInput: onSendAudio is null - cannot record!');
-        }
-      },
-      onLongPress: () {
-        print('ChatInput: Voice button long pressed');
-        if (widget.onSendAudio != null) {
-          _startVoiceRecording();
-        }
-      },
-      child: Container(
-        padding: EdgeInsets.all(8),
-        decoration: BoxDecoration(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
           color: Colors.grey.shade200,
-          shape: BoxShape.circle,
+          width: 1,
         ),
-        child: Icon(
-          IconlyBroken.voice,
-          color: Colors.grey.shade600,
-          size: 20,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            print('ChatInput: Voice button tapped');
+            if (widget.onSendAudio != null) {
+              print('ChatInput: onSendAudio is available, starting recording');
+              _startVoiceRecording();
+            } else {
+              print('ChatInput: onSendAudio is null - cannot record!');
+            }
+          },
+          onLongPress: () {
+            print('ChatInput: Voice button long pressed');
+            if (widget.onSendAudio != null) {
+              _startVoiceRecording();
+            }
+          },
+          borderRadius: BorderRadius.circular(22),
+          child: Center(
+            child: Icon(
+              IconlyBroken.voice,
+              color: Colors.grey.shade600,
+              size: 20,
+            ),
+          ),
         ),
       ),
     );
