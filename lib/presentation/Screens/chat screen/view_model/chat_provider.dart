@@ -473,13 +473,24 @@ class ChatViewModel extends ChangeNotifier {
   }
 
   Future<void> _updateChatMetadata(MessageModel message) async {
+    // Fetch the original username from the chat document
+    String originalUsername = userName ?? 'User';
+    try {
+      final chatDoc = await FirebaseFirestore.instance.collection('chats').doc(chatId).get();
+      if (chatDoc.exists && chatDoc.data() != null && chatDoc.data()!.containsKey('username')) {
+        originalUsername = chatDoc.data()!['username'] ?? originalUsername;
+      }
+    } catch (e) {
+      print('Error fetching original username: $e');
+    }
+
     final chatData = {
       'lastMessage': message.text ?? _getMediaTypeText(message.type),
       'lastMessageTime': message.createdAt.millisecondsSinceEpoch,
       'lastSenderId': message.senderId,
       'updatedAt': DateTime.now().millisecondsSinceEpoch,
-      'username': isAdmin ? 'Admin' : (userName ?? 'User'),
-      'userId': isAdmin ? 'admin' : userId,
+      'username': originalUsername, // Always keep the original username
+      'userId': userId, // Always keep the original userId
     };
 
     try {
