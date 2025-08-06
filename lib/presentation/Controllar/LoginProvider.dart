@@ -10,6 +10,8 @@ import '../../network/RestApi/Comman.dart';
 import '../../resources/StringManager.dart';
 import '../Screens/disactive_accounts_screen.dart';
 import '../Screens/login/Login.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:kyuser/utilits/Local_User_Data.dart';
 
 class LoginProvider extends ChangeNotifier {
   TextEditingController phoneController = TextEditingController();
@@ -66,6 +68,32 @@ class LoginProvider extends ChangeNotifier {
           // Account is active
           UserModel user = UserModel.fromJson(responseData);
           saveUserData(user);
+
+          // Check if user is admin after login
+          Future<List<String>> fetchAdminEmails() async {
+            try {
+              final doc = await FirebaseFirestore.instance
+                  .collection('Admin Email')
+                  .doc('email')
+                  .get();
+              if (doc.exists && doc.data() != null && doc.data()!['list'] is List) {
+                return List<String>.from(doc.data()!['list']);
+              }
+            } catch (e) {
+              print('Error fetching admin emails: $e');
+            }
+            return [];
+          }
+
+          Future<bool> checkIfUserIsAdmin() async {
+            final email = user.data.email;
+            if (email == null) return false;
+            final adminEmails = await fetchAdminEmails();
+            return adminEmails.contains(email);
+          }
+
+          final isAdmin = await checkIfUserIsAdmin();
+          await globalAccountData.setIsAdmin(isAdmin);
 
           loading = false;
           notifyListeners();

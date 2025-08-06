@@ -10,6 +10,7 @@ import 'package:oktoast/oktoast.dart';
 import 'app/app.dart';
 import 'core/Services_locator.dart';
 import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -256,7 +257,8 @@ void main() async {
     } catch (e) {
       debugPrint("Error setting up FCM token: $e");
     }
-  } else {
+  }
+  else {
     debugPrint("Skipping FCM token on web - handled by browser");
   }
 
@@ -269,6 +271,11 @@ void main() async {
     HttpOverrides.global = MyHttpOverrides();
   }
 
+
+
+  final isAdmin = await checkIfUserIsAdmin();
+  await globalAccountData.setIsAdmin(isAdmin);
+
   runApp(EasyLocalization(
     supportedLocales: [Locale('en', 'US'), Locale('ar', 'EG')],
     path: 'assets/translation',
@@ -276,6 +283,30 @@ void main() async {
     startLocale: Locale('ar', 'EG'),
     child: OKToast(child: const MyApp()),
   ));
+}
+
+// Check if user is admin by fetching admin emails from Firestore
+Future<List<String>> fetchAdminEmails() async {
+  try {
+    final doc = await FirebaseFirestore.instance
+        .collection('Admin Email')
+        .doc('email')
+        .get();
+    if (doc.exists && doc.data() != null && doc.data()!['email'] is List) {
+      print('Admin emails: ${List<String>.from(doc.data()!['email'])}');
+      return List<String>.from(doc.data()!['email']);
+    }
+  } catch (e) {
+    print('Error fetching admin emails: $e');
+  }
+  return [];
+}
+
+Future<bool> checkIfUserIsAdmin() async {
+  final email = globalAccountData.getEmail();
+  if (email == null) return false;
+  final adminEmails = await fetchAdminEmails();
+  return adminEmails.contains(email);
 }
 
 void _handleMessage(RemoteMessage message) {
@@ -303,6 +334,7 @@ void _handleMessage(RemoteMessage message) {
     }
   }
 }
+
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {

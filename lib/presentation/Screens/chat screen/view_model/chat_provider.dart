@@ -52,7 +52,7 @@ class ChatViewModel extends ChangeNotifier {
     userId = await globalAccountData.getId();
     userName = await globalAccountData.getUsername();
     userEmail = await globalAccountData.getEmail();
-    isAdmin = userEmail == 'admin@KyTradeMarks.com';
+    isAdmin = await globalAccountData.getIsAdmin();;
 
     print('Chat initialized - User: $userId, Admin: $isAdmin, ChatId: $chatId');
 

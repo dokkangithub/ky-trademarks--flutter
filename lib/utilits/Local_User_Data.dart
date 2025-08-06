@@ -15,6 +15,7 @@ class globalAccountData {
   static const _showAgain="showAgain";
   static const _stateDialog="_stateDialog";
   static const _tokenKey = 'auth_token';
+  static const _isAdmin = 'isAdmin';
 
   static Future<void> setToken(String token) async =>
       await _preferences?.setString(_tokenKey, token);
@@ -62,5 +63,7 @@ class globalAccountData {
 
   static String? getActiveStatus() => _preferences?.getString(_activeStatus);
 
+  static Future setIsAdmin(bool isAdmin) async => await _preferences?.setBool(_isAdmin, isAdmin);
+  static bool getIsAdmin() => _preferences?.getBool(_isAdmin) ?? false;
 
 }

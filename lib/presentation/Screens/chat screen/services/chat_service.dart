@@ -36,7 +36,7 @@ class ChatService {
       // Get user info for better chat display
       String? userName = await globalAccountData.getUsername();
       String? userEmail = await globalAccountData.getEmail();
-      bool isAdmin = userEmail == 'admin@KyTradeMarks.com';
+      bool isAdmin = await globalAccountData.getIsAdmin();
 
       final chatData = {
         'lastMessage': message.text ?? _getMediaTypeText(message.type),
@@ -146,7 +146,7 @@ class ChatService {
     try {
       // Get current user info
       String? userEmail = await globalAccountData.getEmail();
-      bool isAdmin = userEmail == 'admin@KyTradeMarks.com';
+      bool isAdmin = await globalAccountData.getIsAdmin();;
       String? currentUserId = isAdmin ? 'admin' : await globalAccountData.getId();
 
       if (currentUserId == null) return 0;
