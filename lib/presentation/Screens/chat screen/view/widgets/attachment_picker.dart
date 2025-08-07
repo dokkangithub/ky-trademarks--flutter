@@ -4,6 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:iconly/iconly.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class AttachmentPicker extends StatefulWidget {
   final Function(File file, String fileName, String type) onFileSelected;
@@ -261,7 +263,67 @@ class _AttachmentPickerState extends State<AttachmentPicker>
     );
   }
 
+  Future<int> _getAndroidSdkInt() async {
+    if (!Platform.isAndroid) return 0;
+    final deviceInfo = DeviceInfoPlugin();
+    final androidInfo = await deviceInfo.androidInfo;
+    return androidInfo.version.sdkInt ?? 0;
+  }
+
+  Future<bool> _requestMediaPermission(String type) async {
+    if (Platform.isAndroid) {
+      if (type == 'image') {
+        if (await Permission.photos.request().isGranted) return true;
+        if (await Permission.mediaLibrary.request().isGranted) return true;
+        if (await Permission.storage.request().isGranted) return true;
+        if (await Permission.photos.request().isPermanentlyDenied) {
+          openAppSettings();
+        }
+        return false;
+      } else if (type == 'video') {
+        if (await Permission.videos.request().isGranted) return true;
+        if (await Permission.mediaLibrary.request().isGranted) return true;
+        if (await Permission.storage.request().isGranted) return true;
+        if (await Permission.videos.request().isPermanentlyDenied) {
+          openAppSettings();
+        }
+        return false;
+      } else if (type == 'file' || type == 'pdf') {
+        int sdkInt = await _getAndroidSdkInt();
+        if (sdkInt <= 32) {
+          if (await Permission.storage.request().isGranted) return true;
+          if (await Permission.storage.request().isPermanentlyDenied) {
+            openAppSettings();
+          }
+          return false;
+        } else {
+          // Android 13+ (API 33+): no permission needed
+          return true;
+        }
+      }
+    } else if (Platform.isIOS) {
+      if (type == 'image' || type == 'video') {
+        if (await Permission.photos.request().isGranted) return true;
+        if (await Permission.photos.request().isPermanentlyDenied) {
+          openAppSettings();
+        }
+        return false;
+      } else if (type == 'file' || type == 'pdf') {
+        if (await Permission.storage.request().isGranted) return true;
+        if (await Permission.storage.request().isPermanentlyDenied) {
+          openAppSettings();
+        }
+        return false;
+      }
+    }
+    return true;
+  }
+
   Future<void> _pickImage(BuildContext context) async {
+    if (!await _requestMediaPermission('image')) {
+      _showErrorSnackBar(context, 'permission_denied'.tr());
+      return;
+    }
     try {
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(
@@ -282,6 +344,10 @@ class _AttachmentPickerState extends State<AttachmentPicker>
   }
 
   Future<void> _pickVideo(BuildContext context) async {
+    if (!await _requestMediaPermission('video')) {
+      _showErrorSnackBar(context, 'permission_denied'.tr());
+      return;
+    }
     try {
       final ImagePicker picker = ImagePicker();
       final XFile? video = await picker.pickVideo(
@@ -300,6 +366,10 @@ class _AttachmentPickerState extends State<AttachmentPicker>
   }
 
   Future<void> _pickDocument(BuildContext context) async {
+    if (!await _requestMediaPermission('file')) {
+      _showErrorSnackBar(context, 'permission_denied'.tr());
+      return;
+    }
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
