@@ -11,14 +11,12 @@ class ChatInput extends StatefulWidget {
   final Function(String) onSendMessage;
   final Function(File, String)? onSendAudio;
   final Function(File, String, String)? onAttachmentSelected;
-  final Function(bool)? onTypingChanged;
 
   const ChatInput({
     Key? key,
     required this.onSendMessage,
     this.onSendAudio,
     this.onAttachmentSelected,
-    this.onTypingChanged,
   }) : super(key: key);
 
   @override
@@ -69,13 +67,11 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
       setState(() {
         _isTyping = hasText;
       });
-      widget.onTypingChanged?.call(hasText);
     }
   }
 
   void _onFocusChanged() {
     if (!_focusNode.hasFocus && _isTyping) {
-      widget.onTypingChanged?.call(false);
       setState(() {
         _isTyping = false;
       });
@@ -90,7 +86,6 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
       setState(() {
         _isTyping = false;
       });
-      widget.onTypingChanged?.call(false);
     }
   }
 

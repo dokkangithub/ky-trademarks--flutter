@@ -69,31 +69,7 @@ class LoginProvider extends ChangeNotifier {
           UserModel user = UserModel.fromJson(responseData);
           saveUserData(user);
 
-          // Check if user is admin after login
-          Future<List<String>> fetchAdminEmails() async {
-            try {
-              final doc = await FirebaseFirestore.instance
-                  .collection('Admin Email')
-                  .doc('email')
-                  .get();
-              if (doc.exists && doc.data() != null && doc.data()!['list'] is List) {
-                return List<String>.from(doc.data()!['list']);
-              }
-            } catch (e) {
-              print('Error fetching admin emails: $e');
-            }
-            return [];
-          }
-
-          Future<bool> checkIfUserIsAdmin() async {
-            final email = user.data.email;
-            if (email == null) return false;
-            final adminEmails = await fetchAdminEmails();
-            return adminEmails.contains(email);
-          }
-
-          final isAdmin = await checkIfUserIsAdmin();
-          await globalAccountData.setIsAdmin(isAdmin);
+          await globalAccountData.setIsAdmin(false);
 
           loading = false;
           notifyListeners();

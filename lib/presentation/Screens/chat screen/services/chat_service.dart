@@ -36,14 +36,13 @@ class ChatService {
       // Get user info for better chat display
       String? userName = await globalAccountData.getUsername();
       String? userEmail = await globalAccountData.getEmail();
-      bool isAdmin = await globalAccountData.getIsAdmin();
 
       final chatData = {
         'lastMessage': message.text ?? _getMediaTypeText(message.type),
         'lastMessageTime': message.createdAt.millisecondsSinceEpoch,
         'lastSenderId': message.senderId,
         'updatedAt': DateTime.now().millisecondsSinceEpoch,
-        'username': isAdmin ? 'Admin' : (userName ?? 'User'),
+        'username': userName ?? 'User',
         'userId': message.senderId,
         'userEmail': userEmail,
       };
@@ -83,6 +82,7 @@ class ChatService {
         .doc(chatId)
         .collection('messages')
         .orderBy('createdAt', descending: true)
+        .limit(50)
         .snapshots()
         .map((snapshot) => snapshot.docs
         .map((doc) {
@@ -99,6 +99,7 @@ class ChatService {
     return _firestore
         .collection('chats')
         .orderBy('updatedAt', descending: true)
+        .limit(50)
         .snapshots()
         .asyncMap((snapshot) async {
       List<ChatModel> chats = [];
@@ -120,8 +121,8 @@ class ChatService {
       final data = doc.data() as Map<String, dynamic>?;
       if (data == null) return null;
 
-      // Calculate actual unread count
-      int unreadCount = await _calculateUnreadCount(doc.id, data['lastSenderId']);
+      // Avoid per-chat unread queries here; rely on stored field or compute on-demand
+      int unreadCount = data['unreadCount'] is int ? data['unreadCount'] as int : 0;
 
       return ChatModel(
         chatId: doc.id,
@@ -133,7 +134,7 @@ class ChatService {
         userId: data['userId'] ?? doc.id,
         userStatus: UserStatus.offline, // Will be updated by real-time listener
         unreadCount: unreadCount,
-        isRead: data['lastSenderId'] == 'admin', // For admin view
+        isRead: false,
       );
     } catch (e) {
       print('Error creating chat model: $e');
@@ -146,8 +147,7 @@ class ChatService {
     try {
       // Get current user info
       String? userEmail = await globalAccountData.getEmail();
-      bool isAdmin = await globalAccountData.getIsAdmin();;
-      String? currentUserId = isAdmin ? 'admin' : await globalAccountData.getId();
+      String? currentUserId = await globalAccountData.getId();
 
       if (currentUserId == null) return 0;
 
@@ -156,7 +156,7 @@ class ChatService {
           .doc(chatId)
           .collection('messages')
           .where('senderId', isNotEqualTo: currentUserId)
-          .where('status', isNotEqualTo: MessageStatus.seen.toString().split('.').last)
+          .where('status', whereIn: ['sent', 'delivered'])
           .get();
 
       return query.docs.length;
@@ -164,68 +164,6 @@ class ChatService {
       print('Error calculating unread count: $e');
       return 0;
     }
-  }
-
-  // Set user status
-  Future<void> setUserStatus(String userId, UserStatus status) async {
-    try {
-      await _firestore.collection('users').doc(userId).set({
-        'status': status.toString(),
-        'lastSeen': DateTime.now().millisecondsSinceEpoch,
-      }, SetOptions(merge: true));
-    } catch (e) {
-      print('Error setting user status: $e');
-    }
-  }
-
-  // Get user status stream
-  Stream<UserStatus> getUserStatusStream(String userId) {
-    return _firestore
-        .collection('users')
-        .doc(userId)
-        .snapshots()
-        .map((snapshot) {
-      if (snapshot.exists) {
-        final data = snapshot.data() as Map<String, dynamic>;
-        return UserStatus.values.firstWhere(
-              (e) => e.toString() == data['status'],
-          orElse: () => UserStatus.offline,
-        );
-      }
-      return UserStatus.offline;
-    });
-  }
-
-  // Set typing status
-  Future<void> setTypingStatus(String chatId, String userId, bool isTyping) async {
-    try {
-      await _firestore
-          .collection('chats')
-          .doc(chatId)
-          .collection('typing')
-          .doc(userId)
-          .set({
-        'isTyping': isTyping,
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
-      });
-    } catch (e) {
-      print('Error setting typing status: $e');
-    }
-  }
-
-  // Get typing status stream
-  Stream<bool> getTypingStatusStream(String chatId, String currentUserId) {
-    return _firestore
-        .collection('chats')
-        .doc(chatId)
-        .collection('typing')
-        .snapshots()
-        .map((snapshot) {
-      final typingUsers = snapshot.docs
-          .where((doc) => doc.id != currentUserId && doc.data()['isTyping'] == true)
-          .toList();
-      return typingUsers.isNotEmpty;
-    });
   }
 
   // Mark messages as seen
@@ -236,7 +174,7 @@ class ChatService {
           .doc(chatId)
           .collection('messages')
           .where('senderId', isNotEqualTo: currentUserId)
-          .where('status', isNotEqualTo: MessageStatus.seen.toString().split('.').last)
+          .where('status', whereIn: ['sent', 'delivered'])
           .get();
 
       final batch = _firestore.batch();
@@ -286,7 +224,7 @@ class ChatService {
           .doc(chatId)
           .collection('messages')
           .where('senderId', isNotEqualTo: currentUserId)
-          .where('status', isNotEqualTo: MessageStatus.seen.toString().split('.').last)
+          .where('status', whereIn: ['sent', 'delivered'])
           .get();
 
       return query.docs.length;

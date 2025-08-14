@@ -8,7 +8,6 @@ import '../../../../../resources/Color_Manager.dart';
 import '../../model/message_model.dart';
 import '../../view_model/chat_provider.dart';
 import '../widgets/message_bubble.dart';
-import '../widgets/typing_indicator.dart';
 import '../widgets/chat_input.dart';
 
 class ChatScreen extends StatelessWidget {
@@ -52,21 +51,9 @@ class ChatScreen extends StatelessWidget {
                                 reverse: true,
                                 physics: BouncingScrollPhysics(),
                                 padding: EdgeInsets.symmetric(vertical: 16),
-                                itemCount: viewModel.messages.length +
-                                    (viewModel.isTyping ? 1 : 0),
+                                itemCount: viewModel.messages.length,
                                 itemBuilder: (context, index) {
-                                  // Show typing indicator at the top (index 0 when reversed)
-                                  if (viewModel.isTyping && index == 0) {
-                                    return TypingIndicator(
-                                      userName: viewModel.isAdmin ? 'User' : 'Admin',
-                                    );
-                                  }
-
-                                  // Adjust index for messages
-                                  final messageIndex = viewModel.isTyping
-                                      ? index - 1
-                                      : index;
-                                  final message = viewModel.messages[messageIndex];
+                                  final message = viewModel.messages[index];
 
                                   return MessageBubble(
                                     message: message,
@@ -88,7 +75,6 @@ class ChatScreen extends StatelessWidget {
                               fileName: fileName,
                               type: _getMessageTypeFromString(type),
                             ),
-                            onTypingChanged: viewModel.setTypingStatus,
                           ),
                         ],
                       ),
@@ -151,7 +137,7 @@ class ChatScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  viewModel.isAdmin ? userName ?? 'User' : 'admin_support'.tr(),
+                  userName,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -161,67 +147,12 @@ class ChatScreen extends StatelessWidget {
               ],
             ),
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                margin: EdgeInsets.only(right: 16),
-                child: Center(
-                  child: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: _getStatusColor(viewModel.otherUserStatus),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: _getStatusColor(viewModel.otherUserStatus).withOpacity(0.4),
-                          blurRadius: 8,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 4),
-              Text(
-                _getStatusText(viewModel.otherUserStatus),
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.9),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
   }
 
-  String _getStatusText(UserStatus status) {
-    switch (status) {
-      case UserStatus.online:
-        return 'online'.tr();
-      case UserStatus.offline:
-        return 'offline'.tr();
-      case UserStatus.typing:
-        return 'typing'.tr();
-    }
-  }
-
-  Color _getStatusColor(UserStatus status) {
-    switch (status) {
-      case UserStatus.online:
-      case UserStatus.typing:
-        return Colors.green.shade400;
-      case UserStatus.offline:
-        return Colors.grey.shade400;
-    }
-  }
+  // Status text and indicator removed
 
   MessageType _getMessageTypeFromString(String type) {
     switch (type.toLowerCase()) {

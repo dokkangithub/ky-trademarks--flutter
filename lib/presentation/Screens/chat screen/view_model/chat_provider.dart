@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kyuser/utilits/Local_User_Data.dart';
 import 'package:http/http.dart' as http;
@@ -13,6 +15,7 @@ import '../model/message_model.dart';
 import 'package:mime/mime.dart'; // لـ lookupMimeType
 import 'package:http_parser/http_parser.dart'; // لـ MediaType
 import 'dart:math' as math; // لـ _generateRandomString
+// FFmpeg removed; no local conversion
 
 
 class ChatViewModel extends ChangeNotifier {
@@ -22,16 +25,16 @@ class ChatViewModel extends ChangeNotifier {
   String? userId;
   String? userName;
   String? userEmail;
-  bool isAdmin = true;
+  // Admin mode removed: chat is user-to-user
   UserStatus currentUserStatus = UserStatus.online;
-  UserStatus otherUserStatus = UserStatus.offline;
-  bool isTyping = false;
-  String? typingUserId;
-  Timer? _typingTimer;
-  Timer? _statusTimer;
+  UserStatus otherUserStatus = UserStatus.offline; // Status UI will be removed
+  bool isTyping = false; // Typing feature removed
+  String? typingUserId; // Typing feature removed
+  Timer? _typingTimer; // Typing feature removed
+  Timer? _statusTimer; // Status feature removed
   StreamSubscription? _messagesSubscription;
-  StreamSubscription? _userStatusSubscription;
-  StreamSubscription? _typingSubscription;
+  StreamSubscription? _userStatusSubscription; // Removed
+  StreamSubscription? _typingSubscription; // Removed
 
   ChatViewModel(this.chatId) {
     _initializeChat();
@@ -41,54 +44,20 @@ class ChatViewModel extends ChangeNotifier {
 
   Future<void> _initializeChat() async {
     await _getUserData();
-    await _createChatIfNotExists();
     _fetchMessages();
-    _listenToUserStatus();
-    _listenToTypingStatus();
-    _startStatusTimer();
+    // Status and typing removed
   }
 
   Future<void> _getUserData() async {
     userId = await globalAccountData.getId();
     userName = await globalAccountData.getUsername();
     userEmail = await globalAccountData.getEmail();
-    isAdmin = await globalAccountData.getIsAdmin();;
+    print('Chat initialized - User: $userId, ChatId: $chatId');
 
-    print('Chat initialized - User: $userId, Admin: $isAdmin, ChatId: $chatId');
-
-    // Set user online status
-    await _setUserStatus(UserStatus.online);
+    // Status removed
   }
 
-  Future<void> _createChatIfNotExists() async {
-    if (isAdmin) return; // Admin doesn't need to create chat
-
-    try {
-      final chatDoc = await FirebaseFirestore.instance
-          .collection('chats')
-          .doc(chatId)
-          .get();
-
-      if (!chatDoc.exists) {
-        await FirebaseFirestore.instance
-            .collection('chats')
-            .doc(chatId)
-            .set({
-          'userId': userId,
-          'username': userName ?? 'User',
-          'createdAt': DateTime.now().millisecondsSinceEpoch,
-          'updatedAt': DateTime.now().millisecondsSinceEpoch,
-          'lastMessage': null,
-          'lastMessageTime': null,
-          'lastSenderId': null,
-          'unreadCount': 0,
-        });
-        print('Chat document created for user: $chatId');
-      }
-    } catch (e) {
-      print('Error creating chat: $e');
-    }
-  }
+  // Removed: do not create chat document on open; it will be created/updated on first message
 
   void _fetchMessages() {
     print('Fetching messages for chat: $chatId');
@@ -98,6 +67,7 @@ class ChatViewModel extends ChangeNotifier {
         .doc(chatId)
         .collection('messages')
         .orderBy('createdAt', descending: true)
+        .limit(50)
         .snapshots()
         .listen((snapshot) {
       print('Received ${snapshot.docs.length} messages');
@@ -105,29 +75,11 @@ class ChatViewModel extends ChangeNotifier {
       _messages = snapshot.docs
           .map((doc) {
         final message = MessageModel.fromJson(doc.data(), doc.id);
-        final currentUserId = isAdmin ? 'admin' : userId;
+        final currentUserId = userId;
         
         // Determine message ownership
-        bool isFromCurrentUser;
-        
-        if (currentUserId != null) {
-          // If we have a valid currentUserId, compare with senderId
-          isFromCurrentUser = message.senderId == currentUserId;
-        } else {
-          // If userId is not available yet, use heuristics:
-          // 1. If it's a sending message, it's from current user
-          // 2. If it's an admin message and current user is admin, it's from current user
-          // 3. Otherwise, assume it's from other user
-          if (message.status == MessageStatus.sending) {
-            isFromCurrentUser = true;
-          } else if (isAdmin && message.senderId == 'admin') {
-            isFromCurrentUser = true;
-          } else if (!isAdmin && message.senderId != 'admin') {
-            isFromCurrentUser = true;
-          } else {
-            isFromCurrentUser = false;
-          }
-        }
+        final bool isFromCurrentUser =
+            currentUserId != null && message.senderId == currentUserId;
         
         return message.copyWith(
           isFromCurrentUser: isFromCurrentUser,
@@ -148,7 +100,7 @@ class ChatViewModel extends ChangeNotifier {
   }
 
   Future<void> _markMessagesAsSeen() async {
-    final currentUserId = isAdmin ? 'admin' : userId!;
+    final currentUserId = userId!;
 
     final unseenMessages = _messages
         .where((msg) =>
@@ -182,123 +134,18 @@ class ChatViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> _setUserStatus(UserStatus status) async {
-    final currentUserId = isAdmin ? 'admin' : userId!;
-    currentUserStatus = status;
+  // User status feature removed
 
-    try {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUserId)
-          .set({
-        'status': status.toString(),
-        'lastSeen': DateTime.now().millisecondsSinceEpoch,
-      }, SetOptions(merge: true));
+  // Typing listener removed
 
-      print('User status set to: $status');
-    } catch (e) {
-      print('Error setting user status: $e');
-    }
+  // Status timer removed
 
-    notifyListeners();
-  }
-
-  void _listenToUserStatus() {
-    // Get the other user ID (admin or regular user)
-    String otherUserId = isAdmin ? chatId : 'admin';
-
-    print('Listening to status for user: $otherUserId');
-
-    _userStatusSubscription = FirebaseFirestore.instance
-        .collection('users')
-        .doc(otherUserId)
-        .snapshots()
-        .listen((snapshot) {
-      if (snapshot.exists) {
-        final data = snapshot.data() as Map<String, dynamic>;
-        final newStatus = UserStatus.values.firstWhere(
-              (e) => e.toString() == data['status'],
-          orElse: () => UserStatus.offline,
-        );
-
-        if (newStatus != otherUserStatus) {
-          otherUserStatus = newStatus;
-          print('Other user status changed to: $newStatus');
-          notifyListeners();
-        }
-      }
-    }, onError: (error) {
-      print('Error listening to user status: $error');
-    });
-  }
-
-  void _listenToTypingStatus() {
-    final currentUserId = isAdmin ? 'admin' : userId!;
-
-    _typingSubscription = FirebaseFirestore.instance
-        .collection('chats')
-        .doc(chatId)
-        .collection('typing')
-        .snapshots()
-        .listen((snapshot) {
-      final typingUsers = snapshot.docs
-          .where((doc) => doc.id != currentUserId && doc.data()['isTyping'] == true)
-          .toList();
-
-      final wasTyping = isTyping;
-      isTyping = typingUsers.isNotEmpty;
-      typingUserId = isTyping ? typingUsers.first.id : null;
-
-      if (wasTyping != isTyping) {
-        print('Typing status changed: $isTyping');
-        notifyListeners();
-      }
-    }, onError: (error) {
-      print('Error listening to typing status: $error');
-    });
-  }
-
-  void _startStatusTimer() {
-    // Update online status every 30 seconds
-    _statusTimer = Timer.periodic(Duration(seconds: 30), (timer) {
-      if (currentUserStatus == UserStatus.online) {
-        _setUserStatus(UserStatus.online);
-      }
-    });
-  }
-
-  Future<void> setTypingStatus(bool typing) async {
-    final currentUserId = isAdmin ? 'admin' : userId!;
-
-    try {
-      await FirebaseFirestore.instance
-          .collection('chats')
-          .doc(chatId)
-          .collection('typing')
-          .doc(currentUserId)
-          .set({
-        'isTyping': typing,
-        'timestamp': DateTime.now().millisecondsSinceEpoch,
-      });
-
-      // Clear typing after 3 seconds of inactivity
-      if (typing) {
-        _typingTimer?.cancel();
-        _typingTimer = Timer(Duration(seconds: 3), () {
-          setTypingStatus(false);
-        });
-      } else {
-        _typingTimer?.cancel();
-      }
-    } catch (e) {
-      print('Error setting typing status: $e');
-    }
-  }
+  Future<void> setTypingStatus(bool typing) async { /* typing removed */ }
 
   static const String uploadEndpoint = '${ApiConstant.baseUrl}${ApiConstant.slug}files/upload';
 
   // Upload file to server with new endpoint
-  Future<String?> _uploadFile(File file, String fileName) async {
+  Future<String?> _uploadFile({File? file, Uint8List? bytes, required String fileName}) async {
     try {
       String? customerId = await globalAccountData.getId();
       String? authToken = await globalAccountData.getToken();
@@ -308,7 +155,8 @@ class ChatViewModel extends ChangeNotifier {
         return null;
       }
 
-      final mimeType = lookupMimeType(file.path); // e.g., video/mp4
+      final pathForMime = file != null ? file.path : fileName;
+      final mimeType = lookupMimeType(pathForMime); // e.g., video/mp4 or audio/webm
       final mediaType = mimeType != null ? MediaType.parse(mimeType) : null;
 
       // إنشاء اسم فريد للملف
@@ -319,14 +167,28 @@ class ChatViewModel extends ChangeNotifier {
 
       var request = http.MultipartRequest('POST', Uri.parse(uploadEndpoint));
 
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'file',
-          file.path,
-          filename: uniqueFileName, // استخدام الاسم الفريد
-          contentType: mediaType,
-        ),
-      );
+      if (bytes != null) {
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'file',
+            bytes,
+            filename: uniqueFileName,
+            contentType: mediaType,
+          ),
+        );
+      } else if (file != null) {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'file',
+            file.path,
+            filename: uniqueFileName,
+            contentType: mediaType,
+          ),
+        );
+      } else {
+        print('No file or bytes provided to upload');
+        return null;
+      }
 
       request.fields['customer_id'] = customerId;
 
@@ -381,16 +243,19 @@ class ChatViewModel extends ChangeNotifier {
     );
   }
 
+  // Audio conversion removed; handle webm at playback time
+
   Future<void> sendMessage({
     String? text,
     File? file,
+    Uint8List? fileBytes,
     String? fileName,
     MessageType type = MessageType.text,
   }) async {
-    if ((text?.trim().isEmpty ?? true) && file == null) return;
+    if ((text?.trim().isEmpty ?? true) && file == null && fileBytes == null) return;
 
-    final currentUserId = isAdmin ? 'admin' : userId!;
-    final currentUserName = isAdmin ? 'Admin' : (userName ?? 'User');
+    final currentUserId = userId!;
+    final currentUserName = userName ?? 'User';
 
     // حفظ الاسم الأصلي للملف للعرض في الرسالة
     final originalFileName = fileName;
@@ -404,7 +269,7 @@ class ChatViewModel extends ChangeNotifier {
       text: text?.trim(),
       mediaUrl: null, // Will be updated after upload
       fileName: originalFileName, // استخدام الاسم الأصلي للعرض
-      fileSize: file != null ? await file.length() : null,
+      fileSize: file != null ? await file.length() : (fileBytes != null ? fileBytes.length : null),
       type: type,
       status: MessageStatus.sending,
       createdAt: DateTime.now(),
@@ -430,7 +295,7 @@ class ChatViewModel extends ChangeNotifier {
         text: text?.trim(),
         mediaUrl: null,
         fileName: originalFileName, // استخدام الاسم الأصلي للعرض
-        fileSize: file != null ? await file.length() : null,
+        fileSize: file != null ? await file.length() : (fileBytes != null ? fileBytes.length : null),
         type: type,
         status: MessageStatus.sending,
         createdAt: DateTime.now(),
@@ -439,9 +304,9 @@ class ChatViewModel extends ChangeNotifier {
 
       // Upload file if provided
       String? mediaUrl;
-      if (file != null) {
+      if (file != null || fileBytes != null) {
         print('Uploading file after adding message...');
-        mediaUrl = await _uploadFile(file, fileName ?? 'file');
+        mediaUrl = await _uploadFile(file: file, bytes: fileBytes, fileName: fileName ?? 'file');
         if (mediaUrl == null) {
           print('Failed to upload file');
           // Update message status to failed
@@ -473,24 +338,11 @@ class ChatViewModel extends ChangeNotifier {
   }
 
   Future<void> _updateChatMetadata(MessageModel message) async {
-    // Fetch the original username from the chat document
-    String originalUsername = userName ?? 'User';
-    try {
-      final chatDoc = await FirebaseFirestore.instance.collection('chats').doc(chatId).get();
-      if (chatDoc.exists && chatDoc.data() != null && chatDoc.data()!.containsKey('username')) {
-        originalUsername = chatDoc.data()!['username'] ?? originalUsername;
-      }
-    } catch (e) {
-      print('Error fetching original username: $e');
-    }
-
     final chatData = {
       'lastMessage': message.text ?? _getMediaTypeText(message.type),
       'lastMessageTime': message.createdAt.millisecondsSinceEpoch,
       'lastSenderId': message.senderId,
       'updatedAt': DateTime.now().millisecondsSinceEpoch,
-      'username': originalUsername, // Always keep the original username
-      'userId': userId, // Always keep the original userId
     };
 
     try {
@@ -620,11 +472,20 @@ class ChatViewModel extends ChangeNotifier {
             imageQuality: 85,
           );
           if (image != null) {
-            await sendMessage(
-              file: File(image.path),
-              fileName: image.name,
-              type: MessageType.image,
-            );
+            if (kIsWeb) {
+              final bytes = await image.readAsBytes();
+              await sendMessage(
+                fileBytes: bytes,
+                fileName: image.name,
+                type: MessageType.image,
+              );
+            } else {
+              await sendMessage(
+                file: File(image.path),
+                fileName: image.name,
+                type: MessageType.image,
+              );
+            }
           }
           break;
 
@@ -635,26 +496,44 @@ class ChatViewModel extends ChangeNotifier {
             maxDuration: Duration(minutes: 5),
           );
           if (video != null) {
-            await sendMessage(
-              file: File(video.path),
-              fileName: video.name,
-              type: MessageType.video,
-            );
+            if (kIsWeb) {
+              final bytes = await video.readAsBytes();
+              await sendMessage(
+                fileBytes: bytes,
+                fileName: video.name,
+                type: MessageType.video,
+              );
+            } else {
+              await sendMessage(
+                file: File(video.path),
+                fileName: video.name,
+                type: MessageType.video,
+              );
+            }
           }
           break;
 
         case MessageType.audio:
           final result = await FilePicker.platform.pickFiles(
-            type: FileType.audio,
+            type: FileType.custom,
+            allowedExtensions: ['webm','mp3','m4a','wav','ogg'],
             allowMultiple: false,
           );
           if (result != null && result.files.isNotEmpty) {
             final file = result.files.single;
-            await sendMessage(
-              file: File(file.path!),
-              fileName: file.name,
-              type: MessageType.audio,
-            );
+            if (kIsWeb && file.bytes != null) {
+              await sendMessage(
+                fileBytes: file.bytes!,
+                fileName: file.name,
+                type: MessageType.audio,
+              );
+            } else if (file.path != null) {
+              await sendMessage(
+                file: File(file.path!),
+                fileName: file.name,
+                type: MessageType.audio,
+              );
+            }
           }
           break;
 
@@ -666,11 +545,19 @@ class ChatViewModel extends ChangeNotifier {
           );
           if (result != null && result.files.isNotEmpty) {
             final file = result.files.single;
-            await sendMessage(
-              file: File(file.path!),
-              fileName: file.name,
-              type: MessageType.pdf,
-            );
+            if (kIsWeb && file.bytes != null) {
+              await sendMessage(
+                fileBytes: file.bytes!,
+                fileName: file.name,
+                type: MessageType.pdf,
+              );
+            } else if (file.path != null) {
+              await sendMessage(
+                file: File(file.path!),
+                fileName: file.name,
+                type: MessageType.pdf,
+              );
+            }
           }
           break;
 
@@ -681,11 +568,19 @@ class ChatViewModel extends ChangeNotifier {
           );
           if (result != null && result.files.isNotEmpty) {
             final file = result.files.single;
-            await sendMessage(
-              file: File(file.path!),
-              fileName: file.name,
-              type: MessageType.file,
-            );
+            if (kIsWeb && file.bytes != null) {
+              await sendMessage(
+                fileBytes: file.bytes!,
+                fileName: file.name,
+                type: MessageType.file,
+              );
+            } else if (file.path != null) {
+              await sendMessage(
+                file: File(file.path!),
+                fileName: file.name,
+                type: MessageType.file,
+              );
+            }
           }
           break;
 
@@ -706,13 +601,9 @@ class ChatViewModel extends ChangeNotifier {
     print('Disposing ChatViewModel');
 
     _typingTimer?.cancel();
-    _statusTimer?.cancel();
     _messagesSubscription?.cancel();
     _userStatusSubscription?.cancel();
     _typingSubscription?.cancel();
-
-    // Set user offline when leaving chat
-    _setUserStatus(UserStatus.offline);
 
     super.dispose();
   }

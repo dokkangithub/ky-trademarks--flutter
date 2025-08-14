@@ -31,7 +31,7 @@ class InnerMainTabs extends StatefulWidget {
 class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateMixin {
   int _selectedIndex = 0;
   bool open = false;
-  bool isAdmin = false;
+  bool isAdmin = false; // Deprecated: admin-only chat removed
   String? userId;
 
   List<IconData> iconList = [
@@ -102,17 +102,15 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
     // Get user data
     String userEmail = await globalAccountData.getEmail() ?? '';
     userId = await globalAccountData.getId();
-    isAdmin = await globalAccountData.getIsAdmin();;
+    isAdmin = false;
 
-    print('User initialized - ID: $userId, Email: $userEmail, IsAdmin: $isAdmin');
+    print('User initialized - ID: $userId, Email: $userEmail');
 
-    // Update chat navigation item title based on admin status
     if (_navItems.length > 5) {
       _navItems[5] = NavTabItem(
         icon: Icons.chat,
         title: 'الدعم الفني',
         isSpecial: false,
-        dynamicTitle: isAdmin ? 'جميع المحادثات' : 'الدعم الفني',
       );
     }
 
@@ -127,8 +125,8 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
     // Create all screens list including speed dial options
     allScreens = [
       ...mainScreens,
-      // Chat screen - different for admin vs user
-      isAdmin ? AllChatsScreen() : ChatScreen(chatId: userId ?? '', userName: 'Admin',),
+      // Chat screen - user-to-user only
+      ChatScreen(chatId: userId ?? '', userName: 'الدعم الفني'),
       const Contacts(canBack: false),
     ];
 
@@ -247,13 +245,10 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
         shape: BoxShape.circle,
       ),
       child: FloatingActionButton(
-        onPressed: () => isAdmin
-            ? Navigator.push(context,
-            MaterialPageRoute(builder: (_) => AllChatsScreen()))
-            : Navigator.push(
+        onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (_) => ChatScreen(chatId: userId??'', userName: 'Admin',))),
+                builder: (_) => ChatScreen(chatId: userId??'', userName: 'الدعم الفني',))),
         backgroundColor: Colors.transparent,
         elevation: 0,
         child: Icon(
@@ -417,23 +412,7 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
               fontFamily: StringConstant.fontName,
             ),
           ),
-          if (isAdmin)
-            Container(
-              margin: EdgeInsets.only(left: 8),
-              padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                'مدير',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+          // Admin badge removed
           const SizedBox(width: 12),
           InkWell(
             onTap: () => Navigator.push(
