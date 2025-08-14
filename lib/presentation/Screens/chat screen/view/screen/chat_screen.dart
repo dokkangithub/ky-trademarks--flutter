@@ -70,11 +70,22 @@ class ChatScreen extends StatelessWidget {
                               fileName: fileName,
                               type: MessageType.audio,
                             ),
-                            onAttachmentSelected: (file, fileName, type) => viewModel.sendMessage(
-                              file: file,
-                              fileName: fileName,
-                              type: _getMessageTypeFromString(type),
-                            ),
+                            onAttachmentSelected: (file, fileBytes, fileName, type) {
+                              final msgType = _getMessageTypeFromString(type);
+                              if (fileBytes != null) {
+                                viewModel.sendMessage(
+                                  fileBytes: fileBytes,
+                                  fileName: fileName,
+                                  type: msgType,
+                                );
+                              } else if (file != null) {
+                                viewModel.sendMessage(
+                                  file: file,
+                                  fileName: fileName,
+                                  type: msgType,
+                                );
+                              }
+                            },
                           ),
                         ],
                       ),

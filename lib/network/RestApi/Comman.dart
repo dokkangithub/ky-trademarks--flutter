@@ -124,7 +124,8 @@ Widget cachedImage(
     );
   } else if (url.startsWith('http')) {
     if (kIsWeb) {
-      // Use ImageNetwork for web
+      // Respect the provided fit on web by mapping to BoxFitWeb
+      final BoxFit effectiveFit = fit ?? BoxFit.cover;
       return ImageNetwork(
         image: url,
         height: height ?? 100.0,
@@ -134,7 +135,7 @@ Widget cachedImage(
         onPointer: true,
         debugPrint: false,
         backgroundColor: Colors.transparent,
-        fitWeb: BoxFitWeb.contain,
+        fitWeb: _mapFitToWeb(effectiveFit),
         onLoading: placeHolderWidget(
           height: height,
           width: phWidth ?? width,
@@ -161,12 +162,11 @@ Widget cachedImage(
             alignment: alignment,
           );
         },
-        placeholder: (_, s) {
-          if (!usePlaceholderIfUrlEmpty) return const SizedBox();
+        placeholder: (_, __) {
           return placeHolderWidget(
             height: height,
             width: phWidth ?? width,
-            fit: BoxFit.contain,
+            fit: placeHolderFit ?? BoxFit.cover,
             alignment: alignment,
           );
         },
@@ -178,8 +178,33 @@ Widget cachedImage(
       height: height,
       width: width,
       fit: fit,
-      alignment: alignment ?? Alignment.center,
+      alignment: alignment as Alignment? ?? Alignment.center,
+      errorBuilder: (context, error, stackTrace) {
+        return placeHolderWidget(
+          height: height,
+          width: phWidth ?? width,
+          fit: BoxFit.contain,
+          alignment: alignment,
+        );
+      },
     );
+  }
+}
+
+BoxFitWeb _mapFitToWeb(BoxFit fit) {
+  switch (fit) {
+    case BoxFit.contain:
+      return BoxFitWeb.contain;
+    case BoxFit.cover:
+      return BoxFitWeb.cover;
+    case BoxFit.fill:
+      return BoxFitWeb.fill;
+    case BoxFit.scaleDown:
+      return BoxFitWeb.scaleDown;
+    case BoxFit.fitHeight:
+    case BoxFit.fitWidth:
+    case BoxFit.none:
+      return BoxFitWeb.contain;
   }
 }
 

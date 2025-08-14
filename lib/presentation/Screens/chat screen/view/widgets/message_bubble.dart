@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:iconly/iconly.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
+import 'package:kyuser/network/RestApi/Comman.dart';
 import '../../model/message_model.dart';
 import '../../../../../resources/Color_Manager.dart';
 import 'audio_message_bubble.dart';
@@ -75,18 +77,6 @@ class MessageBubble extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // if (!message.isFromCurrentUser && message.senderName.isNotEmpty)
-                      //   Padding(
-                      //     padding: EdgeInsets.only(bottom: 6),
-                      //     child: Text(
-                      //       message.senderName,
-                      //       style: TextStyle(
-                      //         color: ColorManager.primary,
-                      //         fontSize: 13,
-                      //         fontWeight: FontWeight.w600,
-                      //       ),
-                      //     ),
-                      //   ),
                       _buildMessageContent(context),
                       SizedBox(height: 8),
                       _buildMessageInfo(),
@@ -146,7 +136,7 @@ class MessageBubble extends StatelessWidget {
         return _buildTextMessage();
 
       case MessageType.image:
-        return _buildImageMessage();
+        return _buildImageMessage(context);
 
       case MessageType.video:
         return _buildVideoMessage();
@@ -177,8 +167,7 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildImageMessage() {
-    // Show loading state if message is sending or mediaUrl is null
+  Widget _buildImageMessage(BuildContext context) {
     if (message.status == MessageStatus.sending || message.mediaUrl == null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,6 +218,34 @@ class MessageBubble extends StatelessWidget {
       );
     }
 
+    final image = Container(
+      constraints: BoxConstraints(
+        maxHeight: 280,
+        maxWidth: 280,
+        minHeight: 160,
+        minWidth: 160,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: cachedImage(
+          message.mediaUrl!,
+          height: 280,
+          width: 280,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -236,71 +253,76 @@ class MessageBubble extends StatelessWidget {
           _buildTextMessage(),
           SizedBox(height: 12),
         ],
-        Container(
-          constraints: BoxConstraints(
-            maxHeight: 280,
-            maxWidth: 280,
-            minHeight: 160,
-            minWidth: 160,
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 8,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: CachedNetworkImage(
-              imageUrl: message.mediaUrl!,
-              fit: BoxFit.cover,
-              placeholder: (context, url) => Container(
-                height: 160,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
+        Stack(
+          children: [
+            image,
+            Positioned.fill(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    if (kIsWeb) {
+                      _showImageViewerWeb(context, message.mediaUrl!);
+                    } else {
+                      onTap?.call();
+                    }
+                  },
+                  splashColor: Colors.white.withOpacity(0.05),
+                  highlightColor: Colors.transparent,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 32,
-                        height: 32,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 3,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            message.isFromCurrentUser ? Colors.white : ColorManager.primary,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 12),
-                      Text(
-                        'loading'.tr(),
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ),
-              errorWidget: (context, url, error) => _buildErrorMessage('failed_load_image'.tr()),
             ),
-          ),
+          ],
         ),
       ],
     );
   }
 
+  void _showImageViewerWeb(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        final size = MediaQuery.of(context).size;
+        return Dialog(
+          backgroundColor: Colors.black,
+          insetPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          child: Stack(
+            children: [
+              Center(
+                child: InteractiveViewer(
+                  child: cachedImage(
+                    imageUrl,
+                    height: size.height * 0.9,
+                    width: size.width * 0.9,
+                    fit: BoxFit.contain,
+
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 16,
+                right: 16,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: Icon(Icons.close, color: Colors.white, size: 24),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildVideoMessage() {
-    // Show loading state if message is sending or mediaUrl is null
     if (message.status == MessageStatus.sending || message.mediaUrl == null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,7 +381,6 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildAudioMessage() {
-    // Show loading state if message is sending or mediaUrl is null
     if (message.status == MessageStatus.sending || message.mediaUrl == null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -435,7 +456,6 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildPdfMessage() {
-    // Show loading state if message is sending or mediaUrl is null
     if (message.status == MessageStatus.sending || message.mediaUrl == null) {
       return _buildMediaMessage(
         icon: IconlyBroken.document,
@@ -460,7 +480,6 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildFileMessage() {
-    // Show loading state if message is sending or mediaUrl is null
     if (message.status == MessageStatus.sending || message.mediaUrl == null) {
       return _buildMediaMessage(
         icon: IconlyBroken.document,

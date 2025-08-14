@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:core';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:iconly/iconly.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
@@ -10,14 +12,19 @@ import 'package:record/record.dart'; // Full import
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../../resources/Color_Manager.dart';
 import 'dart:math' as math;
+// Web imports guarded by kIsWeb
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 
 class VoiceRecordingWidget extends StatefulWidget {
-  final Function(File audioFile, String fileName) onAudioRecorded;
+  final Function(File audioFile, String fileName)? onAudioRecorded;
+  final Function(Uint8List bytes, String fileName)? onAudioBytesRecorded;
   final VoidCallback? onCancel;
 
   const VoiceRecordingWidget({
     Key? key,
-    required this.onAudioRecorded,
+    this.onAudioRecorded,
+    this.onAudioBytesRecorded,
     this.onCancel,
   }) : super(key: key);
 
@@ -27,9 +34,7 @@ class VoiceRecordingWidget extends StatefulWidget {
 
 class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
     with TickerProviderStateMixin {
-  // Try AudioRecorder for newer versions, or Record for older versions
-  final AudioRecorder _audioRecorder = AudioRecorder(); // For record package 5.x+
-  // final Record _audioRecorder = Record(); // For record package 4.x
+  final AudioRecorder _audioRecorder = AudioRecorder(); // For mobile/desktop
 
   late AnimationController _waveController;
   late AnimationController _pulseController;
@@ -43,6 +48,10 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
   Timer? _timer;
   int _recordingSeconds = 0;
   String? _audioPath;
+
+  // Web state
+  html.MediaRecorder? _mediaRecorder;
+  List<html.Blob> _webChunks = [];
 
   @override
   void initState() {
@@ -94,6 +103,11 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
 
   Future<void> _startRecording() async {
     try {
+      if (kIsWeb) {
+        await _startRecordingWeb();
+        return;
+      }
+
       // Request microphone permission
       if (!await _requestPermission()) {
         _showPermissionDialog();
@@ -125,19 +139,48 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
         _isRecording = true;
       });
 
-      // Start animations
       _waveController.repeat(reverse: true);
       _pulseController.repeat(reverse: true);
       _scaleController.forward();
-
-      // Start timer
       _startTimer();
-
-      // Haptic feedback
       HapticFeedback.lightImpact();
-
     } catch (e) {
       print('Error starting recording: $e');
+      _showErrorDialog('failed_start_recording'.tr());
+    }
+  }
+
+  Future<void> _startRecordingWeb() async {
+    try {
+      // Ask for mic stream
+      final stream = await html.window.navigator.mediaDevices!
+          .getUserMedia({'audio': true});
+
+      _webChunks.clear();
+
+      // Create MediaRecorder with webm opus
+      _mediaRecorder = html.MediaRecorder(stream, {'mimeType': 'audio/webm'});
+
+      _mediaRecorder!.addEventListener('dataavailable', (event) {
+        final ev = event as html.BlobEvent;
+        final dataBlob = ev.data;
+        if (dataBlob != null && (dataBlob.size ?? 0) > 0) {
+          _webChunks.add(dataBlob);
+        }
+      });
+
+      _mediaRecorder!.start();
+
+      setState(() {
+        _isRecording = true;
+      });
+
+      _waveController.repeat(reverse: true);
+      _pulseController.repeat(reverse: true);
+      _scaleController.forward();
+      _startTimer();
+    } catch (e) {
+      print('Web recording start error: $e');
       _showErrorDialog('failed_start_recording'.tr());
     }
   }
@@ -157,7 +200,6 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
         '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
       });
 
-      // Maximum recording time (5 minutes)
       if (_recordingSeconds >= 300) {
         _stopRecording();
       }
@@ -168,6 +210,11 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
     if (!_isRecording) return;
 
     try {
+      if (kIsWeb) {
+        await _stopRecordingWeb();
+        return;
+      }
+
       final path = await _audioRecorder.stop();
 
       setState(() {
@@ -181,21 +228,67 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
       if (path != null && File(path).existsSync()) {
         final audioFile = File(path);
         final fileName = 'voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
-        widget.onAudioRecorded(audioFile, fileName);
+        widget.onAudioRecorded?.call(audioFile, fileName);
       }
 
-      // Haptic feedback
       HapticFeedback.mediumImpact();
-
     } catch (e) {
       print('Error stopping recording: $e');
       _showErrorDialog('failed_save_recording'.tr());
     }
   }
 
+  Future<void> _stopRecordingWeb() async {
+    try {
+      final recorder = _mediaRecorder;
+      if (recorder == null) return;
+
+      final stopCompleter = Completer<void>();
+      void onStop(html.Event _) {
+        stopCompleter.complete();
+      }
+      recorder.addEventListener('stop', onStop);
+      recorder.stop();
+      await stopCompleter.future;
+      recorder.removeEventListener('stop', onStop);
+
+      setState(() {
+        _isRecording = false;
+      });
+
+      _timer?.cancel();
+      _waveController.stop();
+      _pulseController.stop();
+
+      if (_webChunks.isNotEmpty) {
+        final blob = html.Blob(_webChunks, 'audio/webm');
+        final reader = html.FileReader();
+        final readCompleter = Completer<void>();
+        reader.onLoadEnd.listen((_) => readCompleter.complete());
+        reader.readAsArrayBuffer(blob);
+        await readCompleter.future;
+        final data = reader.result as ByteBuffer;
+        final bytes = data.asUint8List();
+        final fileName = 'voice_${DateTime.now().millisecondsSinceEpoch}.webm';
+        widget.onAudioBytesRecorded?.call(bytes, fileName);
+      }
+
+      HapticFeedback.mediumImpact();
+    } catch (e) {
+      print('Web stop error: $e');
+      _showErrorDialog('failed_save_recording'.tr());
+    }
+  }
+
   void _cancelRecording() async {
     if (_isRecording) {
-      await _audioRecorder.stop();
+      if (kIsWeb) {
+        try {
+          _mediaRecorder?.stop();
+        } catch (_) {}
+      } else {
+        await _audioRecorder.stop();
+      }
       setState(() {
         _isRecording = false;
       });
@@ -205,18 +298,17 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
     _waveController.stop();
     _pulseController.stop();
 
-    // Delete the recorded file
-    if (_audioPath != null && File(_audioPath!).existsSync()) {
-      try {
-        await File(_audioPath!).delete();
-      } catch (e) {
-        print('Error deleting audio file: $e');
+    if (!kIsWeb) {
+      if (_audioPath != null && File(_audioPath!).existsSync()) {
+        try {
+          await File(_audioPath!).delete();
+        } catch (e) {
+          print('Error deleting audio file: $e');
+        }
       }
     }
 
     widget.onCancel?.call();
-
-    // Haptic feedback
     HapticFeedback.lightImpact();
   }
 
@@ -531,7 +623,6 @@ class ModernWaveformPainter extends CustomPainter {
     for (int i = 0; i < totalBars; i++) {
       final x = i * (barWidth + barSpacing);
 
-      // Create more dynamic heights with animation
       final normalizedPosition = i / totalBars;
       final heightFactor = 0.4 +
           0.6 * (0.5 + 0.5 * math.sin(animationValue * 1.5 * math.pi + normalizedPosition * 3));
@@ -540,7 +631,6 @@ class ModernWaveformPainter extends CustomPainter {
       final startY = centerY - barHeight / 2;
       final endY = centerY + barHeight / 2;
 
-      // Add subtle gradient effect
       final gradient = LinearGradient(
         colors: [
           color.withOpacity(0.7),

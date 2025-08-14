@@ -1,6 +1,8 @@
 // lib/presentation/Screens/chat screen/view/widgets/chat_input.dart
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:iconly/iconly.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../../resources/Color_Manager.dart';
@@ -10,7 +12,7 @@ import 'attachment_picker.dart';
 class ChatInput extends StatefulWidget {
   final Function(String) onSendMessage;
   final Function(File, String)? onSendAudio;
-  final Function(File, String, String)? onAttachmentSelected;
+  final Function(File?, Uint8List?, String, String)? onAttachmentSelected;
 
   const ChatInput({
     Key? key,
@@ -90,7 +92,6 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
   }
 
   void _startVoiceRecording() {
-    print('ChatInput: Starting voice recording...');
     setState(() {
       _isRecording = true;
     });
@@ -98,7 +99,6 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
   }
 
   void _stopVoiceRecording() {
-    print('ChatInput: Stopping voice recording...');
     setState(() {
       _isRecording = false;
     });
@@ -106,18 +106,18 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
   }
 
   void _onAudioRecorded(File audioFile, String fileName) {
-    print('ChatInput: Audio recorded - File: ${audioFile.path}, Name: $fileName');
     if (widget.onSendAudio != null) {
       widget.onSendAudio!(audioFile, fileName);
-      print('ChatInput: Audio sent to parent');
-    } else {
-      print('ChatInput: WARNING - onSendAudio is null!');
     }
     _stopVoiceRecording();
   }
 
+  void _onAudioBytesRecorded(Uint8List bytes, String fileName) {
+    widget.onAttachmentSelected?.call(null, bytes, fileName, 'audio');
+    _stopVoiceRecording();
+  }
+
   void _onRecordingCancelled() {
-    print('ChatInput: Recording cancelled');
     _stopVoiceRecording();
   }
 
@@ -133,9 +133,9 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
     });
   }
 
-  void _onFileSelected(File file, String fileName, String type) {
+  void _onFileSelected(File? file, Uint8List? fileBytes, String fileName, String type) {
     if (widget.onAttachmentSelected != null) {
-      widget.onAttachmentSelected!(file, fileName, type);
+      widget.onAttachmentSelected!(file, fileBytes, fileName, type);
     }
     _hideAttachmentPicker();
   }
@@ -152,7 +152,6 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Attachment Picker
         if (_isAttachmentPickerVisible)
           AnimatedSwitcher(
             duration: Duration(milliseconds: 400),
@@ -178,7 +177,6 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
             ),
           ),
         
-        // Main Input
         AnimatedSwitcher(
           duration: Duration(milliseconds: 400),
           transitionBuilder: (Widget child, Animation<double> animation) {
@@ -200,9 +198,9 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
   }
 
   Widget _buildRecordingWidget() {
-    print('ChatInput: Building recording widget');
     return VoiceRecordingWidget(
       onAudioRecorded: _onAudioRecorded,
+      onAudioBytesRecorded: _onAudioBytesRecorded,
       onCancel: _onRecordingCancelled,
     );
   }
@@ -225,13 +223,11 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // Attachment button
             if (widget.onAttachmentSelected != null)
               _buildAttachmentButton(),
 
             SizedBox(width: 8),
 
-            // Text input field
             Expanded(
               child: Container(
                 constraints: BoxConstraints(
@@ -285,7 +281,6 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
 
             SizedBox(width: 8),
 
-            // Action button (Send or Voice)
             AnimatedSwitcher(
               duration: Duration(milliseconds: 200),
               transitionBuilder: (Widget child, Animation<double> animation) {
@@ -391,17 +386,12 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            print('ChatInput: Voice button tapped');
-            if (widget.onSendAudio != null) {
-              print('ChatInput: onSendAudio is available, starting recording');
+            if (widget.onSendAudio != null || widget.onAttachmentSelected != null) {
               _startVoiceRecording();
-            } else {
-              print('ChatInput: onSendAudio is null - cannot record!');
             }
           },
           onLongPress: () {
-            print('ChatInput: Voice button long pressed');
-            if (widget.onSendAudio != null) {
+            if (widget.onSendAudio != null || widget.onAttachmentSelected != null) {
               _startVoiceRecording();
             }
           },
