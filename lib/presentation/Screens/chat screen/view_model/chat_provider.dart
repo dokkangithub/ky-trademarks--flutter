@@ -31,7 +31,7 @@ class ChatViewModel extends ChangeNotifier {
   bool isTyping = false; // Typing feature removed
   String? typingUserId; // Typing feature removed
   Timer? _typingTimer; // Typing feature removed
-  Timer? _statusTimer; // Status feature removed
+  // Removed status timer (feature removed)
   StreamSubscription? _messagesSubscription;
   StreamSubscription? _userStatusSubscription; // Removed
   StreamSubscription? _typingSubscription; // Removed
@@ -131,6 +131,19 @@ class ChatViewModel extends ChangeNotifier {
       await batch.commit();
     } catch (e) {
       print('Error marking messages as seen: $e');
+    }
+
+    // Reset stored counters for this user to avoid future count queries
+    try {
+      await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .set({
+        'unreadForUser': 0,
+        'unreadCount': 0,
+      }, SetOptions(merge: true));
+    } catch (e) {
+      print('Error resetting unread counters: $e');
     }
   }
 
@@ -343,6 +356,8 @@ class ChatViewModel extends ChangeNotifier {
       'lastMessageTime': message.createdAt.millisecondsSinceEpoch,
       'lastSenderId': message.senderId,
       'updatedAt': DateTime.now().millisecondsSinceEpoch,
+      // Increment admin's unread counter. For the user app, current sender is the user.
+      'unreadForAdmin': FieldValue.increment(1),
     };
 
     try {

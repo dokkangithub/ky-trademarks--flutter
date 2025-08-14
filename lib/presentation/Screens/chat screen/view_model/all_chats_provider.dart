@@ -38,27 +38,11 @@ class AllChatsViewModel extends ChangeNotifier {
     print('User data: userId=$userId, email=$userEmail');
   }
 
-  void _fetchAllChatsWithRealTime() {}
+  // Removed legacy admin listeners and unused helpers to reduce complexity and lints
 
-  void _setupUnreadCountListeners() {
-    // Cancel existing subscriptions
-    _unreadCountSubscriptions.forEach((key, subscription) {
-      subscription.cancel();
-    });
-    _unreadCountSubscriptions.clear();
+  
 
-    // Admin-only unread count listeners removed
-  }
-
-  void _setupUserStatusListeners() {
-    // Cancel existing subscriptions
-    _userStatusSubscriptions.forEach((key, subscription) {
-      subscription.cancel();
-    });
-    _userStatusSubscriptions.clear();
-
-    // Admin-only user status listeners removed
-  }
+  
 
   void _fetchUserChat() {
     print('Fetching user chat for user: $userId');
@@ -77,8 +61,19 @@ class AllChatsViewModel extends ChangeNotifier {
         if (snapshot.exists) {
           final data = snapshot.data() as Map<String, dynamic>;
 
-          // Get unread count for user
-          final unreadCount = await _getUserUnreadCount(userChatId);
+          // Prefer stored counter if present, otherwise fall back to aggregation count.
+          int? storedUnread = data['unreadForUser'] is int
+              ? data['unreadForUser'] as int
+              : (data['unreadCount'] is int ? data['unreadCount'] as int : null);
+
+          int unreadCount;
+          if (storedUnread != null) {
+            unreadCount = storedUnread;
+          } else {
+            // Only compute when last message is from other party; otherwise it's 0 for the user
+            final lastFromOther = data['lastSenderId'] != userId;
+            unreadCount = lastFromOther ? await _getUserUnreadCount(userChatId) : 0;
+          }
 
           _chats = [
             ChatModel(
@@ -124,47 +119,26 @@ class AllChatsViewModel extends ChangeNotifier {
     });
   }
 
-  Future<ChatModel?> _createChatModelFromDoc(DocumentSnapshot doc) async {
-    try {
-      final data = doc.data() as Map<String, dynamic>?;
-      if (data == null) return null;
+  
 
-      int unreadCount = data['unreadCount'] ?? 0;
-
-      // Use default offline status - will be updated by real-time listener
-      UserStatus userStatus = UserStatus.offline;
-
-      return ChatModel(
-        chatId: doc.id,
-        username: data['username'] ?? 'Unknown User',
-        lastMessage: data['lastMessage'],
-        lastMessageTime: data['lastMessageTime'] != null
-            ? DateTime.fromMillisecondsSinceEpoch(data['lastMessageTime'])
-            : null,
-        isRead: data['lastSenderId'] == userId,
-        unreadCount: unreadCount,
-        userId: data['userId'] ?? doc.id,
-        userStatus: userStatus,
-      );
-    } catch (e) {
-      print('Error creating chat model from doc ${doc.id}: $e');
-      return null;
-    }
-  }
-
-  Future<int> _getAdminUnreadCount(String chatId) async { return 0; }
+  
 
   Future<int> _getUserUnreadCount(String chatId) async {
     try {
-      final query = await FirebaseFirestore.instance
+      final currentUserId = userId;
+      if (currentUserId == null) return 0;
+
+      // Use Firestore aggregation query to avoid reading all matching documents
+      final countSnapshot = await FirebaseFirestore.instance
           .collection('chats')
           .doc(chatId)
           .collection('messages')
-          .where('senderId', isNotEqualTo: userId)
+          .where('senderId', isNotEqualTo: currentUserId)
           .where('status', whereIn: ['sent', 'delivered'])
+          .count()
           .get();
 
-      return query.docs.length;
+      return countSnapshot.count ?? 0;
     } catch (e) {
       print('Error getting user unread count for $chatId: $e');
       return 0;
@@ -207,6 +181,12 @@ class AllChatsViewModel extends ChangeNotifier {
         await batch.commit();
         print('Marked ${query.docs.length} messages as read in chat $chatId');
       }
+
+      // Also reset stored counter to zero for this user chat, if present
+      await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .set({'unreadCount': 0}, SetOptions(merge: true));
     } catch (e) {
       print('Error marking chat as read: $e');
     }

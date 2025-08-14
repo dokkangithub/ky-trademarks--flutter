@@ -143,28 +143,7 @@ class ChatService {
   }
 
   // Calculate unread messages count
-  Future<int> _calculateUnreadCount(String chatId, String? lastSenderId) async {
-    try {
-      // Get current user info
-      String? userEmail = await globalAccountData.getEmail();
-      String? currentUserId = await globalAccountData.getId();
-
-      if (currentUserId == null) return 0;
-
-      final query = await _firestore
-          .collection('chats')
-          .doc(chatId)
-          .collection('messages')
-          .where('senderId', isNotEqualTo: currentUserId)
-          .where('status', whereIn: ['sent', 'delivered'])
-          .get();
-
-      return query.docs.length;
-    } catch (e) {
-      print('Error calculating unread count: $e');
-      return 0;
-    }
-  }
+  // Removed unused private helper _calculateUnreadCount to satisfy linter
 
   // Mark messages as seen
   Future<void> markMessagesAsSeen(String chatId, String currentUserId) async {
@@ -187,6 +166,9 @@ class ChatService {
       }
 
       await batch.commit();
+
+      // Reset stored counter if used
+      await _firestore.collection('chats').doc(chatId).set({'unreadCount': 0}, SetOptions(merge: true));
     } catch (e) {
       print('Error marking messages as seen: $e');
     }
@@ -219,15 +201,16 @@ class ChatService {
   // Get unread messages count
   Future<int> getUnreadMessagesCount(String chatId, String currentUserId) async {
     try {
-      final query = await _firestore
+      final countSnapshot = await _firestore
           .collection('chats')
           .doc(chatId)
           .collection('messages')
           .where('senderId', isNotEqualTo: currentUserId)
           .where('status', whereIn: ['sent', 'delivered'])
+          .count()
           .get();
 
-      return query.docs.length;
+      return countSnapshot.count ?? 0;
     } catch (e) {
       print('Error getting unread count: $e');
       return 0;
