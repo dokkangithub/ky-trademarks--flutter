@@ -12,9 +12,9 @@ import 'package:record/record.dart'; // Full import
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../../resources/Color_Manager.dart';
 import 'dart:math' as math;
-// Web imports guarded by kIsWeb
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
+// Conditional import to avoid pulling dart:html on mobile
+import 'voice_recording_stub.dart'
+    if (dart.library.html) 'voice_recording_web.dart';
 
 class VoiceRecordingWidget extends StatefulWidget {
   final Function(File audioFile, String fileName)? onAudioRecorded;
@@ -49,9 +49,8 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
   int _recordingSeconds = 0;
   String? _audioPath;
 
-  // Web state
-  html.MediaRecorder? _mediaRecorder;
-  List<html.Blob> _webChunks = [];
+  // Web recorder (no-op on mobile)
+  final WebAudioRecorder _webRecorder = WebAudioRecorder();
 
   @override
   void initState() {
@@ -104,7 +103,14 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
   Future<void> _startRecording() async {
     try {
       if (kIsWeb) {
-        await _startRecordingWeb();
+        await _webRecorder.start();
+        setState(() {
+          _isRecording = true;
+        });
+        _waveController.repeat(reverse: true);
+        _pulseController.repeat(reverse: true);
+        _scaleController.forward();
+        _startTimer();
         return;
       }
 
@@ -150,40 +156,7 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
     }
   }
 
-  Future<void> _startRecordingWeb() async {
-    try {
-      // Ask for mic stream
-      final stream = await html.window.navigator.mediaDevices!
-          .getUserMedia({'audio': true});
-
-      _webChunks.clear();
-
-      // Create MediaRecorder with webm opus
-      _mediaRecorder = html.MediaRecorder(stream, {'mimeType': 'audio/webm'});
-
-      _mediaRecorder!.addEventListener('dataavailable', (event) {
-        final ev = event as html.BlobEvent;
-        final dataBlob = ev.data;
-        if (dataBlob != null && (dataBlob.size ?? 0) > 0) {
-          _webChunks.add(dataBlob);
-        }
-      });
-
-      _mediaRecorder!.start();
-
-      setState(() {
-        _isRecording = true;
-      });
-
-      _waveController.repeat(reverse: true);
-      _pulseController.repeat(reverse: true);
-      _scaleController.forward();
-      _startTimer();
-    } catch (e) {
-      print('Web recording start error: $e');
-      _showErrorDialog('failed_start_recording'.tr());
-    }
-  }
+  // Web start handled inline using _webRecorder
 
   Future<bool> _requestPermission() async {
     final status = await Permission.microphone.request();
@@ -211,7 +184,18 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
 
     try {
       if (kIsWeb) {
-        await _stopRecordingWeb();
+        final bytes = await _webRecorder.stopAndGetBytes();
+        setState(() {
+          _isRecording = false;
+        });
+        _timer?.cancel();
+        _waveController.stop();
+        _pulseController.stop();
+        if (bytes != null) {
+          final fileName = 'voice_${DateTime.now().millisecondsSinceEpoch}.webm';
+          widget.onAudioBytesRecorded?.call(bytes, fileName);
+        }
+        HapticFeedback.mediumImpact();
         return;
       }
 
@@ -238,54 +222,12 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
     }
   }
 
-  Future<void> _stopRecordingWeb() async {
-    try {
-      final recorder = _mediaRecorder;
-      if (recorder == null) return;
-
-      final stopCompleter = Completer<void>();
-      void onStop(html.Event _) {
-        stopCompleter.complete();
-      }
-      recorder.addEventListener('stop', onStop);
-      recorder.stop();
-      await stopCompleter.future;
-      recorder.removeEventListener('stop', onStop);
-
-      setState(() {
-        _isRecording = false;
-      });
-
-      _timer?.cancel();
-      _waveController.stop();
-      _pulseController.stop();
-
-      if (_webChunks.isNotEmpty) {
-        final blob = html.Blob(_webChunks, 'audio/webm');
-        final reader = html.FileReader();
-        final readCompleter = Completer<void>();
-        reader.onLoadEnd.listen((_) => readCompleter.complete());
-        reader.readAsArrayBuffer(blob);
-        await readCompleter.future;
-        final data = reader.result as ByteBuffer;
-        final bytes = data.asUint8List();
-        final fileName = 'voice_${DateTime.now().millisecondsSinceEpoch}.webm';
-        widget.onAudioBytesRecorded?.call(bytes, fileName);
-      }
-
-      HapticFeedback.mediumImpact();
-    } catch (e) {
-      print('Web stop error: $e');
-      _showErrorDialog('failed_save_recording'.tr());
-    }
-  }
+  // Web stop handled inline using _webRecorder
 
   void _cancelRecording() async {
     if (_isRecording) {
       if (kIsWeb) {
-        try {
-          _mediaRecorder?.stop();
-        } catch (_) {}
+        _webRecorder.cancel();
       } else {
         await _audioRecorder.stop();
       }
