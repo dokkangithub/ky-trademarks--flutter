@@ -199,7 +199,7 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
       );
     }
 
-    return Scaffold(
+    Widget scaffold = Scaffold(
       body: Column(
         children: [
           // Fixed Header for web view only
@@ -229,6 +229,26 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
         onTap: (index) => setState(() => _selectedIndex = index),
       ) : null,
     );
+
+    // Wrap with WillPopScope for mobile to handle back button
+    if (!isLargeScreen) {
+      return WillPopScope(
+        onWillPop: () async {
+          // If not on first tab (index 0), navigate to first tab
+          if (_selectedIndex != 0) {
+            setState(() {
+              _selectedIndex = 0;
+            });
+            return false; // Prevent default back behavior
+          }
+          // If already on first tab, show exit dialog
+          return await handleWillPopScopeRoot();
+        },
+        child: scaffold,
+      );
+    }
+
+    return scaffold;
   }
 
   Widget _buildChatFAB() {

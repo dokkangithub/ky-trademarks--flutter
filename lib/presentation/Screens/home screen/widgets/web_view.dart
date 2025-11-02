@@ -3,11 +3,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:simple_grid/simple_grid.dart';
 
 import '../../../../app/RequestState/RequestState.dart';
 import '../../../../core/Constant/Api_Constant.dart';
+import '../../../../utilits/Local_User_Data.dart';
+import '../../../../utilits/pdf_download_helper.dart';
 import '../../../../domain/Brand/Entities/BrandEntity.dart';
 import '../../../../domain/Company/Entities/CompanyEntity.dart';
 import '../../../../domain/Issues/Entities/IssuesEntity.dart' as issues_entities;
@@ -21,7 +22,6 @@ import '../../../Controllar/Issues/GetIssuesProvider.dart';
 import '../../../Controllar/Issues/GetIssuesSummaryProvider.dart';
 import '../../../Widget/loading_widget.dart';
 import '../../brand details/BrandDetails.dart';
-import '../../../../utilits/Local_User_Data.dart';
 import '../../../../network/RestApi/Comman.dart';
 import '../../../../resources/Route_Manager.dart';
 
@@ -1430,9 +1430,18 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: ElevatedButton.icon(
-        onPressed: () => launch(
-          "${ApiConstant.baseUrl}pdfAll/${globalAccountData.getId()}?download=pdf",
-        ),
+        onPressed: () {
+          final url = "${ApiConstant.baseUrl}pdfAll/${globalAccountData.getId()}?download=pdf";
+          final fileName = "all_brands_${DateTime.now().millisecondsSinceEpoch}.pdf";
+          final authToken = globalAccountData.getToken();
+          
+          PdfDownloadHelper.downloadPdfWithToken(
+            url: url,
+            context: context,
+            fileName: fileName,
+            authToken: authToken,
+          );
+        },
         icon: Icon(
           Icons.download,
           color: Colors.white,

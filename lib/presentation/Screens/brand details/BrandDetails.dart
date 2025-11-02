@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'dart:async';
 
 import '../../../app/RequestState/RequestState.dart';
@@ -13,6 +12,7 @@ import '../../../core/Constant/Api_Constant.dart';
 import '../../../resources/Color_Manager.dart';
 import '../../../resources/StringManager.dart';
 import '../../../utilits/Local_User_Data.dart';
+import '../../../utilits/pdf_download_helper.dart';
 import '../../Controllar/GetBrandDetailsProvider.dart';
 import '../../Widget/BrandDetailsWidget/ShimmerBrandDetails.dart';
 import 'widgets/mobile_brand_details_view.dart';
@@ -179,10 +179,16 @@ class _BranDetailsState extends State<BranDetails> {
     _debounce = Timer(const Duration(milliseconds: 300), () {
       final model = Provider.of<GetBrandDetailsProvider>(context, listen: false);
       if (model.brandDetails != null) {
-        final url = Uri.parse(
-          "${ApiConstant.baseUrl}pdf/${model.brandDetails!.brand.id}/${globalAccountData.getId()}?download=pdf",
+        final url = "${ApiConstant.baseUrl}pdf/${model.brandDetails!.brand.id}/${globalAccountData.getId()}?download=pdf";
+        final fileName = "brand_${model.brandDetails!.brand.id}_${DateTime.now().millisecondsSinceEpoch}.pdf";
+        final authToken = globalAccountData.getToken();
+        
+        PdfDownloadHelper.downloadPdfWithToken(
+          url: url,
+          context: context,
+          fileName: fileName,
+          authToken: authToken,
         );
-        launchUrl(url);
       }
     });
   }

@@ -7,10 +7,11 @@ import 'package:intl/intl.dart' as s;
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../app/RequestState/RequestState.dart';
 import '../../../../core/Constant/Api_Constant.dart';
+import '../../../../utilits/Local_User_Data.dart';
+import '../../../../utilits/pdf_download_helper.dart';
 import '../../../../data/Brand/models/BrandDataModel.dart';
 import '../../../../domain/Brand/Entities/BrandEntity.dart' as brand_entity;
 import '../../../../domain/Company/Entities/CompanyEntity.dart' as company_entity;
@@ -28,7 +29,6 @@ import '../../add request/AddRequest.dart';
 import '../../brand details/BrandDetails.dart';
 import '../../notification screen/NotificationScreen.dart';
 import '../../payment ways/PaymentWays.dart';
-import '../../../../utilits/Local_User_Data.dart';
 import '../../../../resources/Route_Manager.dart';
 
 class AppConstants {
@@ -1184,8 +1184,18 @@ class MobileDownloadButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => launch(
-          "${ApiConstant.baseUrl}pdfAll/${globalAccountData.getId()}?download=pdf"),
+      onTap: () {
+        final url = "${ApiConstant.baseUrl}pdfAll/${globalAccountData.getId()}?download=pdf";
+        final fileName = "all_brands_${DateTime.now().millisecondsSinceEpoch}.pdf";
+        final authToken = globalAccountData.getToken();
+        
+        PdfDownloadHelper.downloadPdfWithToken(
+          url: url,
+          context: context,
+          fileName: fileName,
+          authToken: authToken,
+        );
+      },
       child: Container(
         width: double.infinity,
         height: 40,
