@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../presentation/Screens/home screen/HomeScreen.dart';
@@ -43,11 +42,11 @@ class RouteGenerator {
       // case Routes.noInternetScreenRoute:
       //   return MaterialPageRoute(builder: (_) => const NoInternetScreen());
       case Routes.mainRoute:
-        return MaterialPageRoute(builder: (_) =>   OuterMainTabs());
+        return MaterialPageRoute(builder: (_) => OuterMainTabs());
       case Routes.loginRoute:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
       case Routes.pinRoute:
-        return MaterialPageRoute(builder: (_) =>   PinScreen());
+        return MaterialPageRoute(builder: (_) => PinScreen());
       // case Routes.categoriesRoute:
       //   return MaterialPageRoute(builder: (_) => const CategoriesScreen());
       // case Routes.verifyRoute:
@@ -55,7 +54,7 @@ class RouteGenerator {
       // case Routes.registerRoute:
       //   return MaterialPageRoute(builder: (_) => const RegisterScreen(email: '',));
       case Routes.homeRoute:
-        return MaterialPageRoute(builder: (_) =>  HomeScreen());
+        return MaterialPageRoute(builder: (_) => HomeScreen());
       // case Routes.internalWelcomeRoute:
       //   return MaterialPageRoute(builder: (_) => const WelcomInternal());
       // case Routes.welcomeRoute:
@@ -65,7 +64,8 @@ class RouteGenerator {
       case Routes.issueDetailsRoute:
         final args = routeSettings.arguments as Map<String, dynamic>?;
         final issueId = args?['issueId'] as int? ?? 0;
-        return MaterialPageRoute(builder: (_) => IssueDetails(issueId: issueId));
+        return MaterialPageRoute(
+            builder: (_) => IssueDetails(issueId: issueId));
       default:
         return unDefinedRoute();
     }
@@ -73,7 +73,10 @@ class RouteGenerator {
 
   static Route<dynamic> unDefinedRoute() {
     return MaterialPageRoute(
-        builder: (_) => Scaffold(appBar: AppBar(title: const Text("No Route Found"),),
+        builder: (_) => Scaffold(
+              appBar: AppBar(
+                title: const Text("No Route Found"),
+              ),
               body: const Center(child: Text("No Route Found")),
             ));
   }

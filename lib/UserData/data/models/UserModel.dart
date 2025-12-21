@@ -5,7 +5,6 @@ class UserModel extends UsersDataEntity {
     required super.message,
     required super.status,
     required super.data,
-
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -19,19 +18,21 @@ class UserModel extends UsersDataEntity {
       data: Users.fromJson(customerJson, adminJson),
     );
   }
-
-
 }
 
 class Users extends singleUserEntity {
+  const Users(
+      {required super.id,
+      required super.name,
+      required super.phone,
+      required super.email,
+      required super.activeStatus,
+      required super.adminPhone,
+      required super.pin_code,
+      required super.token});
 
-
-  const Users({
-    required super.id, required super.name, required super.phone,
-    required super.email, required super.activeStatus,required super.adminPhone,required super.pin_code,required super.token});
-
-
-  factory Users.fromJson(Map<String, dynamic> customerJson, Map<String, dynamic> adminJson) {
+  factory Users.fromJson(
+      Map<String, dynamic> customerJson, Map<String, dynamic> adminJson) {
     return Users(
       id: customerJson['id'] ?? 0,
       name: customerJson['name'] ?? '',
@@ -41,9 +42,6 @@ class Users extends singleUserEntity {
       adminPhone: adminJson['phone'] ?? '',
       activeStatus: customerJson['status'] ?? 0,
       token: customerJson['token'] ?? '',
-
-
     );
   }
 }
-

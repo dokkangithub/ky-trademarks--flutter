@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 
-
 class BrandDataEntity extends Equatable {
   final int status;
   final String message;
@@ -17,7 +16,8 @@ class BrandDataEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [status, message, brand, updates, total]; // Added total to props
+  List<Object?> get props =>
+      [status, message, brand, updates, total]; // Added total to props
 }
 
 class BrandEntity extends Equatable {
@@ -38,7 +38,7 @@ class BrandEntity extends Equatable {
       required this.brandName,
       required this.brandNumber,
       required this.currentStatus,
-       required this.newCurrentStatus,
+      required this.newCurrentStatus,
       required this.images,
       required this.markOrModel,
       required this.country,
@@ -47,22 +47,37 @@ class BrandEntity extends Equatable {
 
   @override
 // TODO: implement props
-  List<Object?> get props =>
-      [id, brandName, brandName, currentStatus, images, markOrModel, brandDescription];
+  List<Object?> get props => [
+        id,
+        brandName,
+        brandName,
+        currentStatus,
+        images,
+        markOrModel,
+        brandDescription
+      ];
 }
+
 class BrandsUpdates extends Equatable {
   final String brand_name;
   final int current_status;
   final String date;
   final List<BrandImages> images;
 
-  BrandsUpdates({required this.brand_name,required this.current_status,required this.date,required this.images});
-
+  BrandsUpdates(
+      {required this.brand_name,
+      required this.current_status,
+      required this.date,
+      required this.images});
 
   @override
 // TODO: implement props
-  List<Object?> get props =>
-      [brand_name, current_status, date, date, ];
+  List<Object?> get props => [
+        brand_name,
+        current_status,
+        date,
+        date,
+      ];
 }
 
 class BrandImages extends Equatable {
@@ -78,9 +93,10 @@ class BrandImages extends Equatable {
   // TODO: implement props
   List<Object?> get props => [
         image,
-    conditionId,
+        conditionId,
       ];
 }
+
 class BrandTypes extends Equatable {
   final String type;
 

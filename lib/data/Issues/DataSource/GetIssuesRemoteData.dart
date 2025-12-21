@@ -13,16 +13,16 @@ abstract class BaseGetIssuesRemoteData {
     int page = 1,
     int perPage = 10,
   });
-  
+
   Future<IssueDetailsDataModel> getIssueDetailsFromRemote({
     required int issueId,
     required int customerId,
   });
-  
+
   Future<IssuesSummaryDataModel> getIssuesSummaryFromRemote({
     required int customerId,
   });
-  
+
   Future<IssuesSearchDataModel> searchIssuesFromRemote({
     required String query,
     required int customerId,
@@ -40,14 +40,16 @@ class GetIssuesRemoteData extends BaseGetIssuesRemoteData {
   }) async {
     final url = Uri.parse(
         "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.issues}?customer_id=$customerId&page=$page&per_page=$perPage");
-    
+
     debugPrint('=======Issues List======');
     debugPrint('Customer ID: $customerId');
     debugPrint('Page: $page, Per Page: $perPage');
     debugPrint(url.toString());
 
-    final result = await http.get(url,headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}',});
-    
+    final result = await http.get(url, headers: {
+      'Authorization': 'Bearer ${globalAccountData.getToken()}',
+    });
+
     debugPrint(result.body);
 
     if (result.statusCode == 200) {
@@ -65,14 +67,16 @@ class GetIssuesRemoteData extends BaseGetIssuesRemoteData {
   }) async {
     final url = Uri.parse(
         "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.issues}/$issueId?customer_id=$customerId");
-    
+
     debugPrint('=======Issue Details======');
     debugPrint('Issue ID: $issueId');
     debugPrint('Customer ID: $customerId');
     debugPrint(url.toString());
 
-    final result = await http.get(url,headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}',});
-    
+    final result = await http.get(url, headers: {
+      'Authorization': 'Bearer ${globalAccountData.getToken()}',
+    });
+
     debugPrint(result.body);
 
     if (result.statusCode == 200) {
@@ -89,13 +93,15 @@ class GetIssuesRemoteData extends BaseGetIssuesRemoteData {
   }) async {
     final url = Uri.parse(
         "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.issuesSummary}?customer_id=$customerId");
-    
+
     debugPrint('=======Issues Summary======');
     debugPrint('Customer ID: $customerId');
     debugPrint(url.toString());
 
-    final result = await http.get(url,headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}',});
-    
+    final result = await http.get(url, headers: {
+      'Authorization': 'Bearer ${globalAccountData.getToken()}',
+    });
+
     debugPrint(result.body);
 
     if (result.statusCode == 200) {
@@ -115,16 +121,19 @@ class GetIssuesRemoteData extends BaseGetIssuesRemoteData {
   }) async {
     final url = Uri.parse(
         "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.issuesSearch}?query=$query&customer_id=$customerId&page=$page&per_page=$perPage");
-    
+
     debugPrint('=======Issues Search======');
     debugPrint('Query: $query');
     debugPrint('Customer ID: $customerId');
     debugPrint('Page: $page, Per Page: $perPage');
     debugPrint(url.toString());
 
-    final result = await http.get(url,headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}','Content-Type': 'application/json',
-      'Accept': "application/json"});
-    
+    final result = await http.get(url, headers: {
+      'Authorization': 'Bearer ${globalAccountData.getToken()}',
+      'Content-Type': 'application/json',
+      'Accept': "application/json"
+    });
+
     debugPrint(result.body);
 
     if (result.statusCode == 200) {
@@ -134,4 +143,4 @@ class GetIssuesRemoteData extends BaseGetIssuesRemoteData {
           errorModel: ErrorModel.fromJson(json.decode(result.body)));
     }
   }
-} 
+}

@@ -5,7 +5,7 @@ class ColorManager {
   static Color primaryByOpacity = const Color(0xff00ACC8);
   static Color anotherTabBackGround = const Color(0xffE7F2FA);
   static Color accent = const Color(0xff00577D);
-  static Color white =const Color(0xffFFFFFF);
+  static Color white = const Color(0xffFFFFFF);
   static Color lightGreen = const Color(0xffD8FFF1);
   static Color green = const Color(0xff04BE7B);
   static Color lightGrey = const Color(0xffDFE1E8);

@@ -57,7 +57,7 @@ class MobileContactsView extends StatelessWidget {
           SliverToBoxAdapter(
             child: _buildMobileHeader(context),
           ),
-          
+
           // Contact Sections
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -71,16 +71,17 @@ class MobileContactsView extends StatelessWidget {
                   child: _buildAddressContent(context),
                 ),
                 const SizedBox(height: 16),
-                
                 _buildMobileContactCard(
                   context: context,
                   title: "by_phone".tr(),
                   icon: Icons.phone_outlined,
-                  gradientColors: [Colors.green.shade400, Colors.green.shade600],
+                  gradientColors: [
+                    Colors.green.shade400,
+                    Colors.green.shade600
+                  ],
                   child: _buildPhoneContent(context),
                 ),
                 const SizedBox(height: 16),
-                
                 _buildMobileContactCard(
                   context: context,
                   title: "by_email".tr(),
@@ -89,12 +90,14 @@ class MobileContactsView extends StatelessWidget {
                   child: _buildEmailContent(context),
                 ),
                 const SizedBox(height: 16),
-                
                 _buildMobileContactCard(
                   context: context,
                   title: "by_social".tr(),
                   icon: Icons.share_outlined,
-                  gradientColors: [Colors.purple.shade400, Colors.purple.shade600],
+                  gradientColors: [
+                    Colors.purple.shade400,
+                    Colors.purple.shade600
+                  ],
                   child: _buildSocialContent(context),
                 ),
                 const SizedBox(height: 24),
@@ -109,7 +112,7 @@ class MobileContactsView extends StatelessWidget {
   Widget _buildMobileHeader(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final size = screenWidth * 0.5;
-    
+
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 20, 16, 24),
       padding: const EdgeInsets.all(24),
@@ -155,22 +158,22 @@ class MobileContactsView extends StatelessWidget {
           Text(
             "call_us".tr(),
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              fontSize: 24,
-              color: ColorManager.primary,
-              fontWeight: FontWeight.w700,
-              fontFamily: StringConstant.fontName,
-            ),
+                  fontSize: 24,
+                  color: ColorManager.primary,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: StringConstant.fontName,
+                ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
             "contact_subtitle".tr(),
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w400,
-              fontFamily: StringConstant.fontName,
-            ),
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w400,
+                  fontFamily: StringConstant.fontName,
+                ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -261,10 +264,10 @@ class MobileContactsView extends StatelessWidget {
             child: Text(
               "فيلا 193 الحي الخامس التجمع الخامس القاهره الجديده",
               style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                fontSize: 14,
-                fontFamily: StringConstant.fontName,
-                height: 1.4,
-              ),
+                    fontSize: 14,
+                    fontFamily: StringConstant.fontName,
+                    height: 1.4,
+                  ),
             ),
           ),
         ],
@@ -368,10 +371,10 @@ class MobileContactsView extends StatelessWidget {
                 child: Text(
                   text,
                   style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    fontSize: 14,
-                    fontFamily: StringConstant.fontName,
-                    fontWeight: FontWeight.w500,
-                  ),
+                        fontSize: 14,
+                        fontFamily: StringConstant.fontName,
+                        fontWeight: FontWeight.w500,
+                      ),
                 ),
               ),
               Icon(Icons.arrow_forward_ios, size: 16, color: color),
@@ -381,4 +384,4 @@ class MobileContactsView extends StatelessWidget {
       ),
     );
   }
-} 
+}

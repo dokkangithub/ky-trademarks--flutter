@@ -14,7 +14,8 @@ class WebAudioRecorder {
 
     _chunks.clear();
 
-    _mediaRecorder = html.MediaRecorder(stream, <String, String>{'mimeType': 'audio/webm'});
+    _mediaRecorder =
+        html.MediaRecorder(stream, <String, String>{'mimeType': 'audio/webm'});
 
     _mediaRecorder!.addEventListener('dataavailable', (event) {
       final ev = event as html.BlobEvent;
@@ -59,5 +60,3 @@ class WebAudioRecorder {
     } catch (_) {}
   }
 }
-
-

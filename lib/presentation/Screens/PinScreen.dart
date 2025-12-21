@@ -15,7 +15,6 @@ class PinScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -37,8 +36,11 @@ class PinScreen extends StatelessWidget {
                         SizedBox(
                           height: 40,
                         ),
-                        Image.asset(ImagesConstants.homeTapBar,
-                        fit: BoxFit.contain,width: 180,height: 150,
+                        Image.asset(
+                          ImagesConstants.homeTapBar,
+                          fit: BoxFit.contain,
+                          width: 180,
+                          height: 150,
                         ),
                         SizedBox(
                           height: 10,
@@ -53,13 +55,14 @@ class PinScreen extends StatelessWidget {
                                     color: Colors.grey.withOpacity(0.2),
                                     spreadRadius: 2,
                                     blurRadius: 7,
-                                    offset: Offset(0, 5), // changes position of shadow
+                                    offset: Offset(
+                                        0, 5), // changes position of shadow
                                   ),
                                 ],
                                 color: Colors.white,
                                 shape: BoxShape.circle,
-                                border: Border.all(
-                                    color: Colors.white, width: 2)),
+                                border:
+                                    Border.all(color: Colors.white, width: 2)),
                             child: cachedImage(null,
                                 width: 100, height: 100, fit: BoxFit.contain),
                           ),
@@ -71,13 +74,12 @@ class PinScreen extends StatelessWidget {
               ],
             ),
           ),
-
           Text(
-             "${globalAccountData.getUsername()}",
+            "${globalAccountData.getUsername()}",
             style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 22.0,
-                fontFamily:StringConstant.fontName,
+                fontFamily: StringConstant.fontName,
                 letterSpacing: 1,
                 color: Colors.black),
           ),
@@ -111,24 +113,26 @@ class PinScreen extends StatelessWidget {
             height: 14,
           ),
           InkWell(
-            onTap:() async {
-          GetBrandRemoteData getBrandRemoteData = GetBrandRemoteData();
-          await getBrandRemoteData.adminPhone().then((value) {
-          print(value);
-          openWhatsapp(context: context, number: value, text: " لقد نسيت الكود الخاص بي ارجو ارساله الي");
-          });
-          },
+            onTap: () async {
+              GetBrandRemoteData getBrandRemoteData = GetBrandRemoteData();
+              await getBrandRemoteData.adminPhone().then((value) {
+                print(value);
+                openWhatsapp(
+                    context: context,
+                    number: value,
+                    text: " لقد نسيت الكود الخاص بي ارجو ارساله الي");
+              });
+            },
             child: Text(
               'نسيت الكود؟',
-
-                style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 14.0,
-                    fontFamily:StringConstant.fontName,
-                decoration: TextDecoration.underline,
-                decorationColor:  Colors.grey,
-                letterSpacing: 1,
-                color: Colors.grey),
+              style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14.0,
+                  fontFamily: StringConstant.fontName,
+                  decoration: TextDecoration.underline,
+                  decorationColor: Colors.grey,
+                  letterSpacing: 1,
+                  color: Colors.grey),
             ),
           ),
         ],
@@ -145,7 +149,7 @@ class PinScreen extends StatelessWidget {
       hasTextBorderColor: ColorManager.primaryByOpacity,
       highlightPinBoxColor: ColorManager.primaryByOpacity,
       maxLength: 4,
-       onTextChanged: (text) {
+      onTextChanged: (text) {
         if (text.length == 4) {
           if (text == globalAccountData.getUserPin()) {
             Navigator.pushNamed(context, Routes.tabBarRoute);

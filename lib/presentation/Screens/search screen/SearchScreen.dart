@@ -23,14 +23,15 @@ class SearchScreen extends StatefulWidget {
   _SearchScreenState createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMixin {
+class _SearchScreenState extends State<SearchScreen>
+    with TickerProviderStateMixin {
   final TextEditingController searchController = TextEditingController();
   final ScrollController _mainScrollController = ScrollController();
   final searchKey = GlobalKey();
-  
+
   TutorialCoachMark? tutorialCoachMark;
   List<TargetFocus> targetList = [];
-  
+
   // Search Type Controller
   late TabController _searchTypeController;
   int currentSearchType = 0; // 0 = Brands, 1 = Issues
@@ -60,14 +61,14 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
       _mainScrollController.addListener(() {
         if (_mainScrollController.position.pixels >=
             _mainScrollController.position.maxScrollExtent - 100) {
-          
           if (currentSearchType == 0) {
             // Brands search
             Provider.of<GetBrandBySearchProvider>(context, listen: false)
                 .loadMoreBrands(searchController.text);
           } else {
             // Issues search
-            final issuesProvider = Provider.of<SearchIssuesProvider>(context, listen: false);
+            final issuesProvider =
+                Provider.of<SearchIssuesProvider>(context, listen: false);
             final customerId = 244; // Replace with actual customer ID
             issuesProvider.loadMoreSearchResults(customerId);
           }
@@ -88,13 +89,14 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final screenType = _getScreenType(context);
-    
+
     return Scaffold(
       backgroundColor: ColorManager.anotherTabBackGround.withValues(alpha: 0.1),
       appBar: !_isWebView(context) ? const CustomAppBar() : null,
       body: _isWebView(context)
           ? WebSearchView(
-              key: ValueKey(currentSearchType), // إعادة بناء عند تغيير نوع البحث
+              key:
+                  ValueKey(currentSearchType), // إعادة بناء عند تغيير نوع البحث
               searchController: searchController,
               mainScrollController: _mainScrollController,
               searchKey: searchKey,
@@ -109,7 +111,8 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
               },
             )
           : MobileSearchView(
-              key: ValueKey(currentSearchType), // إعادة بناء عند تغيير نوع البحث
+              key:
+                  ValueKey(currentSearchType), // إعادة بناء عند تغيير نوع البحث
               searchController: searchController,
               mainScrollController: _mainScrollController,
               searchKey: searchKey,
@@ -125,7 +128,6 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
                 });
                 _clearSearchResults();
               },
-              
             ),
     );
   }
@@ -141,10 +143,11 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
       elevation: 0,
       toolbarHeight: 0,
       leadingWidth: 0,
-      flexibleSpace:Container(
+      flexibleSpace: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [ColorManager.primaryByOpacity,ColorManager.primary],stops: [0.3,0.8])
-        ),
+            gradient: LinearGradient(
+                colors: [ColorManager.primaryByOpacity, ColorManager.primary],
+                stops: [0.3, 0.8])),
       ),
       systemOverlayStyle: SystemUiOverlayStyle(
         statusBarColor: ColorManager.primary,
@@ -157,7 +160,7 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
     if (tutorialCoachMark != null) {
       tutorialCoachMark?.finish();
     }
-    
+
     tutorialCoachMark = TutorialCoachMark(
       onFinish: () {},
       targets: targetList,
@@ -228,8 +231,8 @@ class _SearchScreenState extends State<SearchScreen> with TickerProviderStateMix
 
 // Enhanced screen type enum for better responsive design
 enum ScreenType {
-  mobile,     // < 600px
-  tablet,     // 600px - 899px
+  mobile, // < 600px
+  tablet, // 600px - 899px
   largeTablet, // 900px - 1199px
-  desktop,    // >= 1200px
+  desktop, // >= 1200px
 }

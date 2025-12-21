@@ -248,7 +248,8 @@ class BrandDetailsEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, brandName, brandNumber, brandDescription, brandDetails];
+  List<Object?> get props =>
+      [id, brandName, brandNumber, brandDescription, brandDetails];
 }
 
 // Refused Details Entity
@@ -257,7 +258,7 @@ class RefusedDetailsEntity extends Equatable {
   final int issueId;
   final String createdAt;
   final String updatedAt;
-  
+
   // Normal issue fields
   final String? appealDate;
   final String? appealNumber;
@@ -265,7 +266,7 @@ class RefusedDetailsEntity extends Equatable {
   final String? expertOpinion;
   final String? dateOfThePublicAuthorityResponseNote;
   final String? dateOfACommentNoteOnTheAuthorityResponse;
-  
+
   // Opposition issue fields
   final String? appealDateOpposition;
   final String? appealNumberOpposition;
@@ -363,7 +364,8 @@ class StatisticsEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [sessionsCount, remindersCount, completedSessions, pendingSessions];
+  List<Object?> get props =>
+      [sessionsCount, remindersCount, completedSessions, pendingSessions];
 }
 
 // Issues Summary Entity
@@ -415,7 +417,8 @@ class RecentIssueEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, refusedType, companyName, brandName, createdAt];
+  List<Object?> get props =>
+      [id, refusedType, companyName, brandName, createdAt];
 }
 
 // Issue Search Entity
@@ -437,7 +440,8 @@ class IssueSearchEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, refusedType, companyName, brandName, brandNumber, createdAt];
+  List<Object?> get props =>
+      [id, refusedType, companyName, brandName, brandNumber, createdAt];
 }
 
 // Search Meta Entity
@@ -459,5 +463,6 @@ class SearchMetaEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [currentPage, perPage, total, lastPage, searchQuery, refusedTypeFilter];
-} 
+  List<Object?> get props =>
+      [currentPage, perPage, total, lastPage, searchQuery, refusedTypeFilter];
+}

@@ -53,17 +53,17 @@ class _MobileProfileViewState extends State<MobileProfileView> {
           SliverToBoxAdapter(
             child: _buildMobileUserHeader(context),
           ),
-          
+
           // Help Center Section
           SliverToBoxAdapter(
             child: _buildMobileHelpCenter(context),
           ),
-          
+
           // Partners Section
           SliverToBoxAdapter(
             child: _buildMobilePartnersSection(context),
           ),
-          
+
           // Footer Spacing
           const SliverToBoxAdapter(
             child: SizedBox(height: 40),
@@ -101,11 +101,11 @@ class _MobileProfileViewState extends State<MobileProfileView> {
                 // Profile Avatar with enhanced design
                 _buildEnhancedAvatar(userProvider),
                 const SizedBox(height: 20),
-                
+
                 // User Info
                 _buildMobileUserInfo(context, userProvider),
                 const SizedBox(height: 16),
-                
+
                 // Status Badge
                 _buildMobileStatusBadge(context),
               ],
@@ -119,7 +119,8 @@ class _MobileProfileViewState extends State<MobileProfileView> {
   Widget _buildEnhancedAvatar(GetUserProvider userProvider) {
     return GestureDetector(
       onTap: () {
-        if (userProvider.state == RequestState.loaded && userProvider.userData != null) {
+        if (userProvider.state == RequestState.loaded &&
+            userProvider.userData != null) {
           _showAvatarFullScreen(userProvider.userData!.avatar);
         }
       },
@@ -152,9 +153,11 @@ class _MobileProfileViewState extends State<MobileProfileView> {
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
-                child: userProvider.state == RequestState.loaded && userProvider.userData != null
+                child: userProvider.state == RequestState.loaded &&
+                        userProvider.userData != null
                     ? cachedImage(
-                        ApiConstant.imagePathUser + userProvider.userData!.avatar,
+                        ApiConstant.imagePathUser +
+                            userProvider.userData!.avatar,
                         width: 100,
                         height: 100,
                         fit: BoxFit.cover,
@@ -211,34 +214,37 @@ class _MobileProfileViewState extends State<MobileProfileView> {
     );
   }
 
-  Widget _buildMobileUserInfo(BuildContext context, GetUserProvider userProvider) {
+  Widget _buildMobileUserInfo(
+      BuildContext context, GetUserProvider userProvider) {
     return Column(
       children: [
         Text(
-          userProvider.state == RequestState.loaded && userProvider.userData != null
+          userProvider.state == RequestState.loaded &&
+                  userProvider.userData != null
               ? userProvider.userData!.name
               : globalAccountData.getUsername().toString(),
           style: Theme.of(context).textTheme.displayLarge?.copyWith(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            fontFamily: StringConstant.fontName,
-          ),
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                fontFamily: StringConstant.fontName,
+              ),
           textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 8),
         Text(
-          userProvider.state == RequestState.loaded && userProvider.userData != null
+          userProvider.state == RequestState.loaded &&
+                  userProvider.userData != null
               ? userProvider.userData!.email
               : globalAccountData.getEmail().toString(),
           style: Theme.of(context).textTheme.displayLarge?.copyWith(
-            color: Colors.white.withValues(alpha: 0.9),
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            fontFamily: StringConstant.fontName,
-          ),
+                color: Colors.white.withValues(alpha: 0.9),
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                fontFamily: StringConstant.fontName,
+              ),
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -270,11 +276,11 @@ class _MobileProfileViewState extends State<MobileProfileView> {
           Text(
             "active".tr(),
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              fontFamily: StringConstant.fontName,
-            ),
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: StringConstant.fontName,
+                ),
           ),
         ],
       ),
@@ -327,16 +333,16 @@ class _MobileProfileViewState extends State<MobileProfileView> {
                 Text(
                   "help_center".tr(),
                   style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                    fontSize: 18,
-                    color: ColorManager.primary,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: StringConstant.fontName,
-                  ),
+                        fontSize: 18,
+                        color: ColorManager.primary,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: StringConstant.fontName,
+                      ),
                 ),
               ],
             ),
           ),
-          
+
           // Help Options
           Padding(
             padding: const EdgeInsets.all(16),
@@ -421,21 +427,22 @@ class _MobileProfileViewState extends State<MobileProfileView> {
                     children: [
                       Text(
                         title,
-                        style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                          fontSize: 16,
-                          color: ColorManager.accent,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: StringConstant.fontName,
-                        ),
+                        style:
+                            Theme.of(context).textTheme.displayMedium?.copyWith(
+                                  fontSize: 16,
+                                  color: ColorManager.accent,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: StringConstant.fontName,
+                                ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         subtitle,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontSize: 14,
-                          color: Colors.grey.shade600,
-                          fontFamily: StringConstant.fontName,
-                        ),
+                              fontSize: 14,
+                              color: Colors.grey.shade600,
+                              fontFamily: StringConstant.fontName,
+                            ),
                       ),
                     ],
                   ),
@@ -457,7 +464,8 @@ class _MobileProfileViewState extends State<MobileProfileView> {
           return _buildPartnersLoadingState();
         } else if (model.state == RequestState.failed) {
           return _buildPartnersErrorState();
-        } else if (model.allPartnerSuccess == null || model.allPartnerSuccess!.isEmpty) {
+        } else if (model.allPartnerSuccess == null ||
+            model.allPartnerSuccess!.isEmpty) {
           return _buildNoPartnersState();
         } else {
           return _buildPartnersContent(context, model);
@@ -474,7 +482,7 @@ class _MobileProfileViewState extends State<MobileProfileView> {
           // Partners Header
           _buildPartnersHeader(context, model),
           const SizedBox(height: 20),
-          
+
           // Partners PageView
           _buildPartnersPageView(context, model.allPartnerSuccess!),
         ],
@@ -511,15 +519,16 @@ class _MobileProfileViewState extends State<MobileProfileView> {
               Text(
                 "success_partner".tr(),
                 style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: StringConstant.fontName,
-                ),
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: StringConstant.fontName,
+                    ),
               ),
             ],
           ),
-          if (model.allPartnerSuccess != null && model.allPartnerSuccess!.isNotEmpty) ...[
+          if (model.allPartnerSuccess != null &&
+              model.allPartnerSuccess!.isNotEmpty) ...[
             const SizedBox(height: 16),
             DotsIndicator(
               dotsCount: (model.allPartnerSuccess!.length / 3).ceil(),
@@ -540,7 +549,8 @@ class _MobileProfileViewState extends State<MobileProfileView> {
     );
   }
 
-  Widget _buildPartnersPageView(BuildContext context, List<BrandImages> partners) {
+  Widget _buildPartnersPageView(
+      BuildContext context, List<BrandImages> partners) {
     return Container(
       height: MediaQuery.of(context).size.width * 0.32,
       margin: const EdgeInsets.only(top: 10, bottom: 40),
@@ -615,7 +625,8 @@ class _MobileProfileViewState extends State<MobileProfileView> {
         children: [
           Shimmer.fromColors(
             baseColor: ColorManager.primary.withValues(alpha: 0.3),
-            highlightColor: ColorManager.primaryByOpacity.withValues(alpha: 0.1),
+            highlightColor:
+                ColorManager.primaryByOpacity.withValues(alpha: 0.1),
             child: Container(
               height: 80,
               decoration: BoxDecoration(
@@ -634,7 +645,8 @@ class _MobileProfileViewState extends State<MobileProfileView> {
               itemBuilder: (context, index) {
                 return Shimmer.fromColors(
                   baseColor: ColorManager.primary.withValues(alpha: 0.3),
-                  highlightColor: ColorManager.primaryByOpacity.withValues(alpha: 0.1),
+                  highlightColor:
+                      ColorManager.primaryByOpacity.withValues(alpha: 0.1),
                   child: Container(
                     width: 100,
                     height: 100,
@@ -752,7 +764,8 @@ class _MobileProfileViewState extends State<MobileProfileView> {
 
   Future<void> _pickAndUpdateAvatar(GetUserProvider userProvider) async {
     final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       File imageFile = File(pickedFile.path);
@@ -802,7 +815,8 @@ class _MobileProfileViewState extends State<MobileProfileView> {
 
   void _launchRateApp() {
     if (!kIsWeb) {
-      final appId = Platform.isAndroid ? 'com.kytrademarkstrademarks' : '1605389392';
+      final appId =
+          Platform.isAndroid ? 'com.kytrademarkstrademarks' : '1605389392';
       final url = Uri.parse(
         Platform.isAndroid
             ? "market://details?id=$appId"
@@ -813,7 +827,8 @@ class _MobileProfileViewState extends State<MobileProfileView> {
         mode: LaunchMode.externalApplication,
       );
     } else {
-      final playStoreUrl = Uri.parse("https://play.google.com/store/apps/details?id=com.kytrademarks");
+      final playStoreUrl = Uri.parse(
+          "https://play.google.com/store/apps/details?id=com.kytrademarks");
       final appStoreUrl = Uri.parse("https://apps.apple.com/app/id1605389392");
       launchUrl(playStoreUrl, mode: LaunchMode.externalApplication);
       launchUrl(appStoreUrl, mode: LaunchMode.externalApplication);
@@ -840,16 +855,16 @@ class _MobileProfileViewState extends State<MobileProfileView> {
           title: Text(
             "note".tr(),
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              fontFamily: StringConstant.fontName,
-            ),
+                  fontFamily: StringConstant.fontName,
+                ),
             textAlign: TextAlign.center,
           ),
           content: Text(
             'logoutCaught'.tr(),
             style: Theme.of(context).textTheme.displayMedium?.copyWith(
-              fontSize: 14,
-              fontFamily: StringConstant.fontName,
-            ),
+                  fontSize: 14,
+                  fontFamily: StringConstant.fontName,
+                ),
             textAlign: TextAlign.center,
           ),
           actions: <Widget>[
@@ -868,9 +883,9 @@ class _MobileProfileViewState extends State<MobileProfileView> {
                 child: Text(
                   'no'.tr(),
                   style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                    color: Colors.white,
-                    fontFamily: StringConstant.fontName,
-                  ),
+                        color: Colors.white,
+                        fontFamily: StringConstant.fontName,
+                      ),
                 ),
               ),
             ),
@@ -887,8 +902,8 @@ class _MobileProfileViewState extends State<MobileProfileView> {
               child: Text(
                 'yes'.tr(),
                 style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                  fontFamily: StringConstant.fontName,
-                ),
+                      fontFamily: StringConstant.fontName,
+                    ),
               ),
             ),
           ],
@@ -896,4 +911,4 @@ class _MobileProfileViewState extends State<MobileProfileView> {
       },
     );
   }
-} 
+}

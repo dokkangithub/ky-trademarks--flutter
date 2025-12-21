@@ -142,75 +142,82 @@ class AppealGrivenceWidget extends StatelessWidget {
                           )
                         ]),
                     brandDetailsDataEntity
-                        .AllResult[number].appealGrivenceGallery==null||brandDetailsDataEntity
-                        .AllResult[number].appealGrivenceGallery!.isEmpty||brandDetailsDataEntity
-                        .AllResult[number].appealGrivenceGallery==[]
+                                    .AllResult[number].appealGrivenceGallery ==
+                                null ||
+                            brandDetailsDataEntity.AllResult[number]
+                                .appealGrivenceGallery!.isEmpty ||
+                            brandDetailsDataEntity
+                                    .AllResult[number].appealGrivenceGallery ==
+                                []
                         ? InkWell(
-                      onTap: () => null,
-                      child: Container(
-                        margin:
-                        EdgeInsetsDirectional.only(end: 10, bottom: 10),
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 5),
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                ColorManager.primary,
-                                ColorManager.primaryByOpacity
-                                    .withOpacity(0.9),
-                              ],
+                            onTap: () => null,
+                            child: Container(
+                              margin: EdgeInsetsDirectional.only(
+                                  end: 10, bottom: 10),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 5),
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      ColorManager.primary,
+                                      ColorManager.primaryByOpacity
+                                          .withOpacity(0.9),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Text(
+                                "no_Attachments".tr(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displayLarge
+                                    ?.copyWith(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500),
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(15)),
-                        child: Text(
-                          "no_Attachments".tr(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .displayLarge
-                              ?.copyWith(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                    ) :Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        InkWell(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => GalleryPage(
-                                      imagesList: brandDetailsDataEntity
-                                          .AllResult[number].appealGrivenceGallery,
-                                    )),
-                          ),
-                          child: Container(
-                            margin:
-                                EdgeInsetsDirectional.only(end: 10, bottom: 10),
-                            padding:
-                                EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                            decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    ColorManager.primary,
-                                    ColorManager.primaryByOpacity.withOpacity(0.9),
-                                  ],
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              InkWell(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => GalleryPage(
+                                            imagesList: brandDetailsDataEntity
+                                                .AllResult[number]
+                                                .appealGrivenceGallery,
+                                          )),
                                 ),
-                                borderRadius: BorderRadius.circular(15)),
-                            child: Text(
-                              "attachments".tr(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayLarge
-                                  ?.copyWith(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
+                                child: Container(
+                                  margin: EdgeInsetsDirectional.only(
+                                      end: 10, bottom: 10),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 5),
+                                  decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          ColorManager.primary,
+                                          ColorManager.primaryByOpacity
+                                              .withOpacity(0.9),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(15)),
+                                  child: Text(
+                                    "attachments".tr(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .displayLarge
+                                        ?.copyWith(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
                   ]))),
     );
   }

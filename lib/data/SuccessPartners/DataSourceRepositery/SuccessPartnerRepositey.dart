@@ -11,10 +11,8 @@ class SuccessPartnerRepositey extends BaseSuccessPartnersRepository {
 
   SuccessPartnerRepositey({required this.baseGetSuccessPartnerRemoteData});
 
-
-
   @override
-  Future<Either<Failure, List<BrandImages>>> successPartners()async {
+  Future<Either<Failure, List<BrandImages>>> successPartners() async {
     try {
       final result = await baseGetSuccessPartnerRemoteData.successPartner();
       return Right(result);

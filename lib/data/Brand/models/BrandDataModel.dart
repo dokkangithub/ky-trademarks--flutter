@@ -1,6 +1,5 @@
 import 'package:kyuser/domain/Brand/Entities/BrandEntity.dart';
 
-
 class BrandDataModel extends BrandDataEntity {
   const BrandDataModel({
     required super.status,
@@ -13,16 +12,16 @@ class BrandDataModel extends BrandDataEntity {
   // Helper function to clean HTML tags and escape characters
   static String _cleanHtmlAndEscapeChars(String text) {
     if (text.isEmpty) return text;
-    
+
     // Replace HTML tags with space (to preserve word separation)
     String cleaned = text.replaceAll(RegExp(r'<[^>]*>'), ' ');
-    
+
     // Replace escape characters with space
     cleaned = cleaned.replaceAll(RegExp(r'\\r\\n|\\n|\\r|\r\n|\n|\r'), ' ');
-    
+
     // Remove extra whitespaces and trim
     cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ').trim();
-    
+
     return cleaned;
   }
 
@@ -32,22 +31,23 @@ class BrandDataModel extends BrandDataEntity {
       message: (json['message'] as String?) ?? '',
       brand: _parseBrands(json['brand']),
       updates: _parseUpdates(json['updates']),
-      total: json['brand'] != null 
-          ? (json['brand']['total'] as int? ?? 0)
-          : 0,
+      total: json['brand'] != null ? (json['brand']['total'] as int? ?? 0) : 0,
     );
   }
 
   static List<BrandModel> _parseBrands(dynamic brandJson) {
     if (brandJson == null) return [];
-    final brandData = (brandJson as Map<String, dynamic>)['data'] as List<dynamic>?;
+    final brandData =
+        (brandJson as Map<String, dynamic>)['data'] as List<dynamic>?;
     return brandData?.map((e) => BrandModel.fromJson(e)).toList() ?? [];
   }
 
   static List<BrandsUpdateModel> _parseUpdates(dynamic updatesJson) {
     if (updatesJson == null) return [];
-    final updatesData = (updatesJson as Map<String, dynamic>)['data'] as List<dynamic>?;
-    return updatesData?.map((e) => BrandsUpdateModel.fromJson(e)).toList() ?? [];
+    final updatesData =
+        (updatesJson as Map<String, dynamic>)['data'] as List<dynamic>?;
+    return updatesData?.map((e) => BrandsUpdateModel.fromJson(e)).toList() ??
+        [];
   }
 }
 
@@ -76,7 +76,8 @@ class BrandModel extends BrandEntity {
       markOrModel: json['mark_or_model'] as int? ?? 0,
       state: (json['state'] as String?) ?? '',
       images: _parseImages(json['images']),
-      brandDescription: BrandDataModel._cleanHtmlAndEscapeChars((json['brand_description'] as String?) ?? ''),
+      brandDescription: BrandDataModel._cleanHtmlAndEscapeChars(
+          (json['brand_description'] as String?) ?? ''),
     );
   }
 
@@ -97,7 +98,7 @@ class BrandsUpdateModel extends BrandsUpdates {
     // Handle both String and Map formats for date field
     String dateString;
     final dateValue = json['date'];
-    
+
     if (dateValue is Map<String, dynamic>) {
       // If date is a Map, extract created_at
       dateString = dateValue['created_at'] as String;
@@ -108,7 +109,7 @@ class BrandsUpdateModel extends BrandsUpdates {
       // Fallback to empty string if neither
       dateString = '';
     }
-    
+
     return BrandsUpdateModel(
       brand_name: (json['brand_name'] as String?) ?? 'غير محدد',
       current_status: json['current_status'] as int? ?? 0,
@@ -141,7 +142,7 @@ class ImagesModel extends BrandImages {
 }
 
 class TypesModel extends BrandTypes {
-  const TypesModel({required super.type}) ;
+  const TypesModel({required super.type});
 
   factory TypesModel.fromJson(Map<String, dynamic> json) {
     return TypesModel(type: json["type"]);

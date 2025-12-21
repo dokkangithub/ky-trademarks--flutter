@@ -10,7 +10,6 @@ import '../models/UserData.dart';
 abstract class BaseGetUserRemoteData {
   Future<UserDataModel> getUserFromRemote();
   Future<UserDataModel> updateUserAvatar({required File avatarFile});
-
 }
 
 class GetUserRemoteData extends BaseGetUserRemoteData {
@@ -21,14 +20,17 @@ class GetUserRemoteData extends BaseGetUserRemoteData {
 
     // Create URI with query parameter
     final uri = Uri.parse(
-        "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.getAvatar}")
+            "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.getAvatar}")
         .replace(queryParameters: {'email': userEmail});
 
     debugPrint('=======user data endpoint======');
     debugPrint(uri.toString());
 
-    final result = await http.get(uri,headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}','Content-Type': 'application/json',
-      'Accept': "application/json"});
+    final result = await http.get(uri, headers: {
+      'Authorization': 'Bearer ${globalAccountData.getToken()}',
+      'Content-Type': 'application/json',
+      'Accept': "application/json"
+    });
 
     debugPrint('=======user data response======');
     debugPrint('Status code: ${result.statusCode}');
@@ -40,7 +42,8 @@ class GetUserRemoteData extends BaseGetUserRemoteData {
       } catch (e) {
         debugPrint('JSON parsing error: $e');
         throw ServerException(
-            errorModel: ErrorModel(message: "Failed to parse response: $e", statusCode: 500));
+            errorModel: ErrorModel(
+                message: "Failed to parse response: $e", statusCode: 500));
       }
     } else {
       debugPrint('Server error with status: ${result.statusCode}');
@@ -63,12 +66,14 @@ class GetUserRemoteData extends BaseGetUserRemoteData {
     String userEmail = globalAccountData.getEmail().toString();
 
     // Get the token (option 1: directly from global memory)
-    String? token = globalAccountData.getToken(); // Or await SharedPreferences.getInstance()
+    String? token = globalAccountData
+        .getToken(); // Or await SharedPreferences.getInstance()
 
     // Create multipart request
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse("${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.updateProfile}"),
+      Uri.parse(
+          "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.updateProfile}"),
     );
 
     // Add authorization header

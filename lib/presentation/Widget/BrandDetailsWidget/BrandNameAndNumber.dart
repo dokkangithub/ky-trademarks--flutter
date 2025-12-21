@@ -18,8 +18,7 @@ class BrandNameAndNumber extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        model.brandDetails == null ||
-                model.brandDetails!.brand.brandName == ''
+        model.brandDetails == null || model.brandDetails!.brand.brandName == ''
             ? const SizedBox()
             : Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,11 +27,8 @@ class BrandNameAndNumber extends StatelessWidget {
                     model.brandDetails!.brand.markOrModel == 1
                         ? "model_desc".tr()
                         : "brand_name".tr(),
-                    style: Theme.of(context)
-                        .textTheme
-                        .displayMedium
-                        ?.copyWith(fontSize: 14,
-                        fontFamily:StringConstant.fontName),
+                    style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                        fontSize: 14, fontFamily: StringConstant.fontName),
                   ),
                   const SizedBox(
                     width: 5,
@@ -44,8 +40,9 @@ class BrandNameAndNumber extends StatelessWidget {
                         style: Theme.of(context)
                             .textTheme
                             .displayLarge
-                            ?.copyWith(fontSize: 14,
-                            fontFamily:StringConstant.fontName),
+                            ?.copyWith(
+                                fontSize: 14,
+                                fontFamily: StringConstant.fontName),
                         textAlign: TextAlign.start,
                         maxLines: null,
                       ),
@@ -59,15 +56,17 @@ class BrandNameAndNumber extends StatelessWidget {
               model.brandDetails!.brand.markOrModel == 1
                   ? "model_number".tr()
                   : "brand_number".tr(),
-              style:
-              Theme.of(context).textTheme.displayMedium?.copyWith(fontSize: 14,
-                  fontFamily:StringConstant.fontName),
+              style: Theme.of(context)
+                  .textTheme
+                  .displayMedium
+                  ?.copyWith(fontSize: 14, fontFamily: StringConstant.fontName),
             ),
             Text(
               model.brandDetails!.brand.brandNumber ?? '',
-              style:
-              Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 14,
-                  fontFamily:StringConstant.fontName),
+              style: Theme.of(context)
+                  .textTheme
+                  .displayLarge
+                  ?.copyWith(fontSize: 14, fontFamily: StringConstant.fontName),
             ),
           ],
         ),

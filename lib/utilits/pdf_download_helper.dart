@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -31,7 +30,7 @@ class PdfDownloadHelper {
       if (Platform.isIOS) {
         // Download file silently first
         await _downloadPdfFile(url, fileName);
-        
+
         // Then open the original URL in Safari - Safari will handle the PDF download/display
         final uri = Uri.parse(url);
         if (await canLaunchUrl(uri)) {
@@ -109,7 +108,8 @@ class PdfDownloadHelper {
 
         // On iOS, save to Documents directory so it's accessible in Files app
         final documentsDir = await getApplicationDocumentsDirectory();
-        final savedFileName = fileName ?? 'document_${DateTime.now().millisecondsSinceEpoch}.pdf';
+        final savedFileName =
+            fileName ?? 'document_${DateTime.now().millisecondsSinceEpoch}.pdf';
         final savedFilePath = '${documentsDir.path}/$savedFileName';
         final savedFile = File(savedFilePath);
         await savedFile.writeAsBytes(bytes);
@@ -148,7 +148,7 @@ class PdfDownloadHelper {
       if (Platform.isIOS) {
         // Download file silently first with token
         await _downloadPdfFileWithToken(url, fileName, authToken);
-        
+
         // Then open the original URL in Safari - Safari will handle the PDF download/display
         final uri = Uri.parse(url);
         if (await canLaunchUrl(uri)) {
@@ -230,7 +230,8 @@ class PdfDownloadHelper {
 
         // On iOS, save to Documents directory so it's accessible in Files app
         final documentsDir = await getApplicationDocumentsDirectory();
-        final savedFileName = fileName ?? 'document_${DateTime.now().millisecondsSinceEpoch}.pdf';
+        final savedFileName =
+            fileName ?? 'document_${DateTime.now().millisecondsSinceEpoch}.pdf';
         final savedFilePath = '${documentsDir.path}/$savedFileName';
         final savedFile = File(savedFilePath);
         await savedFile.writeAsBytes(bytes);

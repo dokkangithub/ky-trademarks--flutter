@@ -77,4 +77,4 @@ class IssuesRepository extends BaseIssuesRepository {
       return Left(ServerFailure(message: failure.errorModel.message));
     }
   }
-} 
+}

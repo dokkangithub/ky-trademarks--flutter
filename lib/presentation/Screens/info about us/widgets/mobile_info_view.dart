@@ -27,7 +27,7 @@ class MobileInfoView extends StatelessWidget {
           SliverToBoxAdapter(
             child: _buildMobileHeader(context),
           ),
-          
+
           // Info Sections
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -41,22 +41,26 @@ class MobileInfoView extends StatelessWidget {
                   gradientColors: [Colors.blue.shade400, Colors.blue.shade600],
                 ),
                 const SizedBox(height: 20),
-                
                 _buildMobileInfoCard(
                   context: context,
                   title: "مهمتنــــــا",
                   content: StringConstant.ourRole,
                   icon: Icons.flag_outlined,
-                  gradientColors: [Colors.green.shade400, Colors.green.shade600],
+                  gradientColors: [
+                    Colors.green.shade400,
+                    Colors.green.shade600
+                  ],
                 ),
                 const SizedBox(height: 20),
-                
                 _buildMobileInfoCard(
                   context: context,
                   title: "رؤيتنـــــــــا",
                   content: StringConstant.ourVision,
                   icon: Icons.visibility_outlined,
-                  gradientColors: [Colors.purple.shade400, Colors.purple.shade600],
+                  gradientColors: [
+                    Colors.purple.shade400,
+                    Colors.purple.shade600
+                  ],
                 ),
                 const SizedBox(height: 24),
               ]),
@@ -111,29 +115,29 @@ class MobileInfoView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // Title
           Text(
             "من نحن",
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              fontSize: 24,
-              color: ColorManager.primary,
-              fontWeight: FontWeight.w700,
-              fontFamily: StringConstant.fontName,
-            ),
+                  fontSize: 24,
+                  color: ColorManager.primary,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: StringConstant.fontName,
+                ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          
+
           // Subtitle
           Text(
             "تعرف على شركتنا ومهمتنا ورؤيتنا",
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w400,
-              fontFamily: StringConstant.fontName,
-            ),
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w400,
+                  fontFamily: StringConstant.fontName,
+                ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -198,18 +202,18 @@ class MobileInfoView extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Content
           Padding(
             padding: const EdgeInsets.all(20),
             child: Text(
               content,
               style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                fontSize: 15,
-                fontFamily: StringConstant.fontName,
-                height: 1.6,
-                color: Colors.grey.shade700,
-              ),
+                    fontSize: 15,
+                    fontFamily: StringConstant.fontName,
+                    height: 1.6,
+                    color: Colors.grey.shade700,
+                  ),
               textAlign: TextAlign.justify,
             ),
           ),
@@ -217,4 +221,4 @@ class MobileInfoView extends StatelessWidget {
       ),
     );
   }
-} 
+}

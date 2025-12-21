@@ -4,5 +4,6 @@ import '../../../app/Failure.dart';
 import '../../../network/SuccessResponse.dart';
 
 abstract class BaseReservationRepository {
-  Future<Either<Failure, SuccessResponse>> sendReservationByUser({required Map<String,String> json});
+  Future<Either<Failure, SuccessResponse>> sendReservationByUser(
+      {required Map<String, String> json});
 }

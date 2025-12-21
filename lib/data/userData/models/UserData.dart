@@ -11,7 +11,9 @@ class UserDataModel extends UserDataEntity {
     return UserDataModel(
       status: json['status'] as int? ?? 0,
       message: json['message'] as String? ?? '',
-      user: json['user'] != null ? UserModel.fromJson(json['user'] as Map<String, dynamic>) : null,
+      user: json['user'] != null
+          ? UserModel.fromJson(json['user'] as Map<String, dynamic>)
+          : null,
     );
   }
 }

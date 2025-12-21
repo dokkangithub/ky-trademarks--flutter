@@ -6,8 +6,8 @@ import '../../../data/Brand/models/BrandDataModel.dart';
 import '../../../resources/StringManager.dart';
 import '../../Controllar/GetBrandDetailsProvider.dart';
 import '../gallery.dart';
-class BrandOrderFinishedOrTawkel extends StatelessWidget {
 
+class BrandOrderFinishedOrTawkel extends StatelessWidget {
   BrandOrderFinishedOrTawkel({
     Key? key,
     required this.context,
@@ -23,8 +23,9 @@ class BrandOrderFinishedOrTawkel extends StatelessWidget {
     String? tawkeelImages = model.brandDetails?.brand.tawkeelImage;
 
     List attachments = model.brandDetails?.images
-        .where((image) => image.conditionId == null)
-        .toList() ?? [];
+            .where((image) => image.conditionId == null)
+            .toList() ??
+        [];
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -38,8 +39,8 @@ class BrandOrderFinishedOrTawkel extends StatelessWidget {
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => GalleryPage(
-                              imagesList: attachments)),
+                          builder: (context) =>
+                              GalleryPage(imagesList: attachments)),
                     ),
                     child: Container(
                       margin: EdgeInsetsDirectional.only(
@@ -56,11 +57,14 @@ class BrandOrderFinishedOrTawkel extends StatelessWidget {
                           borderRadius: BorderRadius.circular(15)),
                       child: Text(
                         "attachments".tr(),
-                        style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            fontFamily:StringConstant.fontName),
+                        style: Theme.of(context)
+                            .textTheme
+                            .displayLarge
+                            ?.copyWith(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: StringConstant.fontName),
                       ),
                     ),
                   ),
@@ -76,9 +80,16 @@ class BrandOrderFinishedOrTawkel extends StatelessWidget {
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => GalleryPage(
-                                isTawkeel: true,
-                                imagesList: [ImagesModel(image: tawkeelImages!, conditionId: 0, type: 'type')],),),
+                          builder: (context) => GalleryPage(
+                            isTawkeel: true,
+                            imagesList: [
+                              ImagesModel(
+                                  image: tawkeelImages!,
+                                  conditionId: 0,
+                                  type: 'type')
+                            ],
+                          ),
+                        ),
                       ),
                       child: Text(
                         'tawkeel_image'.tr(),
@@ -86,13 +97,12 @@ class BrandOrderFinishedOrTawkel extends StatelessWidget {
                             .textTheme
                             .displayLarge
                             ?.copyWith(
-                            color: ColorManager.primaryByOpacity,
-                            decoration: TextDecoration.underline,
-                            decorationColor:
-                            ColorManager.primaryByOpacity,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            fontFamily:StringConstant.fontName),
+                                color: ColorManager.primaryByOpacity,
+                                decoration: TextDecoration.underline,
+                                decorationColor: ColorManager.primaryByOpacity,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: StringConstant.fontName),
                       ),
                     ),
                   )
@@ -108,18 +118,16 @@ class BrandOrderFinishedOrTawkel extends StatelessWidget {
                       style: Theme.of(context)
                           .textTheme
                           .displayMedium
-                          ?.copyWith(fontSize: 14,
-                          fontFamily:StringConstant.fontName),
+                          ?.copyWith(
+                              fontSize: 14,
+                              fontFamily: StringConstant.fontName),
                     ),
                   ),
                   Container(
                     child: Text(
                       model.brandDetails!.brand.recordingDateOfSupply ?? '',
-                      style: Theme.of(context)
-                          .textTheme
-                          .displayLarge
-                          ?.copyWith(fontSize: 14,
-                          fontFamily:StringConstant.fontName),
+                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          fontSize: 14, fontFamily: StringConstant.fontName),
                     ),
                   ),
                 ],
@@ -134,18 +142,16 @@ class BrandOrderFinishedOrTawkel extends StatelessWidget {
                       style: Theme.of(context)
                           .textTheme
                           .displayMedium
-                          ?.copyWith(fontSize: 14,
-                          fontFamily:StringConstant.fontName),
+                          ?.copyWith(
+                              fontSize: 14,
+                              fontFamily: StringConstant.fontName),
                     ),
                   ),
                   Container(
                     child: Text(
                       model.brandDetails!.brand.dateOfUnderTaking ?? '',
-                      style: Theme.of(context)
-                          .textTheme
-                          .displayLarge
-                          ?.copyWith(fontSize: 14,
-                          fontFamily:StringConstant.fontName),
+                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          fontSize: 14, fontFamily: StringConstant.fontName),
                     ),
                   ),
                 ],

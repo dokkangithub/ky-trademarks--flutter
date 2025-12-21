@@ -177,12 +177,15 @@ class _BranDetailsState extends State<BranDetails> {
   void _onDownloadTap() {
     if (_debounce?.isActive ?? false) return;
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      final model = Provider.of<GetBrandDetailsProvider>(context, listen: false);
+      final model =
+          Provider.of<GetBrandDetailsProvider>(context, listen: false);
       if (model.brandDetails != null) {
-        final url = "${ApiConstant.baseUrl}pdf/${model.brandDetails!.brand.id}/${globalAccountData.getId()}?download=pdf";
-        final fileName = "brand_${model.brandDetails!.brand.id}_${DateTime.now().millisecondsSinceEpoch}.pdf";
+        final url =
+            "${ApiConstant.baseUrl}pdf/${model.brandDetails!.brand.id}/${globalAccountData.getId()}?download=pdf";
+        final fileName =
+            "brand_${model.brandDetails!.brand.id}_${DateTime.now().millisecondsSinceEpoch}.pdf";
         final authToken = globalAccountData.getToken();
-        
+
         PdfDownloadHelper.downloadPdfWithToken(
           url: url,
           context: context,

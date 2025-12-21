@@ -7,14 +7,22 @@ import '../../../core/Constant/Api_Constant.dart';
 import '../../../network/ErrorModel.dart';
 
 abstract class BaseGetBrandRemoteData {
-  Future<BrandDataModel> getAllBrandFromRemote({required int page ,required int companyId});
+  Future<BrandDataModel> getAllBrandFromRemote(
+      {required int page, required int companyId});
 }
 
 class GetBrandRemoteData extends BaseGetBrandRemoteData {
   @override
-  Future<BrandDataModel> getAllBrandFromRemote({required int page,required int companyId }) async {
-    final result = await http.get(Uri.parse(
-        "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.getBrands}${globalAccountData.getId()}/$companyId?page=$page"),headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}','Content-Type':'application/json','Accept':"application/json"});
+  Future<BrandDataModel> getAllBrandFromRemote(
+      {required int page, required int companyId}) async {
+    final result = await http.get(
+        Uri.parse(
+            "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.getBrands}${globalAccountData.getId()}/$companyId?page=$page"),
+        headers: {
+          'Authorization': 'Bearer ${globalAccountData.getToken()}',
+          'Content-Type': 'application/json',
+          'Accept': "application/json"
+        });
     debugPrint('=======brands======');
     print('111111${globalAccountData.getId()}');
     print('111111${companyId}');
@@ -33,7 +41,8 @@ class GetBrandRemoteData extends BaseGetBrandRemoteData {
   Future<String> adminPhone() async {
     try {
       print('Starting adminPhone request');
-      final Uri url = Uri.parse("${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.adminPhone}");
+      final Uri url = Uri.parse(
+          "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.adminPhone}");
       print('Request URL: $url');
 
       // Check if we're on web platform
@@ -42,7 +51,9 @@ class GetBrandRemoteData extends BaseGetBrandRemoteData {
         return "201004000856";
       }
 
-      final result = await http.get(url,headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}',});
+      final result = await http.get(url, headers: {
+        'Authorization': 'Bearer ${globalAccountData.getToken()}',
+      });
       print('Response status code: ${result.statusCode}');
 
       if (result.statusCode == 200) {
@@ -58,5 +69,4 @@ class GetBrandRemoteData extends BaseGetBrandRemoteData {
       throw e;
     }
   }
-
 }

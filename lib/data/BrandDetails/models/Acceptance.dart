@@ -57,16 +57,16 @@ class Acceptance {
       notifyTheStudentOfOpposition: json['notify_the_student_of_opposition'],
       exhibitionDetails: json['exhibition_details'],
       firstNoticeOfOppositionApostate:
-      json['first_notice_of_opposition_apostate'],
+          json['first_notice_of_opposition_apostate'],
       secondNoticeOfOppositionApostate:
-      json['second_notice_of_opposition_apostate'],
+          json['second_notice_of_opposition_apostate'],
       theApplicantResponseToTheObjection:
-      json['the_applicant_response_to_the_objection'],
+          json['the_applicant_response_to_the_objection'],
       theDateOfTheHearingSession: json['the_date_of_the_hearing_session'],
       decisionOfTheExhibitionCommittee:
-      json['decision_of_the_exhibition_committee'],
+          json['decision_of_the_exhibition_committee'],
       dateOfPaymentOfTheRegistrationFee:
-      json['date_of_payment_of_the_registration_fee'],
+          json['date_of_payment_of_the_registration_fee'],
       dateOfRegistration: json['date_of_registration'],
       renewalDate: json['renewal_date'],
       acceptanceNote: json['acceptance_note'],

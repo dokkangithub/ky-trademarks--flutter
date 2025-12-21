@@ -1,6 +1,2 @@
 // ignore: file_names
-enum RequestState{
-  loaded,
-  loading,
-  failed
-}
+enum RequestState { loaded, loading, failed }

@@ -148,80 +148,83 @@ class GrievanceTeamDecisionWidget extends StatelessWidget {
                             ],
                           ))
                         ]),
-                    brandDetailsDataEntity
-                        .AllResult[number]
-                        .grievanceTeamDecisionGallery==null||brandDetailsDataEntity
-                        .AllResult[number]
-                        .grievanceTeamDecisionGallery!.isEmpty||brandDetailsDataEntity
-                        .AllResult[number]
-                        .grievanceTeamDecisionGallery==[]
+                    brandDetailsDataEntity.AllResult[number]
+                                    .grievanceTeamDecisionGallery ==
+                                null ||
+                            brandDetailsDataEntity.AllResult[number]
+                                .grievanceTeamDecisionGallery!.isEmpty ||
+                            brandDetailsDataEntity.AllResult[number]
+                                    .grievanceTeamDecisionGallery ==
+                                []
                         ? InkWell(
-                      onTap: () => null,
-                      child: Container(
-                        margin:
-                        EdgeInsetsDirectional.only(end: 10, bottom: 10),
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 5),
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                ColorManager.primary,
-                                ColorManager.primaryByOpacity
-                                    .withOpacity(0.9),
-                              ],
+                            onTap: () => null,
+                            child: Container(
+                              margin: EdgeInsetsDirectional.only(
+                                  end: 10, bottom: 10),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 5),
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      ColorManager.primary,
+                                      ColorManager.primaryByOpacity
+                                          .withOpacity(0.9),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Text(
+                                "no_Attachments".tr(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displayLarge
+                                    ?.copyWith(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500),
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(15)),
-                        child: Text(
-                          "no_Attachments".tr(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .displayLarge
-                              ?.copyWith(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                    ) :Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        InkWell(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => GalleryPage(
-                                      imagesList: brandDetailsDataEntity
-                                          .AllResult[number]
-                                          .grievanceTeamDecisionGallery,
-                                    )),
-                          ),
-                          child: Container(
-                            margin:
-                                EdgeInsetsDirectional.only(end: 10, bottom: 10),
-                            padding:
-                                EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                            decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    ColorManager.primary,
-                                    ColorManager.primaryByOpacity.withOpacity(0.9),
-                                  ],
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              InkWell(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => GalleryPage(
+                                            imagesList: brandDetailsDataEntity
+                                                .AllResult[number]
+                                                .grievanceTeamDecisionGallery,
+                                          )),
                                 ),
-                                borderRadius: BorderRadius.circular(15)),
-                            child: Text(
-                              "attachments".tr(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayLarge
-                                  ?.copyWith(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
+                                child: Container(
+                                  margin: EdgeInsetsDirectional.only(
+                                      end: 10, bottom: 10),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 5),
+                                  decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          ColorManager.primary,
+                                          ColorManager.primaryByOpacity
+                                              .withOpacity(0.9),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(15)),
+                                  child: Text(
+                                    "attachments".tr(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .displayLarge
+                                        ?.copyWith(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
                   ]))),
     );
   }

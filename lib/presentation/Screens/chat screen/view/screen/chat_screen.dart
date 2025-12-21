@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:kyuser/presentation/Widget/loading_widget.dart';
 import 'package:provider/provider.dart';
 import '../../../../../resources/Color_Manager.dart';
@@ -14,7 +13,8 @@ class ChatScreen extends StatelessWidget {
   final String chatId;
   final String userName;
 
-  const ChatScreen({Key? key, required this.chatId, required this.userName}) : super(key: key);
+  const ChatScreen({Key? key, required this.chatId, required this.userName})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,69 +27,91 @@ class ChatScreen extends StatelessWidget {
             return Scaffold(
               backgroundColor: Colors.grey.shade50,
               appBar: _buildAppBar(context, viewModel),
-              body: viewModel.isLoading
-                  ? Center(child: LoadingWidget())
-                  : Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.grey.shade50,
-                            Colors.white,
-                          ],
+              body: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.grey.shade50,
+                      Colors.white,
+                    ],
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.transparent,
+                        ),
+                        child: Builder(
+                          builder: (context) {
+                            // Take a defensive copy of the messages so that
+                            // changes to the underlying list during build
+                            // don't cause RangeError from the builder.
+                            final messages =
+                                List<MessageModel>.from(viewModel.messages);
+
+                            if (messages.isEmpty && viewModel.isLoading) {
+                              return Center(
+                                child: LoadingWidget(),
+                              );
+                            }
+
+                            return ListView.builder(
+                              reverse: true,
+                              physics: BouncingScrollPhysics(),
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              itemCount: messages.length,
+                              itemBuilder: (context, index) {
+                                if (index < 0 || index >= messages.length) {
+                                  // Extra safety: in case something changes mid-build
+                                  return const SizedBox.shrink();
+                                }
+
+                                final message = messages[index];
+
+                                return MessageBubble(
+                                  message: message,
+                                  onTap: () => _handleMessageTap(
+                                      context, message, viewModel),
+                                );
+                              },
+                            );
+                          },
                         ),
                       ),
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.transparent,
-                              ),
-                              child: ListView.builder(
-                                reverse: true,
-                                physics: BouncingScrollPhysics(),
-                                padding: EdgeInsets.symmetric(vertical: 16),
-                                itemCount: viewModel.messages.length,
-                                itemBuilder: (context, index) {
-                                  final message = viewModel.messages[index];
-
-                                  return MessageBubble(
-                                    message: message,
-                                    onTap: () => _handleMessageTap(context, message, viewModel),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          ChatInput(
-                            onSendMessage: (text) => viewModel.sendMessage(text: text),
-                            onSendAudio: (audioFile, fileName) => viewModel.sendMessage(
-                              file: audioFile,
-                              fileName: fileName,
-                              type: MessageType.audio,
-                            ),
-                            onAttachmentSelected: (file, fileBytes, fileName, type) {
-                              final msgType = _getMessageTypeFromString(type);
-                              if (fileBytes != null) {
-                                viewModel.sendMessage(
-                                  fileBytes: fileBytes,
-                                  fileName: fileName,
-                                  type: msgType,
-                                );
-                              } else if (file != null) {
-                                viewModel.sendMessage(
-                                  file: file,
-                                  fileName: fileName,
-                                  type: msgType,
-                                );
-                              }
-                            },
-                          ),
-                        ],
-                      ),
                     ),
+                    ChatInput(
+                      onSendMessage: (text) =>
+                          viewModel.sendMessage(text: text),
+                      onSendAudio: (audioFile, fileName) =>
+                          viewModel.sendMessage(
+                        file: audioFile,
+                        fileName: fileName,
+                        type: MessageType.audio,
+                      ),
+                      onAttachmentSelected: (file, fileBytes, fileName, type) {
+                        final msgType = _getMessageTypeFromString(type);
+                        if (fileBytes != null) {
+                          viewModel.sendMessage(
+                            fileBytes: fileBytes,
+                            fileName: fileName,
+                            type: msgType,
+                          );
+                        } else if (file != null) {
+                          viewModel.sendMessage(
+                            file: file,
+                            fileName: fileName,
+                            type: msgType,
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
             );
           },
         ),
@@ -97,7 +119,8 @@ class ChatScreen extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context, ChatViewModel viewModel) {
+  PreferredSizeWidget _buildAppBar(
+      BuildContext context, ChatViewModel viewModel) {
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -125,21 +148,23 @@ class ChatScreen extends StatelessWidget {
           ],
         ),
       ),
-      leading:kIsWeb?SizedBox.shrink(): Container(
-        margin: EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
-          shape: BoxShape.circle,
-        ),
-        child: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.white,
-            size: 20,
-          ),
-        ),
-      ),
+      leading: kIsWeb
+          ? SizedBox.shrink()
+          : Container(
+              margin: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
       title: Row(
         children: [
           Expanded(
@@ -180,7 +205,8 @@ class ChatScreen extends StatelessWidget {
     }
   }
 
-  void _handleMessageTap(BuildContext context, MessageModel message, ChatViewModel viewModel) {
+  void _handleMessageTap(
+      BuildContext context, MessageModel message, ChatViewModel viewModel) {
     if (message.mediaUrl == null) return;
 
     switch (message.type) {
@@ -225,7 +251,8 @@ class ChatScreen extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.error_outline, color: Colors.white, size: 50),
+                          Icon(Icons.error_outline,
+                              color: Colors.white, size: 50),
                           SizedBox(height: 16),
                           Text(
                             'Failed to load image',

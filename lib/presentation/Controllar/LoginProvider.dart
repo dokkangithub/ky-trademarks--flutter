@@ -1,29 +1,46 @@
-// ignore_for_file: use_build_context_synchronously
 import 'dart:convert';
 import 'dart:io';
- import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+
 import 'package:kyuser/core/Constant/Api_Constant.dart';
 import 'package:kyuser/network/ErrorModel.dart';
 import '../../UserData/data/models/UserModel.dart';
+import '../../fcm_service.dart';
 import '../../network/RestApi/Comman.dart';
 import '../../resources/StringManager.dart';
 import '../Screens/disactive_accounts_screen.dart';
 import '../Screens/login/Login.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kyuser/utilits/Local_User_Data.dart';
 
 class LoginProvider extends ChangeNotifier {
   TextEditingController phoneController = TextEditingController();
-  double screenHeight = 0;
-  double screenWidth = 0;
-  int screenState = 0;
-  Color blue = const Color(0xff8cccff);
-  bool state = false;
+
   bool loading = false;
 
-  ///  loginWithUserAndPassword
-  Future loginWithUserAndPassword({
+  final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: "${ApiConstant.baseUrl}${ApiConstant.slug}",
+      connectTimeout: const Duration(seconds: 20),
+      receiveTimeout: const Duration(seconds: 20),
+      headers: {
+        HttpHeaders.cacheControlHeader: 'no-cache',
+        'Accept': 'application/json',
+      },
+      validateStatus: (_) => true,
+    ),
+  )..interceptors.add(
+      PrettyDioLogger(
+        requestHeader: true,
+        requestBody: true,
+        responseBody: true,
+        compact: true,
+      ),
+    );
+
+  Future<void> loginWithUserAndPassword({
     required String email,
     required String password,
     required BuildContext context,
@@ -31,68 +48,77 @@ class LoginProvider extends ChangeNotifier {
     loading = true;
     notifyListeners();
 
-    if (await isNetworkAvailable()) {
-      final res = await http.post(
-        Uri.parse("${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.loginUser}"),
-        body: {
+    if (!await isNetworkAvailable()) {
+      toast(StringConstant.errorInternetNotAvailable);
+      loading = false;
+      notifyListeners();
+      return;
+    }
+
+    try {
+      final String? fcmToken = await FcmService.getFcmToken(context);
+
+      final Response res = await _dio.post(
+        ApiConstant.loginUser,
+        data: {
           "email": email,
           "password": password,
-          "token": LoginScreen.token.toString(),
+          "token": LoginScreen.token?.toString() ?? '',
         },
-        headers: {
-          HttpHeaders.cacheControlHeader: 'no-cache',
-          'Access-Control-Allow-Headers': '*',
-          'Access-Control-Allow-Origin': '*',
-        },
+        options: Options(
+          headers: {
+            if (fcmToken != null && fcmToken.isNotEmpty) 'fcm-token': fcmToken,
+          },
+        ),
       );
 
-      print('444444${LoginScreen.token.toString()}');
+      final Map<String, dynamic> responseData = res.data is Map<String, dynamic>
+          ? res.data
+          : json.decode(res.data.toString());
 
-      try {
-        final responseData = json.decode(res.body);
+      if (res.statusCode == 200) {
+        final int status = responseData['status'];
 
-        if (res.statusCode == 200) {
-          final int status = responseData['status'];
-
-          if (status == 0) {
-            // Account is inactive
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const InactiveAccountScreen()),
-            );
-            loading = false;
-            notifyListeners();
-            return;
-          }
-
-          // Account is active
-          UserModel user = UserModel.fromJson(responseData);
-          saveUserData(user);
-
-          await globalAccountData.setIsAdmin(false);
-
+        if (status == 0) {
           loading = false;
           notifyListeners();
-
-          Navigator.pushNamedAndRemoveUntil(
+          Navigator.pushReplacement(
             context,
-            '/tabBar',
-                (Route<dynamic> route) => false,
+            MaterialPageRoute(
+              builder: (_) => const InactiveAccountScreen(),
+            ),
           );
-        } else {
-          loading = false;
-          notifyListeners();
-          throw ServerException(errorModel: json.decode(res.body));
+          return;
         }
-      } catch (e) {
+
+        // ✅ active account
+        final UserModel user = UserModel.fromJson(responseData);
+        saveUserData(user);
+
+        await globalAccountData.setIsAdmin(false);
+
         loading = false;
         notifyListeners();
-        toast("البيانات غير صحيحة");
+
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/tabBar',
+          (route) => false,
+        );
+      } else {
+        throw ServerException(
+          errorModel: ErrorModel.fromJson(responseData),
+        );
       }
-    } else {
-      toast(StringConstant.errorInternetNotAvailable);
+    } on DioException catch (e) {
+      toast("البيانات غير صحيحة");
+      debugPrint('❌ Dio Error: ${e.message}');
+    } catch (e) {
+      toast("البيانات غير صحيحة");
+      debugPrint('❌ Unknown Error: $e');
     }
+
+    loading = false;
+    notifyListeners();
   }
-
-
 }

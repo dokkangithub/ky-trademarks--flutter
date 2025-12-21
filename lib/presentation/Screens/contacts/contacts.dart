@@ -15,7 +15,8 @@ class Contacts extends StatefulWidget {
   State<Contacts> createState() => _ContactsState();
 }
 
-class _ContactsState extends State<Contacts> with SingleTickerProviderStateMixin {
+class _ContactsState extends State<Contacts>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
 
   @override
@@ -41,7 +42,7 @@ class _ContactsState extends State<Contacts> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _isWebView(context)?null:_buildAppBar(context),
+      appBar: _isWebView(context) ? null : _buildAppBar(context),
       body: _isWebView(context)
           ? WebContactsView(
               animationController: _animationController,
@@ -65,15 +66,17 @@ class _ContactsState extends State<Contacts> with SingleTickerProviderStateMixin
       title: Text(
         "call_us".tr(),
         style: Theme.of(context).textTheme.displayLarge?.copyWith(
-          fontSize: 16,
-          color: Colors.white,
-          fontFamily: StringConstant.fontName,
-        ),
+              fontSize: 16,
+              color: Colors.white,
+              fontFamily: StringConstant.fontName,
+            ),
       ),
       leading: widget.canBack
           ? IconButton(
-              icon: Icon(Icons.arrow_back_ios_rounded, color: ColorManager.white, size: 22),
-              onPressed: () => Navigator.canPop(context) ? Navigator.pop(context) : null,
+              icon: Icon(Icons.arrow_back_ios_rounded,
+                  color: ColorManager.white, size: 22),
+              onPressed: () =>
+                  Navigator.canPop(context) ? Navigator.pop(context) : null,
             )
           : const SizedBox.shrink(),
       systemOverlayStyle: const SystemUiOverlayStyle(
@@ -93,4 +96,4 @@ class _ContactsState extends State<Contacts> with SingleTickerProviderStateMixin
       ),
     );
   }
-} 
+}

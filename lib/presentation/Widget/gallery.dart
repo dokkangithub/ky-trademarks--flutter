@@ -13,7 +13,6 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
-
 class GalleryPage extends StatefulWidget {
   GalleryPage({
     this.isTawkeel = false,
@@ -161,8 +160,12 @@ class _GalleryPageState extends State<GalleryPage> {
                                         .contains('.pdf')
                                     ? cachedImage(ImagesConstants.pdfIcon)
                                     : cachedImage(imagesListOfString[index],
-                                        height: MediaQuery.sizeOf(context).height-100,
-                                        width: MediaQuery.sizeOf(context).width-100,
+                                        height:
+                                            MediaQuery.sizeOf(context).height -
+                                                100,
+                                        width:
+                                            MediaQuery.sizeOf(context).width -
+                                                100,
                                         phWidth:
                                             MediaQuery.of(context).size.width -
                                                 40,
@@ -251,10 +254,13 @@ class _GalleryPageState extends State<GalleryPage> {
                                         await _downloadImage(url);
                                     if (imageBytes != null) {
                                       // Use path_provider instead of ImageGallerySaver
-                                      final directory = await getApplicationDocumentsDirectory();
-                                      final fileName = "image_${DateTime.now().millisecondsSinceEpoch}.jpg";
-                                      final filePath = '${directory.path}/$fileName';
-                                      
+                                      final directory =
+                                          await getApplicationDocumentsDirectory();
+                                      final fileName =
+                                          "image_${DateTime.now().millisecondsSinceEpoch}.jpg";
+                                      final filePath =
+                                          '${directory.path}/$fileName';
+
                                       // Write the file
                                       final file = File(filePath);
                                       await file.writeAsBytes(imageBytes);
@@ -264,15 +270,19 @@ class _GalleryPageState extends State<GalleryPage> {
                                       });
 
                                       // Show success message
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
                                         SnackBar(
-                                          backgroundColor: ColorManager.primaryByOpacity,
+                                          backgroundColor:
+                                              ColorManager.primaryByOpacity,
                                           content: Text(
                                             widget.isTawkeel
                                                 ? 'pow_of_attr_down_succ'.tr()
                                                 : widget.isBrandImage
-                                                    ? 'image_downloded_succ'.tr()
-                                                    : "attachment_downloaded_succ".tr(),
+                                                    ? 'image_downloded_succ'
+                                                        .tr()
+                                                    : "attachment_downloaded_succ"
+                                                        .tr(),
                                             textAlign: TextAlign.center,
                                             style: Theme.of(context)
                                                 .textTheme
@@ -286,7 +296,8 @@ class _GalleryPageState extends State<GalleryPage> {
                                         ),
                                       );
                                     } else {
-                                      throw Exception('Failed to download image');
+                                      throw Exception(
+                                          'Failed to download image');
                                     }
                                   } catch (e) {
                                     setState(() {

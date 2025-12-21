@@ -521,7 +521,7 @@ class WebBrandDetailsView extends StatelessWidget {
       itemBuilder: (context, index) {
         final item = brandData[index];
         final isLongText = item[1].length > 100;
-        
+
         return MouseRegion(
           cursor: SystemMouseCursors.click,
           child: AnimatedContainer(
@@ -566,7 +566,8 @@ class WebBrandDetailsView extends StatelessWidget {
                     ),
                     if (isLongText)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: ColorManager.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),

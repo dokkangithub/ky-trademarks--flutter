@@ -52,30 +52,30 @@ class ConditionalAcceptance {
       admissionStatusDateConditional: json['admission_status_date_conditional'],
       recordConditional: json['record_conditional'],
       publicityFeePaymentDateConditional:
-      json['publicity_fee_payment_date_conditional'],
+          json['publicity_fee_payment_date_conditional'],
       publishDateConditional: json['publish_date_conditional'],
       numberOfNewspaperConditional: json['number_of_newspaper_conditional'],
       number: json['number'],
       exhibitionDetailsConditional: json['exhibition_details_conditional'],
       theApplicantResponseToTheObjectionConditional:
-      json['the_applicant_response_to_the_objection_conditional'],
+          json['the_applicant_response_to_the_objection_conditional'],
       theDateOfTheHearingSessionConditional:
-      json['the_date_of_the_hearing_session_conditional'],
+          json['the_date_of_the_hearing_session_conditional'],
       decisionOfTheExhibitionCommitteeConditional:
-      json['decision_of_the_exhibition_committee_conditional'],
+          json['decision_of_the_exhibition_committee_conditional'],
       renewalDateConditional: json['renewal_date_conditional'],
       dateOfPaymentOfTheRegistrationFeeConditional:
-      json['date_of_payment_of_the_registration_fee_conditional'],
+          json['date_of_payment_of_the_registration_fee_conditional'],
       dateOfRegistrationConditional: json['date_of_registration_conditional'],
       name: json['name'],
       noteTheConditionalAcceptance: json['note_the_conditional_acceptance'],
       requirements: json['requirements'],
       notifyTheStudentOfTheOpposition:
-      json['notify_the_student_of_the_opposition'],
+          json['notify_the_student_of_the_opposition'],
       firstNotificationOfTheOppositionApostate:
-      json['first_notification_of_the_opposition_apostate'],
+          json['first_notification_of_the_opposition_apostate'],
       secondNotificationOfTheOppositionApostate:
-      json['second_notification_of_the_opposition_apostate'],
+          json['second_notification_of_the_opposition_apostate'],
     );
   }
 }

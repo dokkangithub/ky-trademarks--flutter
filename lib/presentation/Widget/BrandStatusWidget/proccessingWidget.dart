@@ -75,33 +75,33 @@ class proccessingWidget extends StatelessWidget {
                           data[index].processingGallery!.isEmpty ||
                           data[index].processingGallery == []
                       ? InkWell(
-                    onTap: () => null,
-                    child: Container(
-                      margin:
-                      EdgeInsetsDirectional.only(end: 10, bottom: 10),
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 5),
-                      decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              ColorManager.primary,
-                              ColorManager.primaryByOpacity
-                                  .withOpacity(0.9),
-                            ],
+                          onTap: () => null,
+                          child: Container(
+                            margin:
+                                EdgeInsetsDirectional.only(end: 10, bottom: 10),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 5),
+                            decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    ColorManager.primary,
+                                    ColorManager.primaryByOpacity
+                                        .withOpacity(0.9),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(15)),
+                            child: Text(
+                              "no_Attachments".tr(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displayLarge
+                                  ?.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500),
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(15)),
-                      child: Text(
-                        "no_Attachments".tr(),
-                        style: Theme.of(context)
-                            .textTheme
-                            .displayLarge
-                            ?.copyWith(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  )
+                        )
                       : InkWell(
                           onTap: () => Navigator.push(
                             context,

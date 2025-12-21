@@ -26,7 +26,9 @@ class GetCompanyProvider extends ChangeNotifier {
       return toast(l.message.toString());
     }, (r) {
       allCompanies = r.company;
-      _selectedCompany = allCompanies.isNotEmpty ? allCompanies[0] : null; // Set default selected company
+      _selectedCompany = allCompanies.isNotEmpty
+          ? allCompanies[0]
+          : null; // Set default selected company
       state = RequestState.loaded;
       notifyListeners();
     });

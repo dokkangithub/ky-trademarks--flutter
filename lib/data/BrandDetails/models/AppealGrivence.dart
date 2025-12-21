@@ -22,7 +22,7 @@ class AppealGrivence {
       id: json['id'],
       brandId: json['brand_id'],
       theDateOfPaymentOfTheAppealFee:
-      json['the_date_of_payment_of_the_appeal_fee'],
+          json['the_date_of_payment_of_the_appeal_fee'],
       appealDecision: json['appeal_decision'],
       appealNotes: json['appeal_notes'],
       number: json['number'],

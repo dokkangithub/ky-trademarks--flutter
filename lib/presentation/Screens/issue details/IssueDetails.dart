@@ -61,8 +61,8 @@ class _IssueDetailsState extends State<IssueDetails> {
   }
 
   Future<void> _fetchIssueDetails() async {
-    int customerId = globalAccountData.getId() != null 
-        ? int.parse(globalAccountData.getId()!) 
+    int customerId = globalAccountData.getId() != null
+        ? int.parse(globalAccountData.getId()!)
         : 0;
     await Provider.of<GetIssueDetailsProvider>(context, listen: false)
         .getIssueDetails(issueId: widget.issueId, customerId: customerId);
@@ -314,7 +314,8 @@ class _IssueDetailsState extends State<IssueDetails> {
     );
   }
 
-  Widget _buildLoadedState(BuildContext context, GetIssueDetailsProvider model) {
+  Widget _buildLoadedState(
+      BuildContext context, GetIssueDetailsProvider model) {
     if (model.issueDetails == null) {
       return _buildErrorState();
     }
@@ -391,4 +392,4 @@ class _TutorialText extends StatelessWidget {
       ),
     );
   }
-} 
+}

@@ -92,7 +92,8 @@ class _AddRequestState extends State<AddRequest> {
     FocusScope.of(context).unfocus();
     _formKey.currentState!.save();
 
-    final requestProvider = Provider.of<RequestProvider>(context, listen: false);
+    final requestProvider =
+        Provider.of<RequestProvider>(context, listen: false);
     try {
       await requestProvider.sendRequest(
         {"name": _name.text, "description": _description.text},
@@ -147,18 +148,20 @@ class _AddRequestState extends State<AddRequest> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset('assets/images/registration.png', width: 150, height: 150),
+              Image.asset('assets/images/registration.png',
+                  width: 150, height: 150),
               SizedBox(height: 20),
               Text(
                 "تم تقديم الطلب بنجاح",
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontFamily: StringConstant.fontName,
-                ),
+                      fontFamily: StringConstant.fontName,
+                    ),
               ),
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(backgroundColor: ColorManager.primary),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: ColorManager.primary),
                 child: Text(
                   'OK',
                   style: TextStyle(
@@ -209,8 +212,10 @@ class _AddRequestState extends State<AddRequest> {
     return AppBar(
       leading: widget.canBack
           ? IconButton(
-              icon: Icon(Icons.arrow_back_ios_rounded, color: ColorManager.white, size: 22),
-              onPressed: () => Navigator.canPop(context) ? Navigator.pop(context) : null,
+              icon: Icon(Icons.arrow_back_ios_rounded,
+                  color: ColorManager.white, size: 22),
+              onPressed: () =>
+                  Navigator.canPop(context) ? Navigator.pop(context) : null,
             )
           : SizedBox.shrink(),
       title: Text(

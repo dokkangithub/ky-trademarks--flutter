@@ -23,9 +23,11 @@ class UserRepository extends BaseUserRepository {
   }
 
   @override
-  Future<Either<Failure, UserDataEntity>> updateUserAvatar({required File avatarFile}) async {
+  Future<Either<Failure, UserDataEntity>> updateUserAvatar(
+      {required File avatarFile}) async {
     try {
-      final result = await baseGetUserRemoteData.updateUserAvatar(avatarFile: avatarFile);
+      final result =
+          await baseGetUserRemoteData.updateUserAvatar(avatarFile: avatarFile);
       return Right(result);
     } on ServerException catch (failure) {
       return Left(ServerFailure(message: failure.errorModel.message));

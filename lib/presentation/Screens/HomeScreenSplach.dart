@@ -23,7 +23,8 @@ class ServiceItem {
   });
 }
 
-class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreenSplach>
+    with SingleTickerProviderStateMixin {
   late List<ServiceItem> services;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -74,10 +75,10 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
       ServiceItem(
         title: StringConstant.EstablishmentOfLegalCompanies,
         description: StringConstant.EstablishmentOfLegalCompaniesData,
-        image: ImagesConstants.prototype_5, // Use the constant instead of direct string
+        image: ImagesConstants
+            .prototype_5, // Use the constant instead of direct string
       ),
     ];
-
   }
 
   @override
@@ -110,7 +111,8 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
         child: LayoutBuilder(
           builder: (context, constraints) {
             final screenType = _getScreenType(constraints.maxWidth);
-            return screenType == ScreenType.desktop || screenType == ScreenType.largeDesktop
+            return screenType == ScreenType.desktop ||
+                    screenType == ScreenType.largeDesktop
                 ? _buildLargeScreenLayout(context, constraints)
                 : _buildSmallScreenLayout(context, constraints);
           },
@@ -124,7 +126,8 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
-      toolbarHeight: MediaQuery.of(context).size.width < kTabletBreakpoint ? 56 : 70,
+      toolbarHeight:
+          MediaQuery.of(context).size.width < kTabletBreakpoint ? 56 : 70,
       flexibleSpace: Container(
         height: 80,
         decoration: BoxDecoration(
@@ -139,31 +142,34 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
       title: Text(
         StringConstant.services,
         style: Theme.of(context).textTheme.displayLarge?.copyWith(
-          fontSize: MediaQuery.of(context).size.width < kTabletBreakpoint ? 16 : 20,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
-            fontFamily:StringConstant.fontName
-        ),
+            fontSize:
+                MediaQuery.of(context).size.width < kTabletBreakpoint ? 16 : 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+            fontFamily: StringConstant.fontName),
       ),
       centerTitle: true,
       actions: MediaQuery.of(context).size.width < kTabletBreakpoint
           ? null
           : [
-        IconButton(
-          icon: Icon(Icons.info_outline, color: Colors.white),
-          onPressed: () => _showHelpDialog(context),
-        ),
-        const SizedBox(width: 8),
-      ],
+              IconButton(
+                icon: Icon(Icons.info_outline, color: Colors.white),
+                onPressed: () => _showHelpDialog(context),
+              ),
+              const SizedBox(width: 8),
+            ],
     );
   }
 
   // Large screen layout (centered card)
-  Widget _buildLargeScreenLayout(BuildContext context, BoxConstraints constraints) {
+  Widget _buildLargeScreenLayout(
+      BuildContext context, BoxConstraints constraints) {
     const double maxCardWidth = 1000; // Max width for the centered card
     return Center(
       child: Container(
-        width: constraints.maxWidth > maxCardWidth ? maxCardWidth : constraints.maxWidth * 0.9,
+        width: constraints.maxWidth > maxCardWidth
+            ? maxCardWidth
+            : constraints.maxWidth * 0.9,
         margin: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -182,7 +188,8 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
   }
 
   // Small screen layout (full-width)
-  Widget _buildSmallScreenLayout(BuildContext context, BoxConstraints constraints) {
+  Widget _buildSmallScreenLayout(
+      BuildContext context, BoxConstraints constraints) {
     final screenType = _getScreenType(constraints.maxWidth);
     return Container(
       color: Colors.white,
@@ -191,7 +198,8 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
   }
 
   // Common content builder
-  Widget _buildContent(BuildContext context, BoxConstraints constraints, ScreenType screenType) {
+  Widget _buildContent(
+      BuildContext context, BoxConstraints constraints, ScreenType screenType) {
     return RefreshIndicator(
       color: ColorManager.primary,
       onRefresh: () async {
@@ -199,16 +207,22 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
         setState(() {});
       },
       child: CustomScrollView(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics()),
         slivers: [
-          SliverToBoxAdapter(child: SizedBox(height: screenType == ScreenType.mobile ? 16 : 24)),
+          SliverToBoxAdapter(
+              child:
+                  SizedBox(height: screenType == ScreenType.mobile ? 16 : 24)),
           if (screenType != ScreenType.mobile)
             SliverToBoxAdapter(child: _buildHeaderSection(context, screenType)),
-          SliverToBoxAdapter(child: SizedBox(height: screenType == ScreenType.mobile ? 16 : 24)),
+          SliverToBoxAdapter(
+              child:
+                  SizedBox(height: screenType == ScreenType.mobile ? 16 : 24)),
           _buildServicesLayout(context, screenType, constraints),
           SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: screenType == ScreenType.mobile ? 20 : 30),
+              padding: EdgeInsets.symmetric(
+                  vertical: screenType == ScreenType.mobile ? 20 : 30),
               child: _buildSuccessPartnerSection(context, screenType),
             ),
           ),
@@ -233,7 +247,9 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
           Expanded(
             child: Text(
               "Explore our comprehensive legal services tailored to protect your intellectual property",
-              style: TextStyle(fontSize: screenType == ScreenType.tablet ? 14 : 16,fontFamily:StringConstant.fontName),
+              style: TextStyle(
+                  fontSize: screenType == ScreenType.tablet ? 14 : 16,
+                  fontFamily: StringConstant.fontName),
             ),
           ),
         ],
@@ -242,7 +258,8 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
   }
 
   // Services layout
-  Widget _buildServicesLayout(BuildContext context, ScreenType screenType, BoxConstraints constraints) {
+  Widget _buildServicesLayout(
+      BuildContext context, ScreenType screenType, BoxConstraints constraints) {
     if (screenType == ScreenType.mobile) {
       return SliverToBoxAdapter(child: _buildMobileServicesLayout(context));
     } else if (screenType == ScreenType.tablet) {
@@ -261,7 +278,11 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             "Our Services",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: ColorManager.primary,fontFamily:StringConstant.fontName),
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: ColorManager.primary,
+                fontFamily: StringConstant.fontName),
           ),
         ),
         SizedBox(
@@ -271,8 +292,10 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
             physics: const BouncingScrollPhysics(),
             itemCount: services.length,
             itemBuilder: (context, index) => Padding(
-              padding: EdgeInsets.only(left: 16, right: index == services.length - 1 ? 16 : 0),
-              child: _buildServiceCard(context, services[index], width: MediaQuery.of(context).size.width * 0.7),
+              padding: EdgeInsets.only(
+                  left: 16, right: index == services.length - 1 ? 16 : 0),
+              child: _buildServiceCard(context, services[index],
+                  width: MediaQuery.of(context).size.width * 0.7),
             ),
           ),
         ),
@@ -292,7 +315,7 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
           mainAxisSpacing: 16,
         ),
         delegate: SliverChildBuilderDelegate(
-              (context, index) => _buildServiceCard(context, services[index]),
+          (context, index) => _buildServiceCard(context, services[index]),
           childCount: services.length,
         ),
       ),
@@ -300,7 +323,8 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
   }
 
   // Desktop services layout (3-4 columns)
-  Widget _buildDesktopServicesLayout(BuildContext context, ScreenType screenType) {
+  Widget _buildDesktopServicesLayout(
+      BuildContext context, ScreenType screenType) {
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       sliver: SliverGrid(
@@ -311,7 +335,8 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
           mainAxisSpacing: 24,
         ),
         delegate: SliverChildBuilderDelegate(
-              (context, index) => _buildServiceCard(context, services[index], showHoverEffect: true),
+          (context, index) => _buildServiceCard(context, services[index],
+              showHoverEffect: true),
           childCount: services.length,
         ),
       ),
@@ -319,14 +344,18 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
   }
 
   // Service card widget
-  Widget _buildServiceCard(BuildContext context, ServiceItem service, {double? width, bool showHoverEffect = false}) {
+  Widget _buildServiceCard(BuildContext context, ServiceItem service,
+      {double? width, bool showHoverEffect = false}) {
     return Container(
       width: width,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5)),
+          BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 5)),
         ],
       ),
       child: InkWell(
@@ -342,7 +371,8 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
                 child: CircleAvatar(
                   radius: 45,
                   backgroundColor: ColorManager.primary.withOpacity(0.1),
-                  child: Image.asset(service.image, width: 50, height: 50, color: ColorManager.primary),
+                  child: Image.asset(service.image,
+                      width: 50, height: 50, color: ColorManager.primary),
                 ),
               ),
               const SizedBox(height: 16),
@@ -351,10 +381,9 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
                 child: Text(
                   service.title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: ColorManager.primary,
-                    fontWeight: FontWeight.w600,
-                      fontFamily:StringConstant.fontName
-                  ),
+                      color: ColorManager.primary,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: StringConstant.fontName),
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -368,12 +397,13 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
   }
 
   // Success partner section
-  Widget _buildSuccessPartnerSection(BuildContext context, ScreenType screenType) {
+  Widget _buildSuccessPartnerSection(
+      BuildContext context, ScreenType screenType) {
     final double width = screenType == ScreenType.mobile
         ? double.infinity
         : screenType == ScreenType.tablet
-        ? MediaQuery.of(context).size.width * 0.7
-        : 400;
+            ? MediaQuery.of(context).size.width * 0.7
+            : 400;
 
     return Center(
       child: Container(
@@ -381,13 +411,19 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
         height: screenType == ScreenType.mobile ? 180 : 200,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [ColorManager.primary.withOpacity(0.8), ColorManager.primary],
+            colors: [
+              ColorManager.primary.withOpacity(0.8),
+              ColorManager.primary
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
-            BoxShadow(color: ColorManager.primary.withOpacity(0.3), blurRadius: 15, offset: const Offset(0, 8)),
+            BoxShadow(
+                color: ColorManager.primary.withOpacity(0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 8)),
           ],
         ),
         child: InkWell(
@@ -415,33 +451,34 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
                       Text(
                         StringConstant.SuccessPartners,
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: screenType == ScreenType.mobile ? 18 : 22,
-                          fontWeight: FontWeight.bold,
-                            fontFamily:StringConstant.fontName
-                        ),
+                            color: Colors.white,
+                            fontSize: screenType == ScreenType.mobile ? 18 : 22,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: StringConstant.fontName),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         "Join our network of successful partners and grow your business",
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: screenType == ScreenType.mobile ? 12 : 14,
-                            fontFamily:StringConstant.fontName
-                        ),
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: screenType == ScreenType.mobile ? 12 : 14,
+                            fontFamily: StringConstant.fontName),
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 12),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 6),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20)),
                         child: Text(
                           "Learn More",
                           style: TextStyle(
                             color: ColorManager.primary,
                             fontWeight: FontWeight.bold,
-                            fontFamily:StringConstant.fontName,
+                            fontFamily: StringConstant.fontName,
                             fontSize: screenType == ScreenType.mobile ? 12 : 14,
                           ),
                         ),
@@ -471,8 +508,11 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
             borderRadius: BorderRadius.circular(25),
           ),
           child: Container(
-            width: isLargeScreen ? screenSize.width * 0.5 : screenSize.width * 0.9,
-            height: isLargeScreen ? screenSize.height * 0.7 : screenSize.height * 0.8,
+            width:
+                isLargeScreen ? screenSize.width * 0.5 : screenSize.width * 0.9,
+            height: isLargeScreen
+                ? screenSize.height * 0.7
+                : screenSize.height * 0.8,
             padding: const EdgeInsets.all(20),
             color: Colors.white,
             child: Column(
@@ -549,6 +589,7 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
       },
     );
   }
+
   // Success partner modal
   void _showSuccessPartnerModal(BuildContext context) {
     showDialog(
@@ -562,7 +603,11 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
             children: [
               Text(
                 StringConstant.SuccessPartners,
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: ColorManager.primary,fontFamily:StringConstant.fontName),
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: ColorManager.primary,
+                    fontFamily: StringConstant.fontName),
               ),
               const SizedBox(height: 16),
               Image.asset('assets/images/006-handshake.png', height: 150),
@@ -570,7 +615,10 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
               Text(
                 "Join our network of successful partners and benefit from our extensive expertise.",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, height: 1.5,fontFamily:StringConstant.fontName),
+                style: TextStyle(
+                    fontSize: 16,
+                    height: 1.5,
+                    fontFamily: StringConstant.fontName),
               ),
               const SizedBox(height: 24),
               Row(
@@ -578,13 +626,20 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
                 children: [
                   OutlinedButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text("Close", style: TextStyle(color: ColorManager.primary,fontFamily:StringConstant.fontName)),
+                    child: Text("Close",
+                        style: TextStyle(
+                            color: ColorManager.primary,
+                            fontFamily: StringConstant.fontName)),
                   ),
                   const SizedBox(width: 16),
                   ElevatedButton(
                     onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(backgroundColor: ColorManager.primary),
-                    child: Text("Learn More", style: TextStyle(color: Colors.white,fontFamily:StringConstant.fontName)),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: ColorManager.primary),
+                    child: Text("Learn More",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: StringConstant.fontName)),
                   ),
                 ],
               ),
@@ -600,12 +655,20 @@ class _HomeScreenState extends State<HomeScreenSplach> with SingleTickerProvider
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("About Our Services", style: TextStyle(color: ColorManager.primary, fontWeight: FontWeight.bold,fontFamily:StringConstant.fontName)),
-        content: const Text("Tap any service to view details or explore partnership opportunities."),
+        title: Text("About Our Services",
+            style: TextStyle(
+                color: ColorManager.primary,
+                fontWeight: FontWeight.bold,
+                fontFamily: StringConstant.fontName)),
+        content: const Text(
+            "Tap any service to view details or explore partnership opportunities."),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Close", style: TextStyle(color: ColorManager.primary,fontFamily:StringConstant.fontName)),
+            child: Text("Close",
+                style: TextStyle(
+                    color: ColorManager.primary,
+                    fontFamily: StringConstant.fontName)),
           ),
         ],
       ),

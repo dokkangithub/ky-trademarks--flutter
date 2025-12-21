@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Future<void> _fetchInitialData() async {
     GetCompanyProvider companyProvider =
-    Provider.of<GetCompanyProvider>(context, listen: false);
+        Provider.of<GetCompanyProvider>(context, listen: false);
     await Provider.of<GetCompanyProvider>(context, listen: false)
         .getAllCompanies(context);
     await Provider.of<GetBrandProvider>(context, listen: false)
@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Future<void> _loadMoreData() async {
     GetCompanyProvider companyProvider =
-    Provider.of<GetCompanyProvider>(context, listen: false);
+        Provider.of<GetCompanyProvider>(context, listen: false);
     final provider = Provider.of<GetBrandProvider>(context, listen: false);
     if (!provider.isLoading && provider.hasMoreData && !_isLoadingMore) {
       setState(() => _isLoadingMore = true);
@@ -119,29 +119,31 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       case RequestState.loaded:
         return _isWebView(context)
             ? WebView(
-          byStatus: _byStatus,
-          byBrandDescription: _byBrandDescription,
-          onFilterChanged: (value) => setState(() => _byStatus = value),
-          onBrandDescriptionFilterChanged: (value) => setState(() => _byBrandDescription = value),
-          mainScrollController: _mainScrollController,
-          listScrollController: _listScrollController,
-          isLoadingMore: _isLoadingMore,
-        )
+                byStatus: _byStatus,
+                byBrandDescription: _byBrandDescription,
+                onFilterChanged: (value) => setState(() => _byStatus = value),
+                onBrandDescriptionFilterChanged: (value) =>
+                    setState(() => _byBrandDescription = value),
+                mainScrollController: _mainScrollController,
+                listScrollController: _listScrollController,
+                isLoadingMore: _isLoadingMore,
+              )
             : MobileView(
-          byStatus: _byStatus,
-          byBrandDescription: _byBrandDescription,
-          onFilterChanged: (value) => setState(() => _byStatus = value),
-          onBrandDescriptionFilterChanged: (value) => setState(() => _byBrandDescription = value),
-          mainScrollController: _mainScrollController,
-          listScrollController: _listScrollController,
-          isLoadingMore: _isLoadingMore,
-        );
+                byStatus: _byStatus,
+                byBrandDescription: _byBrandDescription,
+                onFilterChanged: (value) => setState(() => _byStatus = value),
+                onBrandDescriptionFilterChanged: (value) =>
+                    setState(() => _byBrandDescription = value),
+                mainScrollController: _mainScrollController,
+                listScrollController: _listScrollController,
+                isLoadingMore: _isLoadingMore,
+              );
       case RequestState.failed:
         return Center(
             child: Text(
-              "There are Error",
-              style: TextStyle(fontFamily: StringConstant.fontName),
-            ));
+          "There are Error",
+          style: TextStyle(fontFamily: StringConstant.fontName),
+        ));
       default:
         return _isWebView(context)
             ? const WebLoadingShimmer()
@@ -165,13 +167,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       flexibleSpace: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              ColorManager.primaryByOpacity.withValues(alpha: 0.9),
-              ColorManager.primary,
-            ],
-            stops: [0.2,0.7]
-          ),
+          gradient: LinearGradient(colors: [
+            ColorManager.primaryByOpacity.withValues(alpha: 0.9),
+            ColorManager.primary,
+          ], stops: [
+            0.2,
+            0.7
+          ]),
         ),
       ),
     );

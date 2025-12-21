@@ -31,30 +31,30 @@ class MobileIssueDetailsView extends StatelessWidget {
             // Issue Header
 
             const SizedBox(height: 16),
-            
+
             // Issue Info Card
-           // _buildIssueInfoCard(context),
-            
+            // _buildIssueInfoCard(context),
+
             const SizedBox(height: 16),
-            
+
             // Brand Info Card
             _buildBrandInfoCard(context),
-            
+
             const SizedBox(height: 16),
-            
+
             // Customer & Company Info Card
             _buildCustomerCompanyCard(context),
-            
+
             const SizedBox(height: 16),
-            
+
             // Refused Details Card
             _buildRefusedDetailsCard(context),
-            
+
             const SizedBox(height: 16),
-            
+
             // Statistics Card
             _buildStatisticsCard(context),
-            
+
             const SizedBox(height: 20),
           ],
         ),
@@ -106,9 +106,9 @@ class MobileIssueDetailsView extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Issue Title
               Text(
                 "قضية رقم ${issueDetails.id}",
@@ -120,12 +120,13 @@ class MobileIssueDetailsView extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // Issue Type
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -197,12 +198,13 @@ class MobileIssueDetailsView extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Issue Details
           _buildInfoRow("رقم القضية", issueDetails.id.toString()),
-          _buildInfoRow("نوع القضية", _getIssueTypeText(issueDetails.refusedType)),
+          _buildInfoRow(
+              "نوع القضية", _getIssueTypeText(issueDetails.refusedType)),
           _buildInfoRow("تاريخ الإنشاء", _formatDate(issueDetails.createdAt)),
           _buildInfoRow("آخر تحديث", _formatDate(issueDetails.updatedAt)),
         ],
@@ -257,15 +259,17 @@ class MobileIssueDetailsView extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Brand Details
           _buildInfoRow("اسم العلامة", issueDetails.brand.brandName),
           _buildInfoRow("رقم العلامة", issueDetails.brand.brandNumber),
-          if (issueDetails.brand.brandDescription != null && issueDetails.brand.brandDescription!.isNotEmpty)
+          if (issueDetails.brand.brandDescription != null &&
+              issueDetails.brand.brandDescription!.isNotEmpty)
             _buildInfoRow("وصف العلامة", issueDetails.brand.brandDescription!),
-          if (issueDetails.brand.brandDetails != null && issueDetails.brand.brandDetails!.isNotEmpty)
+          if (issueDetails.brand.brandDetails != null &&
+              issueDetails.brand.brandDetails!.isNotEmpty)
             _buildInfoRow("تفاصيل العلامة", issueDetails.brand.brandDetails!),
         ],
       ),
@@ -318,17 +322,18 @@ class MobileIssueDetailsView extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           _buildInfoRow("الاسم", issueDetails.customer.name),
           _buildInfoRow("البريد الإلكتروني", issueDetails.customer.email),
           _buildInfoRow("رقم الهاتف", issueDetails.customer.phone),
-          if (issueDetails.customer.address != null && issueDetails.customer.address!.isNotEmpty)
+          if (issueDetails.customer.address != null &&
+              issueDetails.customer.address!.isNotEmpty)
             _buildInfoRow("العنوان", issueDetails.customer.address!),
-          
+
           const SizedBox(height: 20),
-          
+
           // Company Info Section
           Row(
             children: [
@@ -356,11 +361,12 @@ class MobileIssueDetailsView extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           _buildInfoRow("اسم الشركة", issueDetails.company.companyName),
-          if (issueDetails.company.address != null && issueDetails.company.address!.isNotEmpty)
+          if (issueDetails.company.address != null &&
+              issueDetails.company.address!.isNotEmpty)
             _buildInfoRow("عنوان الشركة", issueDetails.company.address!),
         ],
       ),
@@ -369,8 +375,9 @@ class MobileIssueDetailsView extends StatelessWidget {
 
   Widget _buildRefusedDetailsCard(BuildContext context) {
     final refusedDetails = issueDetails.refusedDetails;
-    final isOpposition = issueDetails.refusedType.toLowerCase().contains('opposition');
-    
+    final isOpposition =
+        issueDetails.refusedType.toLowerCase().contains('opposition');
+
     return Container(
       key: refusedDetailsKey,
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -417,16 +424,21 @@ class MobileIssueDetailsView extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Basic refused details
-          if (refusedDetails.appealDate != null && refusedDetails.appealDate!.isNotEmpty)
-            _buildInfoRow("تاريخ الاستئناف", _formatDate(refusedDetails.appealDate!)),
-          if (refusedDetails.appealNumber != null && refusedDetails.appealNumber!.isNotEmpty)
+          if (refusedDetails.appealDate != null &&
+              refusedDetails.appealDate!.isNotEmpty)
+            _buildInfoRow(
+                "تاريخ الاستئناف", _formatDate(refusedDetails.appealDate!)),
+          if (refusedDetails.appealNumber != null &&
+              refusedDetails.appealNumber!.isNotEmpty)
             _buildInfoRow("رقم الاستئناف", refusedDetails.appealNumber!),
-          if (refusedDetails.refusedDate != null && refusedDetails.refusedDate!.isNotEmpty)
-            _buildInfoRow("تاريخ الرفض", _formatDate(refusedDetails.refusedDate!)),
+          if (refusedDetails.refusedDate != null &&
+              refusedDetails.refusedDate!.isNotEmpty)
+            _buildInfoRow(
+                "تاريخ الرفض", _formatDate(refusedDetails.refusedDate!)),
         ],
       ),
     );
@@ -434,7 +446,7 @@ class MobileIssueDetailsView extends StatelessWidget {
 
   Widget _buildStatisticsCard(BuildContext context) {
     final statistics = issueDetails.statistics;
-    
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(20),
@@ -480,9 +492,9 @@ class MobileIssueDetailsView extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Statistics Grid
           Row(
             children: [
@@ -505,9 +517,9 @@ class MobileIssueDetailsView extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           Row(
             children: [
               Expanded(
@@ -534,7 +546,8 @@ class MobileIssueDetailsView extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+      String title, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -629,4 +642,4 @@ class MobileIssueDetailsView extends StatelessWidget {
       return dateString.split(' ')[0]; // Return date part only
     }
   }
-} 
+}

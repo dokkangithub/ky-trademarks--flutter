@@ -1,6 +1,5 @@
 // lib/presentation/Screens/chat screen/view/widgets/chat_input.dart
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:iconly/iconly.dart';
@@ -25,7 +24,8 @@ class ChatInput extends StatefulWidget {
   _ChatInputState createState() => _ChatInputState();
 }
 
-class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMixin {
+class _ChatInputState extends State<ChatInput>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   bool _isTyping = false;
@@ -133,7 +133,8 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
     });
   }
 
-  void _onFileSelected(File? file, Uint8List? fileBytes, String fileName, String type) {
+  void _onFileSelected(
+      File? file, Uint8List? fileBytes, String fileName, String type) {
     if (widget.onAttachmentSelected != null) {
       widget.onAttachmentSelected!(file, fileBytes, fileName, type);
     }
@@ -176,7 +177,6 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
               onClose: _hideAttachmentPicker,
             ),
           ),
-        
         AnimatedSwitcher(
           duration: Duration(milliseconds: 400),
           transitionBuilder: (Widget child, Animation<double> animation) {
@@ -223,11 +223,8 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            if (widget.onAttachmentSelected != null)
-              _buildAttachmentButton(),
-
+            if (widget.onAttachmentSelected != null) _buildAttachmentButton(),
             SizedBox(width: 8),
-
             Expanded(
               child: Container(
                 constraints: BoxConstraints(
@@ -238,7 +235,7 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
                   color: Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(
-                    color: _focusNode.hasFocus 
+                    color: _focusNode.hasFocus
                         ? ColorManager.primary.withOpacity(0.4)
                         : Colors.grey.shade200,
                     width: 1,
@@ -278,9 +275,7 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
                 ),
               ),
             ),
-
             SizedBox(width: 8),
-
             AnimatedSwitcher(
               duration: Duration(milliseconds: 200),
               transitionBuilder: (Widget child, Animation<double> animation) {
@@ -386,12 +381,14 @@ class _ChatInputState extends State<ChatInput> with SingleTickerProviderStateMix
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            if (widget.onSendAudio != null || widget.onAttachmentSelected != null) {
+            if (widget.onSendAudio != null ||
+                widget.onAttachmentSelected != null) {
               _startVoiceRecording();
             }
           },
           onLongPress: () {
-            if (widget.onSendAudio != null || widget.onAttachmentSelected != null) {
+            if (widget.onSendAudio != null ||
+                widget.onAttachmentSelected != null) {
               _startVoiceRecording();
             }
           },

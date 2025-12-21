@@ -47,8 +47,10 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> {
         allowMuting: true,
         showControls: true,
         materialProgressColors: ChewieProgressColors(
-          playedColor: widget.isFromCurrentUser ? Colors.white : ColorManager.primary,
-          handleColor: widget.isFromCurrentUser ? Colors.white : ColorManager.primary,
+          playedColor:
+              widget.isFromCurrentUser ? Colors.white : ColorManager.primary,
+          handleColor:
+              widget.isFromCurrentUser ? Colors.white : ColorManager.primary,
           backgroundColor: Colors.grey.shade300,
           bufferedColor: Colors.grey.shade400,
         ),
@@ -56,7 +58,9 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> {
           color: Colors.black,
           child: Center(
             child: CircularProgressIndicator(
-              color: widget.isFromCurrentUser ? Colors.white : ColorManager.primary,
+              color: widget.isFromCurrentUser
+                  ? Colors.white
+                  : ColorManager.primary,
             ),
           ),
         ),
@@ -131,7 +135,9 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> {
                             child: CircularProgressIndicator(
                               strokeWidth: 3,
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                widget.isFromCurrentUser ? Colors.white : ColorManager.primary,
+                                widget.isFromCurrentUser
+                                    ? Colors.white
+                                    : ColorManager.primary,
                               ),
                             ),
                           ),
@@ -153,4 +159,4 @@ class _VideoMessageBubbleState extends State<VideoMessageBubble> {
       ],
     );
   }
-} 
+}

@@ -12,16 +12,15 @@ class BrandDetailsRepository extends BaseBrandDetailsRepository {
   BrandDetailsRepository({required this.baseGetBrandDetailsRemoteData});
 
   @override
-  Future<Either<Failure, BrandDetailsDataEntity>> getBrandDetails({required int brandNumber}) async {
+  Future<Either<Failure, BrandDetailsDataEntity>> getBrandDetails(
+      {required int brandNumber}) async {
     try {
-      final result =
-          await baseGetBrandDetailsRemoteData.getBrandDetailsFromRemote(brandNumber:brandNumber);
+      final result = await baseGetBrandDetailsRemoteData
+          .getBrandDetailsFromRemote(brandNumber: brandNumber);
 
       return Right(result);
     } on ServerException catch (failure) {
       return Left(ServerFailure(message: failure.errorModel.message));
     }
   }
-
-
 }

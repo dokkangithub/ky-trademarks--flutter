@@ -15,4 +15,4 @@ class GetIssuesSummaryUseCase {
       customerId: customerId,
     );
   }
-} 
+}

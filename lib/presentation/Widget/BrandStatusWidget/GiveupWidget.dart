@@ -33,148 +33,163 @@ class GiveUpWidget extends StatelessWidget {
               decoration: BoxDecoration(
                   color: ColorManager.anotherTabBackGround,
                   borderRadius: BorderRadius.circular(8)),
-              child:
-                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SvgPicture.asset(ImagesConstants.status),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Expanded(
-                          child: Column(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          stateOfBrand(
-                              displayLarge,
-                              brandDetailsDataEntity.AllResult[number].states,
-                              brandDetailsDataEntity
-                                  .AllResult[number].created_at),
-
-                          const SizedBox(
-                            height: 5,
+                          SvgPicture.asset(ImagesConstants.status),
+                          SizedBox(
+                            width: 5,
                           ),
+                          Expanded(
+                              child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              stateOfBrand(
+                                  displayLarge,
+                                  brandDetailsDataEntity
+                                      .AllResult[number].states,
+                                  brandDetailsDataEntity
+                                      .AllResult[number].created_at),
 
-                          /// DATA OF giveup
+                              const SizedBox(
+                                height: 5,
+                              ),
 
-                          checkNullValue(
-                                  value: brandDetailsDataEntity
-                                      .AllResult[number].giveUpDate)
-                              ? Row(
-                                  children: [
-                                    Text(
-                                      "date_of_transfer".tr(),
-                                      style: headline2,
-                                    ),
-                                    Expanded(
-                                        child: Padding(
-                                      padding: const EdgeInsetsDirectional.only(end: 10),
-                                      child: Text(
-                                        "${brandDetailsDataEntity.AllResult[number].giveUpDate.toString()}",
-                                        style: displayLarge,
-                                      ),
-                                    )),
-                                  ],
-                                )
-                              : const SizedBox(),
-                          const SizedBox(
-                            height: 5,
-                          ),
+                              /// DATA OF giveup
 
-                          checkNullValue(
-                                  value: brandDetailsDataEntity
-                                      .AllResult[number].giveUpNotes)
-                              ? Row(
-                                  children: [
-                                    Text(
-                                      "notes".tr(),
-                                      style: headline2,
-                                    ),
-                                    Expanded(
-                                        child: Padding(
-                                      padding: const EdgeInsetsDirectional.only(end: 10),
-                                      child: Text(
-                                        "${brandDetailsDataEntity.AllResult[number].giveUpNotes}",
-                                        style: displayLarge,
-                                      ),
-                                    )),
-                                  ],
-                                )
-                              : const SizedBox(),
-                          const SizedBox(
-                            height: 5,
-                          ),
+                              checkNullValue(
+                                      value: brandDetailsDataEntity
+                                          .AllResult[number].giveUpDate)
+                                  ? Row(
+                                      children: [
+                                        Text(
+                                          "date_of_transfer".tr(),
+                                          style: headline2,
+                                        ),
+                                        Expanded(
+                                            child: Padding(
+                                          padding:
+                                              const EdgeInsetsDirectional.only(
+                                                  end: 10),
+                                          child: Text(
+                                            "${brandDetailsDataEntity.AllResult[number].giveUpDate.toString()}",
+                                            style: displayLarge,
+                                          ),
+                                        )),
+                                      ],
+                                    )
+                                  : const SizedBox(),
+                              const SizedBox(
+                                height: 5,
+                              ),
 
-                          const SizedBox(
-                            height: 5,
-                          ),
-                        ],
-                      ))
-                    ]),
-                    data.giveUpGallery==null||data.giveUpGallery!.isEmpty||data.giveUpGallery==[]
+                              checkNullValue(
+                                      value: brandDetailsDataEntity
+                                          .AllResult[number].giveUpNotes)
+                                  ? Row(
+                                      children: [
+                                        Text(
+                                          "notes".tr(),
+                                          style: headline2,
+                                        ),
+                                        Expanded(
+                                            child: Padding(
+                                          padding:
+                                              const EdgeInsetsDirectional.only(
+                                                  end: 10),
+                                          child: Text(
+                                            "${brandDetailsDataEntity.AllResult[number].giveUpNotes}",
+                                            style: displayLarge,
+                                          ),
+                                        )),
+                                      ],
+                                    )
+                                  : const SizedBox(),
+                              const SizedBox(
+                                height: 5,
+                              ),
+
+                              const SizedBox(
+                                height: 5,
+                              ),
+                            ],
+                          ))
+                        ]),
+                    data.giveUpGallery == null ||
+                            data.giveUpGallery!.isEmpty ||
+                            data.giveUpGallery == []
                         ? InkWell(
-                      onTap: () => null,
-                      child: Container(
-                        margin:
-                        EdgeInsetsDirectional.only(end: 10, bottom: 10),
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 5),
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                ColorManager.primary,
-                                ColorManager.primaryByOpacity
-                                    .withOpacity(0.9),
-                              ],
+                            onTap: () => null,
+                            child: Container(
+                              margin: EdgeInsetsDirectional.only(
+                                  end: 10, bottom: 10),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 5),
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      ColorManager.primary,
+                                      ColorManager.primaryByOpacity
+                                          .withOpacity(0.9),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(15)),
+                              child: Text(
+                                "no_Attachments".tr(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .displayLarge
+                                    ?.copyWith(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500),
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(15)),
-                        child: Text(
-                          "no_Attachments".tr(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .displayLarge
-                              ?.copyWith(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                    ) :Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    InkWell(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => GalleryPage(
-                                  imagesList: data.giveUpGallery,
-                                )),
-                      ),
-                      child: Container(
-                        margin: EdgeInsetsDirectional.only(end: 10, bottom: 10),
-                        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                ColorManager.primary,
-                                ColorManager.primaryByOpacity.withOpacity(0.9),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(15)),
-                        child: Text(
-                          "attachments".tr(),
-                          style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              ]))),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              InkWell(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => GalleryPage(
+                                            imagesList: data.giveUpGallery,
+                                          )),
+                                ),
+                                child: Container(
+                                  margin: EdgeInsetsDirectional.only(
+                                      end: 10, bottom: 10),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 5),
+                                  decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          ColorManager.primary,
+                                          ColorManager.primaryByOpacity
+                                              .withOpacity(0.9),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(15)),
+                                  child: Text(
+                                    "attachments".tr(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .displayLarge
+                                        ?.copyWith(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                  ]))),
     );
   }
 }

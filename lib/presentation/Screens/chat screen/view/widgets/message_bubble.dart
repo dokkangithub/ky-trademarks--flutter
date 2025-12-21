@@ -1,6 +1,5 @@
 // lib/presentation/Screens/chat screen/view/widgets/message_bubble.dart
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:iconly/iconly.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -66,14 +65,14 @@ class MessageBubble extends StatelessWidget {
                 border: message.isFromCurrentUser
                     ? null
                     : Border.all(
-                  color: Colors.grey.shade200,
-                  width: 1,
-                ),
+                        color: Colors.grey.shade200,
+                        width: 1,
+                      ),
               ),
               child: GestureDetector(
                 onTap: onTap,
                 child: Padding(
-                  padding: EdgeInsets.all(message.text!=null? 8:4),
+                  padding: EdgeInsets.all(message.text != null ? 8 : 4),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -119,7 +118,9 @@ class MessageBubble extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          message.senderName.isNotEmpty ? message.senderName[0].toUpperCase() : 'U',
+          message.senderName.isNotEmpty
+              ? message.senderName[0].toUpperCase()
+              : 'U',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -168,7 +169,12 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildImageMessage(BuildContext context) {
-    if (message.status == MessageStatus.sending || message.mediaUrl == null) {
+    if (message.mediaUrl == null && message.status != MessageStatus.sending) {
+      return SizedBox.shrink();
+    }
+
+    // إذا كانت الرسالة في حالة sending لكن مفيش mediaUrl بعد، نعرض placeholder بسيط
+    if (message.mediaUrl == null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -188,29 +194,10 @@ class MessageBubble extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 32,
-                    height: 32,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        message.isFromCurrentUser ? Colors.white : ColorManager.primary,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  Text(
-                    message.status == MessageStatus.sending ? 'uploading_image'.tr() : 'loading_image'.tr(),
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+              child: Icon(
+                Icons.image,
+                color: Colors.grey.shade400,
+                size: 48,
               ),
             ),
           ),
@@ -297,7 +284,6 @@ class MessageBubble extends StatelessWidget {
                     height: size.height * 0.9,
                     width: size.width * 0.9,
                     fit: BoxFit.contain,
-
                   ),
                 ),
               ),
@@ -323,7 +309,12 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildVideoMessage() {
-    if (message.status == MessageStatus.sending || message.mediaUrl == null) {
+    if (message.mediaUrl == null && message.status != MessageStatus.sending) {
+      return SizedBox.shrink();
+    }
+
+    // إذا كانت الرسالة في حالة sending لكن مفيش mediaUrl بعد، نعرض placeholder بسيط
+    if (message.mediaUrl == null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -343,29 +334,10 @@ class MessageBubble extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 32,
-                    height: 32,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        message.isFromCurrentUser ? Colors.white : ColorManager.primary,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 12),
-                  Text(
-                    message.status == MessageStatus.sending ? 'uploading_video'.tr() : 'loading_video'.tr(),
-                    style: TextStyle(
-                      color: Colors.grey.shade600,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+              child: Icon(
+                Icons.videocam,
+                color: Colors.grey.shade400,
+                size: 48,
               ),
             ),
           ),
@@ -381,7 +353,12 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildAudioMessage() {
-    if (message.status == MessageStatus.sending || message.mediaUrl == null) {
+    if (message.mediaUrl == null && message.status != MessageStatus.sending) {
+      return SizedBox.shrink();
+    }
+
+    // إذا كانت الرسالة في حالة sending لكن مفيش mediaUrl بعد، نعرض placeholder بسيط
+    if (message.mediaUrl == null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -402,24 +379,14 @@ class MessageBubble extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  ),
+                Icon(
+                  Icons.audiotrack,
+                  color: Colors.white,
+                  size: 24,
                 ),
                 SizedBox(width: 16),
                 Text(
-                  message.status == MessageStatus.sending ? 'uploading_audio'.tr() : 'loading_audio'.tr(),
+                  message.fileName ?? 'audio'.tr(),
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -456,18 +423,23 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildPdfMessage() {
-    if (message.status == MessageStatus.sending || message.mediaUrl == null) {
+    if (message.mediaUrl == null && message.status != MessageStatus.sending) {
+      return SizedBox.shrink();
+    }
+
+    // إذا كانت الرسالة في حالة sending لكن مفيش mediaUrl بعد، نعرض placeholder بسيط
+    if (message.mediaUrl == null) {
       return _buildMediaMessage(
         icon: IconlyBroken.document,
         color: Colors.red.shade500,
         title: message.fileName ?? 'document'.tr() + '.pdf',
-        subtitle: message.status == MessageStatus.sending ? 'uploading'.tr() : 'loading'.tr(),
+        subtitle: '',
         gradient: LinearGradient(
           colors: [Colors.red.shade400, Colors.red.shade600],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        isLoading: true,
+        isLoading: false,
       );
     }
 
@@ -480,18 +452,23 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildFileMessage() {
-    if (message.status == MessageStatus.sending || message.mediaUrl == null) {
+    if (message.mediaUrl == null && message.status != MessageStatus.sending) {
+      return SizedBox.shrink();
+    }
+
+    // إذا كانت الرسالة في حالة sending لكن مفيش mediaUrl بعد، نعرض placeholder بسيط
+    if (message.mediaUrl == null) {
       return _buildMediaMessage(
         icon: IconlyBroken.document,
         color: Colors.orange.shade500,
         title: message.fileName ?? 'file'.tr(),
-        subtitle: message.status == MessageStatus.sending ? 'uploading'.tr() : 'loading'.tr(),
+        subtitle: '',
         gradient: LinearGradient(
           colors: [Colors.orange.shade400, Colors.orange.shade600],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        isLoading: true,
+        isLoading: false,
       );
     }
 
@@ -542,18 +519,19 @@ class MessageBubble extends StatelessWidget {
                 ),
                 child: isLoading
                     ? SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                )
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
                     : Icon(
-                  icon,
-                  color: Colors.white,
-                  size: 24,
-                ),
+                        icon,
+                        color: Colors.white,
+                        size: 24,
+                      ),
               ),
               SizedBox(width: 16),
               Flexible(
@@ -570,15 +548,17 @@ class MessageBubble extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
+                    if (subtitle.isNotEmpty) ...[
+                      SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.9),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
-                    ),
+                    ],
                     if (message.fileSize != null && !isLoading) ...[
                       SizedBox(height: 4),
                       Text(
@@ -698,7 +678,8 @@ class MessageBubble extends StatelessWidget {
     if (messageDate == today) {
       return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     } else if (messageDate == yesterday) {
-      return 'yesterday'.tr() + ' ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+      return 'yesterday'.tr() +
+          ' ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     } else {
       return '${dateTime.day}/${dateTime.month} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     }
@@ -707,7 +688,8 @@ class MessageBubble extends StatelessWidget {
   String _formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 }

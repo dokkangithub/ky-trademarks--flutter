@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final getBrandRemoteData = GetBrandRemoteData();
       final String phoneNumber = await getBrandRemoteData.adminPhone();
-      
+
       if (phoneNumber.isNotEmpty) {
         await openWhatsappCrossPlatform(
           context: context,

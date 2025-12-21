@@ -19,4 +19,4 @@ class GetIssuesUseCase {
       perPage: perPage,
     );
   }
-} 
+}

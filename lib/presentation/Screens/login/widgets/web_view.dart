@@ -38,7 +38,8 @@ class WebLoginView extends StatefulWidget {
   State<WebLoginView> createState() => _WebLoginViewState();
 }
 
-class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderStateMixin {
+class _WebLoginViewState extends State<WebLoginView>
+    with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
 
   final List<String> _menuItems = [
@@ -101,7 +102,7 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
                 ),
               ],
             ),
-            child: isSmallScreen 
+            child: isSmallScreen
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -113,7 +114,8 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
                       ),
                       // Hamburger menu for small screens
                       IconButton(
-                        icon: const Icon(Icons.menu, color: Colors.white, size: 30),
+                        icon: const Icon(Icons.menu,
+                            color: Colors.white, size: 30),
                         onPressed: () {
                           _showMobileMenu(context);
                         },
@@ -242,11 +244,14 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
                               onPressed: widget.handleForgotPassword,
                               child: Text(
                                 "forget_password".tr(),
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: StringConstant.fontName,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontFamily: StringConstant.fontName,
+                                    ),
                               ),
                             ),
                           ),
@@ -269,16 +274,16 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
                               ),
                               child: model.loading
                                   ? const CircularProgressIndicator(
-                                  color: Colors.black87)
+                                      color: Colors.black87)
                                   : Text(
-                                'login'.tr(),
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: StringConstant.fontName,
-                                  color: Colors.black87,
-                                ),
-                              ),
+                                      'login'.tr(),
+                                      style: TextStyle(
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: StringConstant.fontName,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
                             ),
                           ),
                           const SizedBox(height: 30.0),
@@ -288,12 +293,15 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
                             children: [
                               Text(
                                 "have_no_account".tr(),
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white,
-                                  fontFamily: StringConstant.fontName,
-                                ),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                      fontFamily: StringConstant.fontName,
+                                    ),
                               ),
                               const SizedBox(height: 15),
                               Row(
@@ -308,12 +316,15 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
                                     onPressed: widget.handleContactUs,
                                     child: Text(
                                       "contact_us".tr(),
-                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 14,
-                                        fontFamily: StringConstant.fontName,
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                            fontFamily: StringConstant.fontName,
+                                          ),
                                     ),
                                   ),
                                   const SizedBox(width: 15),
@@ -334,12 +345,15 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
                                     },
                                     child: Text(
                                       "or_ask".tr(),
-                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                        fontFamily: StringConstant.fontName,
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                            fontFamily: StringConstant.fontName,
+                                          ),
                                     ),
                                   ),
                                 ],
@@ -363,14 +377,14 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
 
   Widget _buildMenuItem(int index, bool isVerySmallScreen) {
     bool isSelected = _selectedIndex == index;
-    
+
     // تقصير النص الطويل للعرض في القائمة بناءً على حجم الشاشة
     String displayText = _menuItems[index];
     int maxLength = isVerySmallScreen ? 10 : 15;
     if (displayText.length > maxLength) {
       displayText = displayText.substring(0, maxLength) + '...';
     }
-    
+
     return InkWell(
       onTap: () {
         setState(() {
@@ -384,13 +398,12 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: isVerySmallScreen ? 4 : 8),
           padding: EdgeInsets.symmetric(
-            vertical: 5, 
-            horizontal: isVerySmallScreen ? 4 : 8
-          ),
+              vertical: 5, horizontal: isVerySmallScreen ? 4 : 8),
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: isSelected ? const Color(0xFFFFD700) : Colors.transparent,
+                color:
+                    isSelected ? const Color(0xFFFFD700) : Colors.transparent,
                 width: 2.0,
               ),
             ),
@@ -410,7 +423,8 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
                   displayText.tr(),
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
                     fontSize: isVerySmallScreen ? 12 : 14,
                     fontFamily: StringConstant.fontName,
                   ),
@@ -481,7 +495,8 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
   // فتح صفحة التقييم
   Future<void> _launchRateUrl() async {
     if (!kIsWeb) {
-      final appId = Platform.isAndroid ? 'com.kytrademarkstrademarks' : '1605389392';
+      final appId =
+          Platform.isAndroid ? 'com.kytrademarkstrademarks' : '1605389392';
       final Uri url = Uri.parse(
         Platform.isAndroid
             ? "market://details?id=$appId"
@@ -498,7 +513,8 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
     } else {
       try {
         await launcher.launchUrl(
-          Uri.parse("https://play.google.com/store/apps/details?id=com.kytrademarks"),
+          Uri.parse(
+              "https://play.google.com/store/apps/details?id=com.kytrademarks"),
           mode: launcher.LaunchMode.externalApplication,
           webOnlyWindowName: '_blank',
         );
@@ -545,13 +561,16 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
                 ...List.generate(
                   _menuItems.length,
                   (index) => ListTile(
-                    leading: Icon(_menuIcons[index], color: Colors.white, size: 20),
+                    leading:
+                        Icon(_menuIcons[index], color: Colors.white, size: 20),
                     title: Text(
                       _menuItems[index].tr(),
                       textAlign: TextAlign.start,
                       style: TextStyle(
                         color: Colors.white,
-                        fontWeight: _selectedIndex == index ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: _selectedIndex == index
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                         fontFamily: StringConstant.fontName,
                         fontSize: 14,
                       ),
@@ -639,11 +658,11 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
         child: Text(
           "agree_services".tr(),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 11.5,
-            fontFamily: StringConstant.fontName,
-          ),
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+                fontSize: 11.5,
+                fontFamily: StringConstant.fontName,
+              ),
           textAlign: TextAlign.center,
         ),
       ),
@@ -661,12 +680,12 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
             child: Text(
               "payment_browse".tr(),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: isLargeScreen ? 14 : 12,
-                letterSpacing: 1,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                fontFamily: StringConstant.fontName,
-              ),
+                    fontSize: isLargeScreen ? 14 : 12,
+                    letterSpacing: 1,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    fontFamily: StringConstant.fontName,
+                  ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -684,11 +703,11 @@ class _WebLoginViewState extends State<WebLoginView> with SingleTickerProviderSt
             child: Text(
               "payment methods".tr(),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: isLargeScreen ? 14 : 12,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                fontFamily: StringConstant.fontName,
-              ),
+                    fontSize: isLargeScreen ? 14 : 12,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    fontFamily: StringConstant.fontName,
+                  ),
               overflow: TextOverflow.ellipsis,
             ),
           ),

@@ -21,4 +21,4 @@ class SearchIssuesUseCase {
       perPage: perPage,
     );
   }
-} 
+}

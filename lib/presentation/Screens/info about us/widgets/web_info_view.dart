@@ -23,9 +23,8 @@ class WebInfoView extends StatelessWidget {
           ],
         ),
       ),
-      child: isTablet 
-          ? _buildTabletLayout(context)
-          : _buildDesktopLayout(context),
+      child:
+          isTablet ? _buildTabletLayout(context) : _buildDesktopLayout(context),
     );
   }
 
@@ -120,34 +119,34 @@ class WebInfoView extends StatelessWidget {
             ),
           ),
           SizedBox(height: isTablet ? 20 : 24),
-          
+
           // Company Name
           Text(
             "من نحن",
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              fontSize: isTablet ? 28 : 32,
-              color: ColorManager.primary,
-              fontWeight: FontWeight.w700,
-              fontFamily: StringConstant.fontName,
-            ),
+                  fontSize: isTablet ? 28 : 32,
+                  color: ColorManager.primary,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: StringConstant.fontName,
+                ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
-          
+
           // Company Description
           Text(
             "شركة رائدة في مجال العلامات التجارية والملكية الفكرية",
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              fontSize: isTablet ? 16 : 18,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w400,
-              fontFamily: StringConstant.fontName,
-              height: 1.4,
-            ),
+                  fontSize: isTablet ? 16 : 18,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w400,
+                  fontFamily: StringConstant.fontName,
+                  height: 1.4,
+                ),
             textAlign: TextAlign.center,
           ),
           SizedBox(height: isTablet ? 20 : 24),
-          
+
           // Decorative Element
           Container(
             width: 60,
@@ -192,7 +191,8 @@ class WebInfoView extends StatelessWidget {
                   color: ColorManager.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(Icons.analytics_outlined, color: ColorManager.primary, size: 20),
+                child: Icon(Icons.analytics_outlined,
+                    color: ColorManager.primary, size: 20),
               ),
               const SizedBox(width: 12),
               Text(
@@ -207,7 +207,6 @@ class WebInfoView extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          
           _buildStatItem("سنوات الخبرة", "10+", Icons.timeline),
           const SizedBox(height: 12),
           _buildStatItem("العملاء", "500+", Icons.people_outline),
@@ -262,7 +261,8 @@ class WebInfoView extends StatelessWidget {
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: ColorManager.primary.withValues(alpha: 0.2)),
+              border: Border.all(
+                  color: ColorManager.primary.withValues(alpha: 0.2)),
             ),
             child: Row(
               children: [
@@ -272,7 +272,8 @@ class WebInfoView extends StatelessWidget {
                     color: ColorManager.primary,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(Icons.info_outline, color: Colors.white, size: 24),
+                  child:
+                      Icon(Icons.info_outline, color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -304,7 +305,7 @@ class WebInfoView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // Info Cards
           Expanded(
             child: _buildInfoCardsColumn(context, isTablet: false),
@@ -338,17 +339,19 @@ class WebInfoView extends StatelessWidget {
 
     return SingleChildScrollView(
       child: Column(
-        children: infoItems.map((item) => Container(
-          margin: const EdgeInsets.only(bottom: 20),
-          child: _buildWebInfoCard(
-            context: context,
-            title: item['title'] as String,
-            content: item['content'] as String,
-            icon: item['icon'] as IconData,
-            gradientColors: item['colors'] as List<Color>,
-            isTablet: isTablet,
-          ),
-        )).toList(),
+        children: infoItems
+            .map((item) => Container(
+                  margin: const EdgeInsets.only(bottom: 20),
+                  child: _buildWebInfoCard(
+                    context: context,
+                    title: item['title'] as String,
+                    content: item['content'] as String,
+                    icon: item['icon'] as IconData,
+                    gradientColors: item['colors'] as List<Color>,
+                    isTablet: isTablet,
+                  ),
+                ))
+            .toList(),
       ),
     );
   }
@@ -394,7 +397,8 @@ class WebInfoView extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, color: Colors.white, size: isTablet ? 22 : 24),
+                  child:
+                      Icon(icon, color: Colors.white, size: isTablet ? 22 : 24),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -411,18 +415,18 @@ class WebInfoView extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Content
           Padding(
             padding: EdgeInsets.all(isTablet ? 20 : 24),
             child: Text(
               content,
               style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                fontSize: isTablet ? 15 : 16,
-                fontFamily: StringConstant.fontName,
-                height: 1.6,
-                color: Colors.grey.shade700,
-              ),
+                    fontSize: isTablet ? 15 : 16,
+                    fontFamily: StringConstant.fontName,
+                    height: 1.6,
+                    color: Colors.grey.shade700,
+                  ),
               textAlign: TextAlign.justify,
             ),
           ),
@@ -430,4 +434,4 @@ class WebInfoView extends StatelessWidget {
       ),
     );
   }
-} 
+}

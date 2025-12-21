@@ -36,7 +36,7 @@ class ChatModel {
       profileImage: json['profileImage'],
       userId: json['userId'],
       userStatus: UserStatus.values.firstWhere(
-            (e) => e.toString() == json['userStatus'],
+        (e) => e.toString() == json['userStatus'],
         orElse: () => UserStatus.offline,
       ),
     );

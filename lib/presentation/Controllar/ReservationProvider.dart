@@ -4,9 +4,10 @@ import 'package:kyuser/app/RequestState/RequestState.dart';
 import 'package:kyuser/network/RestApi/Comman.dart';
 import '../../core/Services_locator.dart';
 import '../../domain/Reservation/UseCase/PostReservationUseCase.dart';
+
 class ReservationProvider extends ChangeNotifier {
-  RequestState state=RequestState.loading;
-  Future<void> sendReservation(  Map<String,String> json) async {
+  RequestState state = RequestState.loading;
+  Future<void> sendReservation(Map<String, String> json) async {
     state = RequestState.loading;
     notifyListeners();
     var result = await PostReservationUseCase(sl()).call(json: json);

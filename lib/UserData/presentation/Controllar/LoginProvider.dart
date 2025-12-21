@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:kyuser/UserData/domain/UseCase/GetUserData.dart';
 
 class LoginProvider extends ChangeNotifier {
- final GetUserDataWithLogin getUserDataWithLogin;
+  final GetUserDataWithLogin getUserDataWithLogin;
 
   bool state = false;
   bool loading = false;
@@ -11,7 +11,8 @@ class LoginProvider extends ChangeNotifier {
   LoginProvider({required this.getUserDataWithLogin});
 
   ///  Login With Email And Password
-  Future loginWithEmailAndPassword({required String email , required String password}) async {
+  Future loginWithEmailAndPassword(
+      {required String email, required String password}) async {
     var result = await getUserDataWithLogin.call();
     // result.fold(
     //         (l) => emit(state.copyWith(

@@ -13,7 +13,6 @@ import '../../resources/Color_Manager.dart';
 import '../../resources/StringManager.dart';
 import '../../utilits/Local_User_Data.dart';
 
-
 Future<void> saveUserData(UserModel data) async {
   await globalAccountData.setId(data.data.id.toString());
   await globalAccountData.setUsername(data.data.name);
@@ -56,15 +55,14 @@ Future<void> logOut() async {
 //   );
 // }
 
-
 toast(
-    String? value, {
-      Object? gravity, // Changed from ToastGravity
-      length = 2, // Changed from Toast.LENGTH_SHORT to direct value
-      Color? bgColor,
-      Color? textColor,
-      bool print = false,
-    }) {
+  String? value, {
+  Object? gravity, // Changed from ToastGravity
+  length = 2, // Changed from Toast.LENGTH_SHORT to direct value
+  Color? bgColor,
+  Color? textColor,
+  bool print = false,
+}) {
   // Convert gravity parameter to oktoast position
   ToastPosition position = ToastPosition.bottom;
   if (gravity == 'top') {
@@ -103,18 +101,16 @@ Future<bool> isConnectedToWiFi() async {
   return connectivityResult == ConnectivityResult.wifi;
 }
 
-
-
 Widget cachedImage(
-    String? url, {
-      double? height,
-      double? width,
-      double? phWidth,
-      BoxFit? fit,
-      BoxFit? placeHolderFit,
-      AlignmentGeometry? alignment,
-      bool usePlaceholderIfUrlEmpty = true,
-    }) {
+  String? url, {
+  double? height,
+  double? width,
+  double? phWidth,
+  BoxFit? fit,
+  BoxFit? placeHolderFit,
+  AlignmentGeometry? alignment,
+  bool usePlaceholderIfUrlEmpty = true,
+}) {
   if (url == null) {
     return placeHolderWidget(
       height: height,
@@ -291,7 +287,6 @@ void openWhatsapp(
     //   ScaffoldMessenger.of(context).showSnackBar(
     //       const SnackBar(content: Text("Whatsapp not installed")));
     // }
-
   }
 }
 

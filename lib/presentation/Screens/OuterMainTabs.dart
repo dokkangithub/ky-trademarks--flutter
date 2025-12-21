@@ -23,7 +23,8 @@ class OuterMainTabs extends StatefulWidget {
 }
 
 class _OuterMainTabsState extends State<OuterMainTabs> {
-  int _selectedIndex = 0; // Unified index for both nav items and speed dial items
+  int _selectedIndex =
+      0; // Unified index for both nav items and speed dial items
   bool open = false;
 
   List<IconData> iconList = [IconlyBroken.profile, IconlyBroken.document];
@@ -42,12 +43,16 @@ class _OuterMainTabsState extends State<OuterMainTabs> {
     SpeedDialMenuData(
       icon: IconlyBroken.calling,
       label: 'التواصل معنا من خلال موقعنا او الاتصال بنا',
-      widget: Contacts(canBack: false,),
+      widget: Contacts(
+        canBack: false,
+      ),
     ),
     SpeedDialMenuData(
       icon: IconlyBroken.document,
       label: 'تقديم طلب الان',
-      widget: AddRequest(canBack: false,),
+      widget: AddRequest(
+        canBack: false,
+      ),
     ),
     SpeedDialMenuData(
       icon: IconlyBroken.star,
@@ -90,7 +95,8 @@ class _OuterMainTabsState extends State<OuterMainTabs> {
     return Scaffold(
       body: _selectedIndex < mainScreens.length
           ? mainScreens[_selectedIndex]
-          : speedDialMenuItems[_selectedIndex - mainScreens.length].widget ?? const SizedBox(),
+          : speedDialMenuItems[_selectedIndex - mainScreens.length].widget ??
+              const SizedBox(),
       floatingActionButton: _buildSpeedDial(),
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
       floatingActionButtonLocation: open == true
@@ -185,7 +191,8 @@ class _OuterMainTabsState extends State<OuterMainTabs> {
         //   ),
         // ),
         Expanded(
-          child: allScreens[_selectedIndex] ?? const SizedBox(), // Display selected screen
+          child: allScreens[_selectedIndex] ??
+              const SizedBox(), // Display selected screen
         ),
       ],
     );
@@ -203,9 +210,8 @@ class _OuterMainTabsState extends State<OuterMainTabs> {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? Colors.white.withOpacity(0.2)
-              : Colors.transparent,
+          color:
+              isSelected ? Colors.white.withOpacity(0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
@@ -221,7 +227,7 @@ class _OuterMainTabsState extends State<OuterMainTabs> {
                 label,
                 style: TextStyle(
                   color: Colors.white,
-                  fontFamily:StringConstant.fontName,
+                  fontFamily: StringConstant.fontName,
                   fontSize: 14,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
@@ -278,15 +284,14 @@ class _OuterMainTabsState extends State<OuterMainTabs> {
             label: item.label,
             labelBackgroundColor: ColorManager.anotherTabBackGround,
             labelStyle: Theme.of(context).textTheme.displayLarge?.copyWith(
-                color: Colors.black,
-                fontWeight: FontWeight.w600,
-                fontSize: 14),
+                color: Colors.black, fontWeight: FontWeight.w600, fontSize: 14),
             onTap: () {
               if (item.isExternalLink) {
                 _launchRateApp();
               } else if (item.widget != null) {
                 // Instead of navigating to a new route, update the screen in-place
-                int index = mainScreens.length + speedDialMenuItems.indexOf(item);
+                int index =
+                    mainScreens.length + speedDialMenuItems.indexOf(item);
                 setState(() => _selectedIndex = index);
                 // Don't push a new route; let the Scaffold show the correct screen
               }
@@ -299,7 +304,8 @@ class _OuterMainTabsState extends State<OuterMainTabs> {
 
   void _launchRateApp() {
     if (!kIsWeb) {
-      final appId = Platform.isAndroid ? 'com.kytrademarkstrademarks' : '1605389392';
+      final appId =
+          Platform.isAndroid ? 'com.kytrademarkstrademarks' : '1605389392';
       final url = Uri.parse(
         Platform.isAndroid
             ? "market://details?id=$appId"
@@ -309,7 +315,7 @@ class _OuterMainTabsState extends State<OuterMainTabs> {
         url,
         mode: LaunchMode.externalApplication,
       );
-    }else{
+    } else {
       launch(
         "https://play.google.com/store/apps/details?id=com.kytrademarks",
       );

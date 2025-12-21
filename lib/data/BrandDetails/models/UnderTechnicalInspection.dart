@@ -1,4 +1,3 @@
-
 class UnderTechnicalInspection {
   int? id;
   int? brandId;

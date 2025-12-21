@@ -9,12 +9,11 @@ class LoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Lottie.asset(
+    return Lottie.asset(
       ImagesConstants.loading,
       fit: BoxFit.fill,
-      height: height??80,
-      width: width??150,
-
+      height: height ?? 80,
+      width: width ?? 150,
     );
   }
 }

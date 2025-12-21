@@ -110,9 +110,9 @@ class IssuesStatsCard extends StatelessWidget {
                     ),
                 ],
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Stats Row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -146,7 +146,8 @@ class IssuesStatsCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(String label, String value, Color color, IconData icon) {
+  Widget _buildStatItem(
+      String label, String value, Color color, IconData icon) {
     return Expanded(
       child: Column(
         children: [
@@ -194,4 +195,4 @@ class IssuesStatsCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 8),
     );
   }
-} 
+}

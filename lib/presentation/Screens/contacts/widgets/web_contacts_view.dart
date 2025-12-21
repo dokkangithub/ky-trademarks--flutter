@@ -44,10 +44,10 @@ class WebContactsView extends StatelessWidget {
           children: [
             // Hero Section
             _buildHeroSection(context),
-            
+
             // Contact Section
             _buildContactSection(context),
-            
+
             // Footer
             _buildFooter(context),
           ],
@@ -94,7 +94,9 @@ class WebContactsView extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: isSecondary ? Colors.transparent : Colors.white,
         foregroundColor: isSecondary ? Colors.white : ColorManager.primary,
-        side: isSecondary ? const BorderSide(color: Colors.white, width: 2) : null,
+        side: isSecondary
+            ? const BorderSide(color: Colors.white, width: 2)
+            : null,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: isSecondary ? 0 : 4,
@@ -128,7 +130,7 @@ class WebContactsView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 60),
-          
+
           // Contact Cards Grid
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1200),
@@ -143,7 +145,8 @@ class WebContactsView extends StatelessWidget {
                 _buildModernContactCard(
                   icon: Icons.location_on,
                   title: "العنوان",
-                  content: "فيلا 193 الحي الخامس\nالتجمع الخامس\nالقاهرة الجديدة",
+                  content:
+                      "فيلا 193 الحي الخامس\nالتجمع الخامس\nالقاهرة الجديدة",
                   color: const Color(0xFFEF4444),
                   onTap: () {},
                 ),
@@ -316,7 +319,8 @@ class WebContactsView extends StatelessWidget {
           backgroundColor: color,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );
@@ -341,4 +345,4 @@ class WebContactsView extends StatelessWidget {
       ),
     );
   }
-} 
+}

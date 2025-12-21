@@ -8,7 +8,6 @@ import 'package:kyuser/utilits/Local_User_Data.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../resources/Color_Manager.dart';
 import 'add reservation/AddReservation.dart';
-import 'chat screen/view/screen/all_chats_screen.dart';
 import 'chat screen/view/screen/chat_screen.dart';
 import 'home screen/HomeScreen.dart';
 import 'notification screen/NotificationScreen.dart';
@@ -28,7 +27,8 @@ class InnerMainTabs extends StatefulWidget {
   }
 }
 
-class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateMixin {
+class _InnerMainTabsState extends State<InnerMainTabs>
+    with TickerProviderStateMixin {
   int _selectedIndex = 0;
   bool open = false;
   bool isAdmin = false; // Deprecated: admin-only chat removed
@@ -41,7 +41,12 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
     IconlyBroken.profile
   ];
 
-  List<String> iconLabels = ['home'.tr(), 'search'.tr(), 'add_reservation'.tr(), 'profile'.tr()];
+  List<String> iconLabels = [
+    'home'.tr(),
+    'search'.tr(),
+    'add_reservation'.tr(),
+    'profile'.tr()
+  ];
 
   List<Widget> mainScreens = [];
   late List<Widget?> allScreens;
@@ -150,7 +155,8 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
     if (item.isSpecial) {
       // Handle special tabs (download links)
       if (item.title.contains('أندرويد')) {
-        launch("https://play.google.com/store/apps/details?id=com.kytrademarks");
+        launch(
+            "https://play.google.com/store/apps/details?id=com.kytrademarks");
       } else if (item.title.contains('آيفون')) {
         launch("https://apps.apple.com/app/id1605389392");
       }
@@ -162,13 +168,17 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
       setState(() {
         _selectedIndex = index;
       });
-    } else if (index == 4) { // تواصل معنا
+    } else if (index == 4) {
+      // تواصل معنا
       setState(() {
-        _selectedIndex = mainScreens.length + 1; // Index of contacts in allScreens
+        _selectedIndex =
+            mainScreens.length + 1; // Index of contacts in allScreens
       });
-    } else if (index == 5) { // الدعم الفني (Chat)
+    } else if (index == 5) {
+      // الدعم الفني (Chat)
       setState(() {
-        _selectedIndex = mainScreens.length; // Index of chat screen in allScreens
+        _selectedIndex =
+            mainScreens.length; // Index of chat screen in allScreens
       });
     }
   }
@@ -206,28 +216,29 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
           if (isLargeScreen) _buildFixedHeader(),
           // Content area
           Expanded(
-            child: isLargeScreen
-                ? _buildWebContent()
-                : _buildMobileLayout(),
+            child: isLargeScreen ? _buildWebContent() : _buildMobileLayout(),
           ),
         ],
       ),
       floatingActionButton: !isLargeScreen ? _buildChatFAB() : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: !isLargeScreen ? AnimatedBottomNavigationBar(
-        backgroundGradient: LinearGradient(colors: [
-          ColorManager.primary,
-          ColorManager.primaryByOpacity.withOpacity(0.7),
-          ColorManager.primary,
-        ]),
-        icons: iconList,
-        activeIndex: _selectedIndex < mainScreens.length ? _selectedIndex : 0,
-        inactiveColor: ColorManager.lightGrey.withOpacity(0.5),
-        activeColor: ColorManager.white,
-        gapLocation: GapLocation.center,
-        notchSmoothness: NotchSmoothness.softEdge,
-        onTap: (index) => setState(() => _selectedIndex = index),
-      ) : null,
+      bottomNavigationBar: !isLargeScreen
+          ? AnimatedBottomNavigationBar(
+              backgroundGradient: LinearGradient(colors: [
+                ColorManager.primary,
+                ColorManager.primaryByOpacity.withOpacity(0.7),
+                ColorManager.primary,
+              ]),
+              icons: iconList,
+              activeIndex:
+                  _selectedIndex < mainScreens.length ? _selectedIndex : 0,
+              inactiveColor: ColorManager.lightGrey.withOpacity(0.5),
+              activeColor: ColorManager.white,
+              gapLocation: GapLocation.center,
+              notchSmoothness: NotchSmoothness.softEdge,
+              onTap: (index) => setState(() => _selectedIndex = index),
+            )
+          : null,
     );
 
     // Wrap with WillPopScope for mobile to handle back button
@@ -268,7 +279,10 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
         onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (_) => ChatScreen(chatId: userId??'', userName: 'الدعم الفني',))),
+                builder: (_) => ChatScreen(
+                      chatId: userId ?? '',
+                      userName: 'الدعم الفني',
+                    ))),
         backgroundColor: Colors.transparent,
         elevation: 0,
         child: Icon(
@@ -306,7 +320,8 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
               children: [
                 // Logo/Brand
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -341,12 +356,14 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
                         final index = entry.key;
                         final item = entry.value;
                         bool isSelected;
-                        
+
                         if (index < mainScreens.length) {
                           isSelected = _selectedIndex == index;
-                        } else if (index == 4) { // تواصل معنا
+                        } else if (index == 4) {
+                          // تواصل معنا
                           isSelected = _selectedIndex == mainScreens.length + 1;
-                        } else if (index == 5) { // الدعم الفني (Chat)
+                        } else if (index == 5) {
+                          // الدعم الفني (Chat)
                           isSelected = _selectedIndex == mainScreens.length;
                         } else {
                           isSelected = false;
@@ -358,14 +375,16 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
                             onTap: () => _handleTopNavTap(index),
                             borderRadius: BorderRadius.circular(8),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
                               decoration: BoxDecoration(
                                 color: isSelected
                                     ? Colors.white.withOpacity(0.2)
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(8),
                                 border: isSelected
-                                    ? Border.all(color: Colors.white.withOpacity(0.3))
+                                    ? Border.all(
+                                        color: Colors.white.withOpacity(0.3))
                                     : null,
                               ),
                               child: Row(
@@ -382,7 +401,9 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 14,
-                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                       fontFamily: StringConstant.fontName,
                                     ),
                                   ),
@@ -458,7 +479,8 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
       color: ColorManager.anotherTabBackGround,
       child: IndexedStack(
         index: _selectedIndex,
-        children: allScreens.map((widget) => widget ?? const SizedBox()).toList(),
+        children:
+            allScreens.map((widget) => widget ?? const SizedBox()).toList(),
       ),
     );
   }
@@ -467,75 +489,79 @@ class _InnerMainTabsState extends State<InnerMainTabs> with TickerProviderStateM
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
-        children: allScreens.map((widget) => widget ?? const SizedBox()).toList(),
+        children:
+            allScreens.map((widget) => widget ?? const SizedBox()).toList(),
       ),
     );
   }
 
   Future<bool> handleWillPopScopeRoot() async {
     return await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        content: SizedBox(
-          width: MediaQuery.of(context).size.width * .6,
-          child: Text(
-            "sure_logout_subtitle".tr(),
-            style: Theme.of(context)
-                .textTheme
-                .displayLarge
-                ?.copyWith(fontSize: 14, color: Colors.grey.shade500,fontFamily:StringConstant.fontName),
-          ),
-        ),
-        title: Text(
-          "sure_logout_title".tr(),
-          style: Theme.of(context)
-              .textTheme
-              .displayLarge
-              ?.copyWith(fontSize: 15, color: Colors.black,fontFamily:StringConstant.fontName),
-        ),
-        actions: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const SizedBox(width: 20),
-              InkWell(
-                onTap: () {
-                  globalAccountData.setStateDialog(true);
-                  exit(0);
-                },
-                child: Text(
-                  "yes".tr(),
-                  style: Theme.of(context)
-                      .textTheme
-                      .displayLarge
-                      ?.copyWith(fontSize: 14,fontFamily:StringConstant.fontName),
-                ),
+          context: context,
+          builder: (context) => AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width * .6,
+              child: Text(
+                "sure_logout_subtitle".tr(),
+                style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                    fontSize: 14,
+                    color: Colors.grey.shade500,
+                    fontFamily: StringConstant.fontName),
               ),
-              const SizedBox(width: 20),
-              InkWell(
-                onTap: () => Navigator.of(context).pop(false),
-                child: Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-                  decoration: BoxDecoration(
-                      color: ColorManager.primaryByOpacity,
-                      border: Border.all(color: Colors.white),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Text(
-                    "no".tr(),
-                    style: Theme.of(context)
-                        .textTheme
-                        .displayLarge
-                        ?.copyWith(color: Colors.white, fontSize: 14,fontFamily:StringConstant.fontName),
+            ),
+            title: Text(
+              "sure_logout_title".tr(),
+              style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                  fontSize: 15,
+                  color: Colors.black,
+                  fontFamily: StringConstant.fontName),
+            ),
+            actions: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(width: 20),
+                  InkWell(
+                    onTap: () {
+                      globalAccountData.setStateDialog(true);
+                      exit(0);
+                    },
+                    child: Text(
+                      "yes".tr(),
+                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          fontSize: 14, fontFamily: StringConstant.fontName),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 20),
+                  InkWell(
+                    onTap: () => Navigator.of(context).pop(false),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 8),
+                      decoration: BoxDecoration(
+                          color: ColorManager.primaryByOpacity,
+                          border: Border.all(color: Colors.white),
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Text(
+                        "no".tr(),
+                        style: Theme.of(context)
+                            .textTheme
+                            .displayLarge
+                            ?.copyWith(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontFamily: StringConstant.fontName),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
-    ) ?? false;
+        ) ??
+        false;
   }
 }
 

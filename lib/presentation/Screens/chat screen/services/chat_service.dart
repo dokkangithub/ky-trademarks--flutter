@@ -10,7 +10,6 @@ class ChatService {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-
   // Send message
   Future<bool> sendMessage(MessageModel message) async {
     try {
@@ -76,7 +75,8 @@ class ChatService {
   }
 
   // Get messages stream
-  Stream<List<MessageModel>> getMessagesStream(String chatId, String currentUserId) {
+  Stream<List<MessageModel>> getMessagesStream(
+      String chatId, String currentUserId) {
     return _firestore
         .collection('chats')
         .doc(chatId)
@@ -84,14 +84,12 @@ class ChatService {
         .orderBy('createdAt', descending: true)
         .limit(50)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-        .map((doc) {
-      final message = MessageModel.fromJson(doc.data(), doc.id);
-      return message.copyWith(
-        isFromCurrentUser: message.senderId == currentUserId,
-      );
-    })
-        .toList());
+        .map((snapshot) => snapshot.docs.map((doc) {
+              final message = MessageModel.fromJson(doc.data(), doc.id);
+              return message.copyWith(
+                isFromCurrentUser: message.senderId == currentUserId,
+              );
+            }).toList());
   }
 
   // Get chats stream for admin - FIXED to load all chats
@@ -122,7 +120,8 @@ class ChatService {
       if (data == null) return null;
 
       // Avoid per-chat unread queries here; rely on stored field or compute on-demand
-      int unreadCount = data['unreadCount'] is int ? data['unreadCount'] as int : 0;
+      int unreadCount =
+          data['unreadCount'] is int ? data['unreadCount'] as int : 0;
 
       return ChatModel(
         chatId: doc.id,
@@ -153,8 +152,7 @@ class ChatService {
           .doc(chatId)
           .collection('messages')
           .where('senderId', isNotEqualTo: currentUserId)
-          .where('status', whereIn: ['sent', 'delivered'])
-          .get();
+          .where('status', whereIn: ['sent', 'delivered']).get();
 
       final batch = _firestore.batch();
 
@@ -168,7 +166,10 @@ class ChatService {
       await batch.commit();
 
       // Reset stored counter if used
-      await _firestore.collection('chats').doc(chatId).set({'unreadCount': 0}, SetOptions(merge: true));
+      await _firestore
+          .collection('chats')
+          .doc(chatId)
+          .set({'unreadCount': 0}, SetOptions(merge: true));
     } catch (e) {
       print('Error marking messages as seen: $e');
     }
@@ -199,7 +200,8 @@ class ChatService {
   }
 
   // Get unread messages count
-  Future<int> getUnreadMessagesCount(String chatId, String currentUserId) async {
+  Future<int> getUnreadMessagesCount(
+      String chatId, String currentUserId) async {
     try {
       final countSnapshot = await _firestore
           .collection('chats')

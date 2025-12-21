@@ -44,32 +44,53 @@ import '../presentation/Controllar/Issues/GetIssueDetailsProvider.dart';
 import '../presentation/Controllar/Issues/GetIssuesProvider.dart';
 import '../presentation/Controllar/Issues/GetIssuesSummaryProvider.dart';
 import '../presentation/Controllar/Issues/SearchIssuesProvider.dart';
+
 final sl = GetIt.instance;
+
 class Services_locator {
   void init() {
     /// REPOSITORY
-    sl.registerLazySingleton<BaseBrandRepository>(() => BrandRepository(baseGetBrandRemoteData: sl()));
-    sl.registerLazySingleton<BaseReservationRepository>(() => SendReservationRepository(baseSendResevationRemotoData: sl()));
-    sl.registerLazySingleton<BaseRequestRepository>(() => SendRequestRepository(baseSendRequestRemotoData: sl()));
-    sl.registerLazySingleton<BaseBrandDetailsRepository>(() => BrandDetailsRepository(baseGetBrandDetailsRemoteData: sl()));
-    sl.registerLazySingleton<BaseBrandGettingBySearchRepository>(() => BrandBySearchRepository(baseGetBrandBySearchRemoteData: sl()));
-    sl.registerLazySingleton<BaseSuccessPartnersRepository>(() => SuccessPartnerRepositey(baseGetSuccessPartnerRemoteData: sl()));
-    sl.registerLazySingleton<BaseUserRepository>(() => UserRepository(baseGetUserRemoteData: sl()));
-    sl.registerLazySingleton<BaseIssuesRepository>(() => IssuesRepository(baseGetIssuesRemoteData: sl()));
+    sl.registerLazySingleton<BaseBrandRepository>(
+        () => BrandRepository(baseGetBrandRemoteData: sl()));
+    sl.registerLazySingleton<BaseReservationRepository>(
+        () => SendReservationRepository(baseSendResevationRemotoData: sl()));
+    sl.registerLazySingleton<BaseRequestRepository>(
+        () => SendRequestRepository(baseSendRequestRemotoData: sl()));
+    sl.registerLazySingleton<BaseBrandDetailsRepository>(
+        () => BrandDetailsRepository(baseGetBrandDetailsRemoteData: sl()));
+    sl.registerLazySingleton<BaseBrandGettingBySearchRepository>(
+        () => BrandBySearchRepository(baseGetBrandBySearchRemoteData: sl()));
+    sl.registerLazySingleton<BaseSuccessPartnersRepository>(
+        () => SuccessPartnerRepositey(baseGetSuccessPartnerRemoteData: sl()));
+    sl.registerLazySingleton<BaseUserRepository>(
+        () => UserRepository(baseGetUserRemoteData: sl()));
+    sl.registerLazySingleton<BaseIssuesRepository>(
+        () => IssuesRepository(baseGetIssuesRemoteData: sl()));
 
-    sl.registerLazySingleton<BaseGetCompanyRemoteData>(() => GetCompanyRemoteData());
-    sl.registerLazySingleton<BaseCompanyRepository>(() => CompanyRepository(baseGetCompanyRemoteData: sl()));
+    sl.registerLazySingleton<BaseGetCompanyRemoteData>(
+        () => GetCompanyRemoteData());
+    sl.registerLazySingleton<BaseCompanyRepository>(
+        () => CompanyRepository(baseGetCompanyRemoteData: sl()));
     sl.registerLazySingleton(() => GetAllCompaniesUseCase(sl()));
     sl.registerFactory(() => GetCompanyProvider());
+
     ///DATA SOURCE
-    sl.registerLazySingleton<BaseGetBrandRemoteData>(() => GetBrandRemoteData());
-    sl.registerLazySingleton<BaseGetBrandDetailsRemoteData>(() => GetBrandDetailsRemoteData());
-    sl.registerLazySingleton<BaseGetBrandBySearchRemoteData>(() => GetBrandBySearchRemoteData());
-    sl.registerLazySingleton<BaseSendResevationRemotoData>(() => SendReservationToRemoteData());
-    sl.registerLazySingleton<BaseSendRequestRemotoData>(() => SendRequestToRemoteData());
-    sl.registerLazySingleton<BaseGetSuccessPartnerRemoteData>(() => GetSuccessPartnerRemotoData());
+    sl.registerLazySingleton<BaseGetBrandRemoteData>(
+        () => GetBrandRemoteData());
+    sl.registerLazySingleton<BaseGetBrandDetailsRemoteData>(
+        () => GetBrandDetailsRemoteData());
+    sl.registerLazySingleton<BaseGetBrandBySearchRemoteData>(
+        () => GetBrandBySearchRemoteData());
+    sl.registerLazySingleton<BaseSendResevationRemotoData>(
+        () => SendReservationToRemoteData());
+    sl.registerLazySingleton<BaseSendRequestRemotoData>(
+        () => SendRequestToRemoteData());
+    sl.registerLazySingleton<BaseGetSuccessPartnerRemoteData>(
+        () => GetSuccessPartnerRemotoData());
     sl.registerLazySingleton<BaseGetUserRemoteData>(() => GetUserRemoteData());
-    sl.registerLazySingleton<BaseGetIssuesRemoteData>(() => GetIssuesRemoteData());
+    sl.registerLazySingleton<BaseGetIssuesRemoteData>(
+        () => GetIssuesRemoteData());
+
     /// USECASE
     sl.registerLazySingleton(() => GetAllBrandsUseCase(sl()));
     sl.registerLazySingleton(() => GetSuccessPartnersUseCase(sl()));

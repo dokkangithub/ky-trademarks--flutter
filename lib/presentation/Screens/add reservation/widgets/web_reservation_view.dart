@@ -55,7 +55,7 @@ class WebReservationView extends StatelessWidget {
 
   Widget _buildContent(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     if (screenWidth < 900) {
       // Mobile layout
       return _buildMobileLayout(context);
@@ -74,7 +74,8 @@ class WebReservationView extends StatelessWidget {
           child: Card(
             elevation: 6,
             shadowColor: ColorManager.primary.withValues(alpha: 0.2),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             color: Colors.white,
             child: Column(
               children: [
@@ -121,7 +122,8 @@ class WebReservationView extends StatelessWidget {
             child: Card(
               elevation: 6,
               shadowColor: ColorManager.primary.withValues(alpha: 0.2),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -139,15 +141,16 @@ class WebReservationView extends StatelessWidget {
               ),
             ),
           ),
-          
+
           const SizedBox(width: 20),
-          
+
           // Right side - Form panel
           Expanded(
             child: Card(
               elevation: 6,
               shadowColor: ColorManager.primary.withValues(alpha: 0.2),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
               color: Colors.white,
               child: Padding(
                 padding: const EdgeInsets.all(30),
@@ -193,7 +196,7 @@ class WebReservationView extends StatelessWidget {
                 ),
         ),
         SizedBox(height: isCompact ? 12 : 16),
-        
+
         // Title
         Text(
           "add_reservation".tr(),
@@ -206,7 +209,7 @@ class WebReservationView extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         SizedBox(height: isCompact ? 6 : 8),
-        
+
         // Subtitle
         Text(
           "fill_to_reservation".tr(),
@@ -217,7 +220,7 @@ class WebReservationView extends StatelessWidget {
           ),
           textAlign: TextAlign.center,
         ),
-        
+
         if (!isCompact) ...[
           const SizedBox(height: 20),
           _buildFeatures(),
@@ -311,7 +314,7 @@ class WebReservationView extends StatelessWidget {
           // Personal Information Section
           _buildSectionTitle("المعلومات الشخصية", Icons.person_outline),
           const SizedBox(height: 40),
-          
+
           // Name and Email row
           Row(
             children: [
@@ -336,7 +339,7 @@ class WebReservationView extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          
+
           // Phone field
           _buildTextField(
             controller: phoneController,
@@ -346,7 +349,6 @@ class WebReservationView extends StatelessWidget {
             keyboardType: TextInputType.phone,
           ),
           const SizedBox(height: 24),
-
 
           // Nationality and City row
           Row(
@@ -371,7 +373,7 @@ class WebReservationView extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          
+
           // Date field
           _buildTextField(
             controller: dateController,
@@ -584,4 +586,4 @@ class WebReservationView extends StatelessWidget {
     if (!value.contains("/")) return "enter_date_in".tr();
     return null;
   }
-} 
+}

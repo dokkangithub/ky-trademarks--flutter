@@ -14,7 +14,8 @@ import '../../../../resources/StringManager.dart';
 import '../../../../data/Brand/models/BrandDataModel.dart';
 import '../../../Controllar/GetBrandBySearchProvider.dart';
 import '../../../Controllar/Issues/SearchIssuesProvider.dart';
-import '../../../../domain/Issues/Entities/IssuesEntity.dart' as issues_entities;
+import '../../../../domain/Issues/Entities/IssuesEntity.dart'
+    as issues_entities;
 import '../../../../utilits/Local_User_Data.dart';
 import '../../../Widget/SearchWidget/NoDataFound.dart';
 import '../../brand details/BrandDetails.dart';
@@ -55,7 +56,7 @@ class WebSearchView extends StatefulWidget {
 
 class _WebSearchViewState extends State<WebSearchView> {
   bool _hasSearched = false; // متغير لتتبع ما إذا كان البحث قد تم تنفيذه
-  
+
   // Simplified responsive values for header only
   double get _containerWidth {
     switch (widget.screenType) {
@@ -95,8 +96,9 @@ class _WebSearchViewState extends State<WebSearchView> {
     // التحقق من الوصول لنهاية الصفحة لتحميل المزيد
     if (widget.mainScrollController.position.pixels >=
         widget.mainScrollController.position.maxScrollExtent - 200) {
-      final provider = Provider.of<GetBrandBySearchProvider>(context, listen: false);
-      if (provider.hasMoreData && 
+      final provider =
+          Provider.of<GetBrandBySearchProvider>(context, listen: false);
+      if (provider.hasMoreData &&
           !provider.isLoading &&
           widget.searchController.text.trim().isNotEmpty) {
         provider.loadMoreBrands(widget.searchController.text.trim());
@@ -112,7 +114,7 @@ class _WebSearchViewState extends State<WebSearchView> {
         children: [
           // Simple Clean Header
           _buildSimpleHeader(context),
-          
+
           // Main Content - استخدام Expanded لأخذ المساحة الكاملة
           Expanded(
             child: CustomScrollView(
@@ -149,11 +151,11 @@ class _WebSearchViewState extends State<WebSearchView> {
             ),
           ),
           SizedBox(height: _contentPadding * 0.6),
-          
+
           // Search Type Tabs
           _buildSearchTypeTabs(),
           SizedBox(height: _contentPadding * 0.8),
-          
+
           // Simple Search Field
           Center(
             child: Container(
@@ -270,7 +272,7 @@ class _WebSearchViewState extends State<WebSearchView> {
                 color: Colors.grey.shade800,
               ),
               decoration: InputDecoration(
-                hintText: widget.currentSearchType == 0 
+                hintText: widget.currentSearchType == 0
                     ? "ابحث عن اسم العلامة التجارية..."
                     : "ابحث في القضايا...",
                 hintStyle: TextStyle(
@@ -289,7 +291,8 @@ class _WebSearchViewState extends State<WebSearchView> {
                         onPressed: () {
                           widget.searchController.clear();
                           setState(() {
-                            _hasSearched = false; // إعادة تعيين البحث عند مسح النص
+                            _hasSearched =
+                                false; // إعادة تعيين البحث عند مسح النص
                           });
                         },
                       )
@@ -339,59 +342,63 @@ class _WebSearchViewState extends State<WebSearchView> {
             ),
           ),
         ),
-        
+
         // مسافة بين حقل البحث والزر
         const SizedBox(width: 16),
-        
-                  // زر البحث منفصل
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: widget.searchController.text.trim().length >= 2 ? [
-                BoxShadow(
-                  color: ColorManager.primary.withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ] : [],
-            ),
-            child: ElevatedButton(
-              onPressed: widget.searchController.text.trim().length >= 2 ? _performSearch : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: widget.searchController.text.trim().length >= 2 
-                    ? ColorManager.primary 
-                    : Colors.grey.shade400,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 18,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.search,
-                    size: 20,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "بحث",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      fontFamily: StringConstant.fontName,
+
+        // زر البحث منفصل
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: widget.searchController.text.trim().length >= 2
+                ? [
+                    BoxShadow(
+                      color: ColorManager.primary.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
-                  ),
-                ],
+                  ]
+                : [],
+          ),
+          child: ElevatedButton(
+            onPressed: widget.searchController.text.trim().length >= 2
+                ? _performSearch
+                : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: widget.searchController.text.trim().length >= 2
+                  ? ColorManager.primary
+                  : Colors.grey.shade400,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 32,
+                vertical: 18,
               ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.search,
+                  size: 20,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "بحث",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    fontFamily: StringConstant.fontName,
+                  ),
+                ),
+              ],
             ),
           ),
+        ),
       ],
     );
   }
@@ -401,21 +408,20 @@ class _WebSearchViewState extends State<WebSearchView> {
       setState(() {
         _hasSearched = true;
       });
-      
+
       if (widget.currentSearchType == 0) {
         // بحث العلامات التجارية
         Provider.of<GetBrandBySearchProvider>(context, listen: false)
             .getAllBrandsBySearch(keyWord: widget.searchController.text.trim());
       } else {
         // بحث القضايا
-        int customerId = globalAccountData.getId() != null 
-            ? int.parse(globalAccountData.getId()!) 
+        int customerId = globalAccountData.getId() != null
+            ? int.parse(globalAccountData.getId()!)
             : 0;
-        Provider.of<SearchIssuesProvider>(context, listen: false)
-            .searchIssues(
-              query: widget.searchController.text.trim(),
-              customerId: customerId,
-            );
+        Provider.of<SearchIssuesProvider>(context, listen: false).searchIssues(
+          query: widget.searchController.text.trim(),
+          customerId: customerId,
+        );
       }
     }
   }
@@ -424,7 +430,7 @@ class _WebSearchViewState extends State<WebSearchView> {
     if (widget.searchController.text.isEmpty || !_hasSearched) {
       return _buildEmptyState();
     }
-    
+
     return widget.currentSearchType == 0
         ? _buildBrandSearchResults()
         : _buildIssueSearchResults();
@@ -488,7 +494,8 @@ class _WebSearchViewState extends State<WebSearchView> {
             return _buildLoadingState();
           } else if (model.state == RequestState.failed) {
             return _buildErrorState();
-          } else if (model.state == RequestState.loaded || model.allBrands.isNotEmpty) {
+          } else if (model.state == RequestState.loaded ||
+              model.allBrands.isNotEmpty) {
             if (model.allBrands.isEmpty) {
               return _buildNoResultsState();
             } else {
@@ -507,11 +514,13 @@ class _WebSearchViewState extends State<WebSearchView> {
       padding: EdgeInsets.all(_contentPadding),
       child: Consumer<SearchIssuesProvider>(
         builder: (context, model, _) {
-          if (model.state == RequestState.loading && model.searchResults.isEmpty) {
+          if (model.state == RequestState.loading &&
+              model.searchResults.isEmpty) {
             return _buildLoadingState();
           } else if (model.state == RequestState.failed) {
             return _buildErrorState();
-          } else if (model.state == RequestState.loaded || model.searchResults.isNotEmpty) {
+          } else if (model.state == RequestState.loaded ||
+              model.searchResults.isNotEmpty) {
             if (model.searchResults.isEmpty) {
               return _buildNoResultsState();
             } else {
@@ -550,7 +559,8 @@ class _WebSearchViewState extends State<WebSearchView> {
                 height: 28,
                 child: CircularProgressIndicator(
                   strokeWidth: 3,
-                  valueColor: AlwaysStoppedAnimation<Color>(ColorManager.primary),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(ColorManager.primary),
                 ),
               ),
               const SizedBox(width: 20),
@@ -574,22 +584,22 @@ class _WebSearchViewState extends State<WebSearchView> {
 
   Widget _buildShimmerGrid() {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     return SpGrid(
       width: double.infinity, // أخذ العرض الكامل
       gridSize: SpGridSize(
-        xs: 0,       // موبايل صغير
-        sm: 480,     // موبايل كبير  
-        md: 768,     // تابلت صغير
-        lg: 1024,    // تابلت كبير / لابتوب صغير
-        xl: 1440,    // شاشة كبيرة
+        xs: 0, // موبايل صغير
+        sm: 480, // موبايل كبير
+        md: 768, // تابلت صغير
+        lg: 1024, // تابلت كبير / لابتوب صغير
+        xl: 1440, // شاشة كبيرة
       ),
       spacing: _getSpacing(screenWidth),
       runSpacing: _getSpacing(screenWidth),
       children: List.generate(6, (index) {
         // تحديد الارتفاع بناءً على نوع التخطيط
         final shouldUseVerticalLayout = screenWidth <= 768;
-        
+
         double cardHeight;
         if (shouldUseVerticalLayout) {
           cardHeight = screenWidth <= 480 ? 320.0 : 300.0;
@@ -605,11 +615,11 @@ class _WebSearchViewState extends State<WebSearchView> {
 
         return SpGridItem(
           // تخطيط responsive تنازلي: 4 ← 3 ← 2 ← 1
-          xs: 12,      // 1 عنصر للموبايل الصغير (< 480px)
-          sm: 12,      // 1 عنصر للموبايل الكبير (480-768px)
-          md: 6,       // 2 عنصر للتابلت الصغير (768-1024px)
-          lg: 4,       // 3 عناصر للتابلت الكبير (1024-1440px)
-          xl: 3,       // 4 عناصر للشاشات الكبيرة (> 1440px)
+          xs: 12, // 1 عنصر للموبايل الصغير (< 480px)
+          sm: 12, // 1 عنصر للموبايل الكبير (480-768px)
+          md: 6, // 2 عنصر للتابلت الصغير (768-1024px)
+          lg: 4, // 3 عناصر للتابلت الكبير (1024-1440px)
+          xl: 3, // 4 عناصر للشاشات الكبيرة (> 1440px)
 
           child: Shimmer.fromColors(
             baseColor: Colors.grey.shade300,
@@ -731,7 +741,7 @@ class _WebSearchViewState extends State<WebSearchView> {
 
   Widget _buildResultsGrid(GetBrandBySearchProvider model) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -739,11 +749,11 @@ class _WebSearchViewState extends State<WebSearchView> {
         SpGrid(
           width: double.infinity, // أخذ العرض الكامل
           gridSize: SpGridSize(
-            xs: 0,       // موبايل صغير
-            sm: 480,     // موبايل كبير  
-            md: 768,     // تابلت صغير
-            lg: 1024,    // تابلت كبير / لابتوب صغير
-            xl: 1440,    // شاشة كبيرة
+            xs: 0, // موبايل صغير
+            sm: 480, // موبايل كبير
+            md: 768, // تابلت صغير
+            lg: 1024, // تابلت كبير / لابتوب صغير
+            xl: 1440, // شاشة كبيرة
           ),
           spacing: _getSpacing(screenWidth),
           runSpacing: _getSpacing(screenWidth),
@@ -755,11 +765,11 @@ class _WebSearchViewState extends State<WebSearchView> {
 
               return SpGridItem(
                 // تخطيط responsive تنازلي: 4 ← 3 ← 2 ← 1
-                xs: 12,      // 1 عنصر للموبايل الصغير (< 480px)
-                sm: 12,      // 1 عنصر للموبايل الكبير (480-768px)
-                md: 6,       // 2 عنصر للتابلت الصغير (768-1024px)
-                lg: 4,       // 3 عناصر للتابلت الكبير (1024-1440px)
-                xl: 3,       // 4 عناصر للشاشات الكبيرة (> 1440px)
+                xs: 12, // 1 عنصر للموبايل الصغير (< 480px)
+                sm: 12, // 1 عنصر للموبايل الكبير (480-768px)
+                md: 6, // 2 عنصر للتابلت الصغير (768-1024px)
+                lg: 4, // 3 عناصر للتابلت الكبير (1024-1440px)
+                xl: 3, // 4 عناصر للشاشات الكبيرة (> 1440px)
 
                 // ترتيب طبيعي لجميع الشاشات
                 order: SpOrder(
@@ -784,7 +794,7 @@ class _WebSearchViewState extends State<WebSearchView> {
             }).toList(),
           ],
         ),
-        
+
         // مؤشر التحميل للمزيد من البيانات
         if (model.isLoading && model.allBrands.isNotEmpty)
           Container(
@@ -798,7 +808,8 @@ class _WebSearchViewState extends State<WebSearchView> {
                     height: 32,
                     child: CircularProgressIndicator(
                       strokeWidth: 3,
-                      valueColor: AlwaysStoppedAnimation<Color>(ColorManager.primary),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(ColorManager.primary),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -815,7 +826,7 @@ class _WebSearchViewState extends State<WebSearchView> {
               ),
             ),
           ),
-        
+
         // مساحة إضافية في النهاية
         const SizedBox(height: 100),
       ],
@@ -824,7 +835,7 @@ class _WebSearchViewState extends State<WebSearchView> {
 
   Widget _buildIssueResultsGrid(SearchIssuesProvider model) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -851,7 +862,8 @@ class _WebSearchViewState extends State<WebSearchView> {
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: ColorManager.primary,
                   borderRadius: BorderRadius.circular(20),
@@ -869,9 +881,9 @@ class _WebSearchViewState extends State<WebSearchView> {
             ],
           ),
         ),
-        
+
         const SizedBox(height: 20),
-        
+
         // Issues Results Grid
         SpGrid(
           width: double.infinity,
@@ -895,7 +907,6 @@ class _WebSearchViewState extends State<WebSearchView> {
                 md: 6,
                 lg: 4,
                 xl: 3,
-
                 order: SpOrder(
                   xs: index,
                   sm: index,
@@ -903,18 +914,18 @@ class _WebSearchViewState extends State<WebSearchView> {
                   lg: index,
                   xl: index,
                 ),
-
                 child: SearchIssueCard(
                   issue: issue,
                   screenWidth: screenWidth,
                   onTap: () {
                     // Navigate to issue details
-                                                Navigator.pushNamed(
-                              context,
-                              Routes.issueDetailsRoute,
+                    Navigator.pushNamed(
+                      context,
+                      Routes.issueDetailsRoute,
                       arguments: {
                         'issueId': issue.id,
-                        'customerId': 1, // Default customer ID for search results
+                        'customerId':
+                            1, // Default customer ID for search results
                       },
                     );
                   },
@@ -923,7 +934,7 @@ class _WebSearchViewState extends State<WebSearchView> {
             }).toList(),
           ],
         ),
-        
+
         // Loading indicator for more data
         if (model.isLoading && model.searchResults.isNotEmpty)
           Container(
@@ -937,7 +948,8 @@ class _WebSearchViewState extends State<WebSearchView> {
                     height: 32,
                     child: CircularProgressIndicator(
                       strokeWidth: 3,
-                      valueColor: AlwaysStoppedAnimation<Color>(ColorManager.primary),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(ColorManager.primary),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -954,7 +966,7 @@ class _WebSearchViewState extends State<WebSearchView> {
               ),
             ),
           ),
-        
+
         // Extra space at the end
         const SizedBox(height: 100),
       ],
@@ -985,7 +997,7 @@ class _WebSearchViewState extends State<WebSearchView> {
   Widget _buildAdvancedLoadingItem(double screenWidth) {
     // تحديد الارتفاع بناءً على نوع التخطيط
     final shouldUseVerticalLayout = screenWidth <= 768;
-    
+
     double cardHeight;
     if (shouldUseVerticalLayout) {
       cardHeight = screenWidth <= 480 ? 320.0 : 300.0;
@@ -1096,7 +1108,7 @@ class SearchBrandCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final shouldUseVerticalLayout = screenWidth <= 768;
-    
+
     double cardHeight;
     if (shouldUseVerticalLayout) {
       cardHeight = screenWidth <= 480 ? 320.0 : 300.0;
@@ -1165,7 +1177,8 @@ class SearchBrandCard extends StatelessWidget {
     );
   }
 
-  Widget _buildHorizontalLayout(ImagesModel? image, Color statusColor, String statusText) {
+  Widget _buildHorizontalLayout(
+      ImagesModel? image, Color statusColor, String statusText) {
     final imageFlexRatio = screenWidth > 1600 ? 4 : 5;
     final contentFlexRatio = screenWidth > 1600 ? 8 : 7;
 
@@ -1194,7 +1207,8 @@ class SearchBrandCard extends StatelessWidget {
     );
   }
 
-  Widget _buildVerticalLayout(ImagesModel? image, Color statusColor, String statusText) {
+  Widget _buildVerticalLayout(
+      ImagesModel? image, Color statusColor, String statusText) {
     return Column(
       children: [
         Expanded(
@@ -1276,7 +1290,8 @@ class SearchBrandCard extends StatelessWidget {
     );
   }
 
-  Widget _buildBrandDetails(Color statusColor, String statusText, bool isVertical) {
+  Widget _buildBrandDetails(
+      Color statusColor, String statusText, bool isVertical) {
     double fontSize = screenWidth > 1440 ? 13.0 : 14.0;
     double smallFontSize = screenWidth > 1440 ? 11.0 : 12.0;
 
@@ -1492,7 +1507,7 @@ class SearchIssueCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLargeScreen = screenWidth > 1200;
-    
+
     return Container(
       height: isLargeScreen ? 160 : 180,
       child: InkWell(
@@ -1526,7 +1541,8 @@ class SearchIssueCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: _getIssueTypeColor(issue.refusedType).withOpacity(0.1),
+                        color: _getIssueTypeColor(issue.refusedType)
+                            .withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -1550,7 +1566,9 @@ class SearchIssueCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            issue.refusedType.isNotEmpty ? issue.refusedType : "نوع غير محدد",
+                            issue.refusedType.isNotEmpty
+                                ? issue.refusedType
+                                : "نوع غير محدد",
                             style: TextStyle(
                               fontSize: isLargeScreen ? 12 : 11,
                               color: _getIssueTypeColor(issue.refusedType),
@@ -1565,9 +1583,9 @@ class SearchIssueCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Brand Name
                 Text(
                   "العلامة: ${issue.brandName.isNotEmpty ? issue.brandName : 'غير محدد'}",
@@ -1580,17 +1598,20 @@ class SearchIssueCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                
+
                 const Spacer(),
-                
+
                 // Status and Date
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                   decoration: BoxDecoration(
-                    color: _getIssueTypeColor(issue.refusedType).withOpacity(0.1),
+                    color:
+                        _getIssueTypeColor(issue.refusedType).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: _getIssueTypeColor(issue.refusedType).withOpacity(0.3),
+                      color: _getIssueTypeColor(issue.refusedType)
+                          .withOpacity(0.3),
                     ),
                   ),
                   child: Row(
@@ -1625,11 +1646,11 @@ class SearchIssueCard extends StatelessWidget {
   // Helper function to format dates
   String _formatDate(String dateString) {
     if (dateString.isEmpty) return 'غير محدد';
-    
+
     try {
       // Parse the date string
       DateTime parsedDate = DateTime.parse(dateString.split(' ')[0]);
-      
+
       // Format it in Arabic date format
       return DateFormat('dd/MM/yyyy').format(parsedDate);
     } catch (e) {
@@ -1656,4 +1677,4 @@ class SearchIssueCard extends StatelessWidget {
         return Colors.orange.shade600;
     }
   }
-} 
+}

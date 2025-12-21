@@ -48,7 +48,7 @@ class SearchIssuesProvider extends ChangeNotifier {
       page: page,
       perPage: perPage,
     );
-    
+
     result.fold((l) {
       state = RequestState.failed;
       _hasMoreData = false;
@@ -98,4 +98,4 @@ class SearchIssuesProvider extends ChangeNotifier {
     state = RequestState.loading;
     notifyListeners();
   }
-} 
+}

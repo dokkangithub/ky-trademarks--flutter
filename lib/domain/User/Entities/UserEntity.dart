@@ -5,11 +5,8 @@ class UserDataEntity extends Equatable {
   final String message;
   final UserEntity? user;
 
-  const UserDataEntity({
-    required this.status,
-    required this.message,
-    this.user
-  });
+  const UserDataEntity(
+      {required this.status, required this.message, this.user});
 
   @override
   List<Object?> get props => [status, message, user];
@@ -46,17 +43,17 @@ class UserEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    avatar,
-    name,
-    phone,
-    email,
-    status,
-    printReport,
-    token,
-    pinCode,
-    address,
-    createdAt,
-    updatedAt
-  ];
+        id,
+        avatar,
+        name,
+        phone,
+        email,
+        status,
+        printReport,
+        token,
+        pinCode,
+        address,
+        createdAt,
+        updatedAt
+      ];
 }

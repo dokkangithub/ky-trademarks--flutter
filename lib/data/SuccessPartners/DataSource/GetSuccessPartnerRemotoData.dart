@@ -12,18 +12,22 @@ abstract class BaseGetSuccessPartnerRemoteData {
 class GetSuccessPartnerRemotoData extends BaseGetSuccessPartnerRemoteData {
   @override
   Future<List<ImagesModel>> successPartner() async {
-     final result = await http.get(Uri.parse(
-        "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.partenrs}"),headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}','Content-Type': 'application/json',
-       'Accept': "application/json"});
-     print("${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.partenrs}");
+    final result = await http.get(
+        Uri.parse(
+            "${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.partenrs}"),
+        headers: {
+          'Authorization': 'Bearer ${globalAccountData.getToken()}',
+          'Content-Type': 'application/json',
+          'Accept': "application/json"
+        });
+    print("${ApiConstant.baseUrl}${ApiConstant.slug}${ApiConstant.partenrs}");
     if (result.statusCode == 200) {
       print(result.body);
-      var state=json.decode(result.body);
-      return  List<ImagesModel>.from(state["partenrs"].map((e)=>ImagesModel.fromJson(e))).toList();
+      var state = json.decode(result.body);
+      return List<ImagesModel>.from(
+          state["partenrs"].map((e) => ImagesModel.fromJson(e))).toList();
     } else {
-      throw ServerException(errorModel:json.decode(result.body));
-
+      throw ServerException(errorModel: json.decode(result.body));
     }
   }
-
 }

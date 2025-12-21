@@ -8,20 +8,20 @@ abstract class BaseIssuesRepository {
     int page = 1,
     int perPage = 10,
   });
-  
+
   Future<Either<Failure, IssueDetailsDataEntity>> getIssueDetails({
     required int issueId,
     required int customerId,
   });
-  
+
   Future<Either<Failure, IssuesSummaryDataEntity>> getIssuesSummary({
     required int customerId,
   });
-  
+
   Future<Either<Failure, IssuesSearchDataEntity>> searchIssues({
     required String query,
     required int customerId,
     int page = 1,
     int perPage = 15,
   });
-} 
+}

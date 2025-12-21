@@ -57,7 +57,8 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
-  Widget _buildResponsiveLayout(BuildContext context, BoxConstraints constraints) {
+  Widget _buildResponsiveLayout(
+      BuildContext context, BoxConstraints constraints) {
     final isLargeScreen = constraints.maxWidth > 600;
     final size = MediaQuery.of(context).size;
 
@@ -116,7 +117,6 @@ class _SplashScreenState extends State<SplashScreen> {
               flex: 2,
               child: _buildLogo(size.width * 0.4),
             ),
-
             const SizedBox(height: 40),
           ],
         ),
@@ -132,7 +132,7 @@ class _SplashScreenState extends State<SplashScreen> {
           flex: 2,
           child: _buildLogo(size.width * 0.6),
         ),
-          Expanded(
+        Expanded(
           child: _buildBottomImage(size.width * 0.35),
         ),
         const SizedBox(height: 20),

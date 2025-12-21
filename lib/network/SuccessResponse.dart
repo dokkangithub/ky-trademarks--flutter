@@ -1,6 +1,5 @@
 // ignore_for_file: non_constant_identifier_names
 
-
 import 'RestApi/Comman.dart';
 
 class SuccessResponse {
@@ -20,9 +19,9 @@ class SuccessResponse {
 }
 
 class SuccessGet {
-  List myProduct=[];
+  List myProduct = [];
   // List<CartEntity>? myProduct=[];
   num? allCost;
-  num ? Coupon;
-  SuccessGet({required this.myProduct, this.allCost,this.Coupon});
+  num? Coupon;
+  SuccessGet({required this.myProduct, this.allCost, this.Coupon});
 }

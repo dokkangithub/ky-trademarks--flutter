@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:core';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
@@ -170,7 +169,7 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
         final minutes = _recordingSeconds ~/ 60;
         final seconds = _recordingSeconds % 60;
         _recordingTime =
-        '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+            '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
       });
 
       if (_recordingSeconds >= 300) {
@@ -192,7 +191,8 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
         _waveController.stop();
         _pulseController.stop();
         if (bytes != null) {
-          final fileName = 'voice_${DateTime.now().millisecondsSinceEpoch}.webm';
+          final fileName =
+              'voice_${DateTime.now().millisecondsSinceEpoch}.webm';
           widget.onAudioBytesRecorded?.call(bytes, fileName);
         }
         HapticFeedback.mediumImpact();
@@ -471,7 +471,8 @@ class _VoiceRecordingWidgetState extends State<VoiceRecordingWidget>
 
                       // Recording time
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: ColorManager.primary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
@@ -567,7 +568,11 @@ class ModernWaveformPainter extends CustomPainter {
 
       final normalizedPosition = i / totalBars;
       final heightFactor = 0.4 +
-          0.6 * (0.5 + 0.5 * math.sin(animationValue * 1.5 * math.pi + normalizedPosition * 3));
+          0.6 *
+              (0.5 +
+                  0.5 *
+                      math.sin(animationValue * 1.5 * math.pi +
+                          normalizedPosition * 3));
 
       final barHeight = size.height * heightFactor * 0.7;
       final startY = centerY - barHeight / 2;

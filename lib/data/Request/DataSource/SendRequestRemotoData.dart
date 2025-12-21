@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -19,8 +18,6 @@ abstract class BaseSendRequestRemotoData {
     dynamic image3,
   });
 }
-
-
 
 class SendRequestToRemoteData extends BaseSendRequestRemotoData {
   @override
@@ -102,7 +99,8 @@ class SendRequestToRemoteData extends BaseSendRequestRemotoData {
         print("-------------------");
         return SuccessResponse(message: "تم تنفيذ طلبك بنجاح");
       } else {
-        final errorMessage = json.decode(response.body)["message"] ?? "فشل تنفيذ الطلب";
+        final errorMessage =
+            json.decode(response.body)["message"] ?? "فشل تنفيذ الطلب";
         return SuccessResponse(message: errorMessage);
       }
     } catch (e) {
@@ -112,5 +110,3 @@ class SendRequestToRemoteData extends BaseSendRequestRemotoData {
     }
   }
 }
-
-

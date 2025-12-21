@@ -92,7 +92,9 @@ class _TypingIndicatorState extends State<TypingIndicator>
             ),
             child: Center(
               child: Text(
-                widget.userName.isNotEmpty ? widget.userName[0].toUpperCase() : 'U',
+                widget.userName.isNotEmpty
+                    ? widget.userName[0].toUpperCase()
+                    : 'U',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -102,7 +104,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
             ),
           ),
           SizedBox(width: 12),
-          
+
           // Typing bubble
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),

@@ -18,12 +18,19 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "com.kytrademarks"
     compileSdk = 35
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "28.0.12674087"
 
+    packaging {
+        jniLibs {
+            // مهم جداً لدعم 16KB page size
+            useLegacyPackaging = false
+        }
+    }
     compileOptions {
         coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
+
     }
 
     kotlinOptions {

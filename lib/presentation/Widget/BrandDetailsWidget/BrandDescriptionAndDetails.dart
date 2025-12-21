@@ -36,8 +36,9 @@ class BrandDescriptionAndDetails extends StatelessWidget {
                           style: Theme.of(context)
                               .textTheme
                               .displayLarge
-                              ?.copyWith(fontSize: 14,
-                              fontFamily:StringConstant.fontName),
+                              ?.copyWith(
+                                  fontSize: 14,
+                                  fontFamily: StringConstant.fontName),
                         ),
                       ),
                     ],
@@ -51,41 +52,43 @@ class BrandDescriptionAndDetails extends StatelessWidget {
                   model.brandDetails == null
                       ? const SizedBox()
                       : SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            model.brandDetails!.brand.markOrModel == 1
-                                ? "model_details".tr()
-                                : "category_details".tr(),
-                            style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                            fontFamily:StringConstant.fontName),
+                          width: MediaQuery.of(context).size.width,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 3,
+                                child: Text(
+                                  model.brandDetails!.brand.markOrModel == 1
+                                      ? "model_details".tr()
+                                      : "category_details".tr(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .displayMedium
+                                      ?.copyWith(
+                                          fontFamily: StringConstant.fontName),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 8,
+                                child: Text(
+                                  model.brandDetails!.brand.brandDetails
+                                          .replaceAll('<br>', '') ??
+                                      "",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .displayLarge
+                                      ?.copyWith(
+                                          fontSize: 14,
+                                          fontFamily: StringConstant.fontName),
+                                  textAlign: TextAlign.start,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        Expanded(
-                          flex: 8,
-                          child: Text(
-                            model.brandDetails!.brand.brandDetails
-                                .replaceAll('<br>', '') ??
-                                "",
-                            style: Theme.of(context)
-                                .textTheme
-                                .displayLarge
-                                ?.copyWith(fontSize: 14,
-                                fontFamily:StringConstant.fontName),
-                            textAlign: TextAlign.start,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
                   const SizedBox(
                     height: 6,
                   ),
-
                 ],
               ),
       ],

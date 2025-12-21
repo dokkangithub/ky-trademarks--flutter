@@ -6,8 +6,8 @@ import '../../app/RequestState/RequestState.dart';
 import '../../core/Services_locator.dart';
 import '../../network/RestApi/Comman.dart';
 
-class GetSuccessPartners extends ChangeNotifier{
-  List<BrandImages>? allPartnerSuccess=[];
+class GetSuccessPartners extends ChangeNotifier {
+  List<BrandImages>? allPartnerSuccess = [];
   RequestState? state;
   Future<void> getSuccessPartners() async {
     state = RequestState.loading;

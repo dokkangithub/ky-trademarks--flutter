@@ -11,7 +11,8 @@ import '../../../../utilits/Local_User_Data.dart';
 import '../../../../utilits/pdf_download_helper.dart';
 import '../../../../domain/Brand/Entities/BrandEntity.dart';
 import '../../../../domain/Company/Entities/CompanyEntity.dart';
-import '../../../../domain/Issues/Entities/IssuesEntity.dart' as issues_entities;
+import '../../../../domain/Issues/Entities/IssuesEntity.dart'
+    as issues_entities;
 import '../../../../resources/ImagesConstant.dart';
 import '../../../../resources/Color_Manager.dart';
 import '../../../../resources/StringManager.dart';
@@ -106,7 +107,8 @@ class WebView extends StatefulWidget {
   final String byStatus;
   final String byBrandDescription; // Added brand description filter
   final ValueChanged<String> onFilterChanged;
-  final ValueChanged<String> onBrandDescriptionFilterChanged; // Added brand description filter callback
+  final ValueChanged<String>
+      onBrandDescriptionFilterChanged; // Added brand description filter callback
   final ScrollController mainScrollController;
   final ScrollController listScrollController;
   final bool isLoadingMore;
@@ -136,22 +138,24 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
     super.initState();
     // Tab controller for Marks, Models, and Issues
     tabController = TabController(length: 3, vsync: this);
-    
+
     // Add listener to rebuild content when tab changes
     tabController.addListener(() {
       if (mounted) {
         setState(() {});
       }
     });
-    
+
     _loadInitialData();
   }
 
   void _loadInitialData() {
     // Fetch issues data when the widget is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final issuesProvider = Provider.of<GetIssuesProvider>(context, listen: false);
-      final summaryProvider = Provider.of<GetIssuesSummaryProvider>(context, listen: false);
+      final issuesProvider =
+          Provider.of<GetIssuesProvider>(context, listen: false);
+      final summaryProvider =
+          Provider.of<GetIssuesSummaryProvider>(context, listen: false);
       final customerId = globalAccountData.getId();
 
       if (customerId != null) {
@@ -174,7 +178,7 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
         .where((desc) => desc.isNotEmpty)
         .toSet()
         .toList();
-    
+
     // Add "الكل" option at the beginning
     descriptions.insert(0, "");
     return descriptions;
@@ -183,16 +187,16 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
   // Helper function to clean HTML tags and escape characters from brand description
   String _cleanBrandDescription(String text) {
     if (text.isEmpty) return text;
-    
+
     // Replace HTML tags with space (to preserve word separation)
     String cleaned = text.replaceAll(RegExp(r'<[^>]*>'), ' ');
-    
+
     // Replace escape characters with space
     cleaned = cleaned.replaceAll(RegExp(r'\\r\\n|\\n|\\r|\r\n|\n|\r'), ' ');
-    
+
     // Remove extra whitespaces and trim
     cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ').trim();
-    
+
     return cleaned;
   }
 
@@ -214,7 +218,7 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
           SliverToBoxAdapter(
             child: Container(
               padding:
-              EdgeInsets.all(isLargeScreen ? 24 : (isTablet ? 20 : 16)),
+                  EdgeInsets.all(isLargeScreen ? 24 : (isTablet ? 20 : 16)),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
@@ -239,14 +243,14 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
                   isMobile
                       ? _buildMobileLayout(provider, companyProvider, context)
                       : (isTablet
-                      ? _buildTabletLayout(
-                      provider, companyProvider, context)
-                      : _buildDesktopLayout(
-                      provider, companyProvider, context)),
+                          ? _buildTabletLayout(
+                              provider, companyProvider, context)
+                          : _buildDesktopLayout(
+                              provider, companyProvider, context)),
 
                   // Download PDF Button Section
                   const SizedBox(height: 16),
-                  _buildWebDownloadButton(context, isLargeScreen),
+                  _buildWebDownloadButton(context, isLargeScreen, provider),
                 ],
               ),
             ),
@@ -268,7 +272,8 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
   }
 
   // New method for total statistics header
-  Widget _buildTotalStatisticsHeader(GetBrandProvider provider, double screenWidth) {
+  Widget _buildTotalStatisticsHeader(
+      GetBrandProvider provider, double screenWidth) {
     final isLargeScreen = screenWidth > 1200;
     final isTablet = screenWidth > 768 && screenWidth <= 1200;
 
@@ -340,19 +345,21 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildTabContent(
+  Widget _buildTabContent(GetBrandProvider provider,
       List<BrandEntity> allBrands, String tabType, int markOrModelFilter) {
     final filteredData =
-    allBrands.where((brand) => _filterBrands(brand, tabType)).toList();
+        allBrands.where((brand) => _filterBrands(brand, tabType)).toList();
 
     return filteredData.isEmpty
         ? _WebNoDataView()
         : ImprovedBrandDataView(
-      brands: filteredData,
-      tabType: tabType,
-      listScrollController: widget.listScrollController,
-      isLoadingMore: widget.isLoadingMore,
-    );
+            brands: filteredData,
+            tabType: tabType,
+            listScrollController: widget.listScrollController,
+            isLoadingMore: widget.isLoadingMore,
+            selectedBrandIds: provider.selectedBrandIds,
+            onToggleBrandSelection: provider.toggleBrandSelection,
+          );
   }
 
   // Enhanced Issues content for web view
@@ -370,7 +377,7 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
             ),
           );
         }
-        
+
         if (issuesProvider.allIssues.isEmpty) {
           return _WebNoDataView();
         }
@@ -404,7 +411,7 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
               unselectedLabelColor: Colors.white.withOpacity(0.7),
               indicatorColor: Colors.white,
               labelStyle:
-              TextStyle(fontSize: 14, fontFamily: StringConstant.fontName),
+                  TextStyle(fontSize: 14, fontFamily: StringConstant.fontName),
               tabs: [
                 Tab(
                     child: Text('علامات',
@@ -428,42 +435,42 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
           child: Column(
             children: [
               Row(
-            children: [
-              // Company Dropdown
-              Expanded(
-                child: Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.grey.shade50,
+                children: [
+                  // Company Dropdown
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.grey.shade50,
+                      ),
+                      child: companyProvider.state == RequestState.loading
+                          ? const Center(
+                              child: SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ))
+                          : _buildCompanyDropdown(companyProvider, context),
+                    ),
                   ),
-                  child: companyProvider.state == RequestState.loading
-                      ? const Center(
-                      child: SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ))
-                      : _buildCompanyDropdown(companyProvider, context),
-                ),
-              ),
 
-              const SizedBox(width: 12),
+                  const SizedBox(width: 12),
 
-              // Filter Dropdown
-              Expanded(
-                child: Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300),
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.grey.shade50,
-                  ),
-                  child: _buildFilterDropdown(),
-                ),
+                  // Filter Dropdown
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.grey.shade50,
+                      ),
+                      child: _buildFilterDropdown(),
+                    ),
                   ),
                 ],
               ),
@@ -471,7 +478,8 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
               // Brand Description Filter
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
@@ -503,7 +511,7 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
             unselectedLabelColor: Colors.white.withOpacity(0.7),
             indicatorColor: Colors.white,
             labelStyle:
-            TextStyle(fontSize: 15, fontFamily: StringConstant.fontName),
+                TextStyle(fontSize: 15, fontFamily: StringConstant.fontName),
             tabs: [
               Tab(
                   child: Text('علامات',
@@ -526,7 +534,7 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
             Expanded(
               child: Container(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
@@ -534,11 +542,11 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
                 ),
                 child: companyProvider.state == RequestState.loading
                     ? const Center(
-                    child: SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ))
+                        child: SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ))
                     : _buildCompanyDropdown(companyProvider, context),
               ),
             ),
@@ -546,7 +554,7 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
             Expanded(
               child: Container(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
@@ -557,9 +565,9 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
             ),
           ],
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Brand Description Filter
         Container(
           width: double.infinity,
@@ -592,7 +600,7 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
             unselectedLabelColor: Colors.white.withOpacity(0.7),
             indicatorColor: Colors.white,
             labelStyle:
-            TextStyle(fontSize: 12, fontFamily: StringConstant.fontName),
+                TextStyle(fontSize: 12, fontFamily: StringConstant.fontName),
             tabs: [
               Tab(
                   child: Text('علامات',
@@ -620,11 +628,11 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
           ),
           child: companyProvider.state == RequestState.loading
               ? const Center(
-              child: SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ))
+                  child: SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ))
               : _buildCompanyDropdown(companyProvider, context),
         ),
 
@@ -641,9 +649,9 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
           ),
           child: _buildFilterDropdown(),
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Brand Description Filter
         Container(
           width: double.infinity,
@@ -927,7 +935,7 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
         }
       },
       items: companyProvider.allCompanies.map<DropdownMenuItem<CompanyEntity>>(
-            (CompanyEntity company) {
+        (CompanyEntity company) {
           return DropdownMenuItem<CompanyEntity>(
             value: company,
             child: Row(
@@ -989,7 +997,8 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
   // Brand description filter dropdown
   Widget _buildBrandDescriptionDropdown() {
     return DropdownButton<String>(
-      value: widget.byBrandDescription.isEmpty ? null : widget.byBrandDescription,
+      value:
+          widget.byBrandDescription.isEmpty ? null : widget.byBrandDescription,
       hint: Row(
         children: [
           Icon(
@@ -1022,14 +1031,20 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
           widget.onBrandDescriptionFilterChanged(newValue);
         }
       },
-      items: _getUniqueBrandDescriptions(Provider.of<GetBrandProvider>(context).allBrands).map<DropdownMenuItem<String>>((String description) {
+      items: _getUniqueBrandDescriptions(
+              Provider.of<GetBrandProvider>(context).allBrands)
+          .map<DropdownMenuItem<String>>((String description) {
         return DropdownMenuItem<String>(
           value: description,
           child: Row(
             children: [
               Icon(
-                description.isEmpty ? Icons.all_inclusive : Icons.description_outlined,
-                color: description.isEmpty ? Colors.blue.shade600 : Colors.purple.shade600,
+                description.isEmpty
+                    ? Icons.all_inclusive
+                    : Icons.description_outlined,
+                color: description.isEmpty
+                    ? Colors.blue.shade600
+                    : Colors.purple.shade600,
                 size: 16,
               ),
               const SizedBox(width: 8),
@@ -1049,7 +1064,9 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
         );
       }).toList(),
       selectedItemBuilder: (BuildContext context) {
-        return _getUniqueBrandDescriptions(Provider.of<GetBrandProvider>(context).allBrands).map<Widget>((String description) {
+        return _getUniqueBrandDescriptions(
+                Provider.of<GetBrandProvider>(context).allBrands)
+            .map<Widget>((String description) {
           return Row(
             children: [
               Icon(
@@ -1233,7 +1250,8 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
     // Apply brand description filter first - clean both for comparison
     if (widget.byBrandDescription.isNotEmpty) {
       final cleanedBrandDesc = _cleanBrandDescription(brand.brandDescription);
-      final cleanedFilterDesc = _cleanBrandDescription(widget.byBrandDescription);
+      final cleanedFilterDesc =
+          _cleanBrandDescription(widget.byBrandDescription);
       if (cleanedBrandDesc != cleanedFilterDesc) {
         return false;
       }
@@ -1248,7 +1266,9 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
       return isInEgypt;
     } else if (widget.byStatus == StringConstant.outsideEgypt) {
       return !isInEgypt;
-    } else if (widget.byStatus == StringConstant.allStatus || widget.byStatus == "" || widget.byStatus.isEmpty) {
+    } else if (widget.byStatus == StringConstant.allStatus ||
+        widget.byStatus == "" ||
+        widget.byStatus.isEmpty) {
       return true;
     }
     return true;
@@ -1258,7 +1278,7 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
   Widget _buildDynamicTabContent(GetBrandProvider provider) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    
+
     // Helper function for spacing calculation
     double getSpacing(double screenWidth) {
       if (screenWidth > 1800) {
@@ -1271,23 +1291,26 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
         return 12;
       }
     }
-    
+
     // Calculate dynamic height based on content
     double calculateContentHeight() {
       int contentCount = 0;
-      
+
       // Get count based on current tab
       if (tabController.index == 0) {
         // Marks tab
-        contentCount = provider.allBrands.where((brand) => 
-          _filterBrands(brand, 'marks'.tr())).length;
+        contentCount = provider.allBrands
+            .where((brand) => _filterBrands(brand, 'marks'.tr()))
+            .length;
       } else if (tabController.index == 1) {
-        // Models tab  
-        contentCount = provider.allBrands.where((brand) => 
-          _filterBrands(brand, 'models'.tr())).length;
+        // Models tab
+        contentCount = provider.allBrands
+            .where((brand) => _filterBrands(brand, 'models'.tr()))
+            .length;
       } else {
         // Issues tab
-        final issuesProvider = Provider.of<GetIssuesProvider>(context, listen: false);
+        final issuesProvider =
+            Provider.of<GetIssuesProvider>(context, listen: false);
         contentCount = issuesProvider.allIssues.length;
       }
 
@@ -1301,7 +1324,7 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
       if (screenWidth > 1440) {
         itemsPerRow = 4; // xl: 3 means 4 items per row
       } else if (screenWidth > 1024) {
-        itemsPerRow = 3; // lg: 4 means 3 items per row  
+        itemsPerRow = 3; // lg: 4 means 3 items per row
       } else if (screenWidth > 768) {
         itemsPerRow = 2; // md: 6 means 2 items per row
       } else {
@@ -1313,15 +1336,16 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
       double spacing = getSpacing(screenWidth);
       double headerHeight = 100.0; // For section header
       double paddingVertical = 20.0; // Top and bottom padding
-      
+
       // Calculate base height
-      double baseHeight = headerHeight + paddingVertical + 
-                         (rows * cardHeight) + 
-                         ((rows - 1) * spacing);
-      
+      double baseHeight = headerHeight +
+          paddingVertical +
+          (rows * cardHeight) +
+          ((rows - 1) * spacing);
+
       // Dynamic constraints based on content amount
       double minHeight, maxHeight;
-      
+
       if (contentCount <= 4) {
         // Few items - allow more space
         minHeight = screenHeight * 0.5;
@@ -1335,7 +1359,7 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
         minHeight = screenHeight * 0.3;
         maxHeight = screenHeight * 0.6;
       }
-      
+
       // Apply constraints but prefer calculated height
       return baseHeight.clamp(minHeight, maxHeight);
     }
@@ -1347,10 +1371,11 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
         children: provider.allBrands.isEmpty
             ? List.generate(3, (_) => _WebNoDataView())
             : [
-          _buildTabContent(provider.allBrands, 'marks'.tr(), 0),
-          _buildTabContent(provider.allBrands, 'models'.tr(), 1),
-          _buildIssuesContent(context),
-        ],
+                _buildTabContent(provider, provider.allBrands, 'marks'.tr(), 0),
+                _buildTabContent(
+                    provider, provider.allBrands, 'models'.tr(), 1),
+                _buildIssuesContent(context),
+              ],
       ),
     );
   }
@@ -1425,16 +1450,26 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildWebDownloadButton(BuildContext context, bool isLargeScreen) {
+  Widget _buildWebDownloadButton(
+      BuildContext context, bool isLargeScreen, GetBrandProvider provider) {
+    final selectedIds = provider.selectedBrandIds.toList();
+    final hasSelection = selectedIds.isNotEmpty;
+    final idsQuery = hasSelection ? "&brand_ids=${selectedIds.join(',')}" : "";
+    final downloadLabel = hasSelection
+        ? "${"download_full_pdf".tr()} (${selectedIds.length})"
+        : "download_full_pdf".tr();
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: ElevatedButton.icon(
         onPressed: () {
-          final url = "${ApiConstant.baseUrl}pdfAll/${globalAccountData.getId()}?download=pdf";
-          final fileName = "all_brands_${DateTime.now().millisecondsSinceEpoch}.pdf";
+          final url =
+              "${ApiConstant.baseUrl}pdfAll/${globalAccountData.getId()}?download=pdf$idsQuery";
+          final fileName =
+              "all_brands_${DateTime.now().millisecondsSinceEpoch}.pdf";
           final authToken = globalAccountData.getToken();
-          
+
           PdfDownloadHelper.downloadPdfWithToken(
             url: url,
             context: context,
@@ -1448,7 +1483,7 @@ class _WebViewState extends State<WebView> with TickerProviderStateMixin {
           size: isLargeScreen ? 20 : 18,
         ),
         label: Text(
-          "download_full_pdf".tr(),
+          downloadLabel,
           style: TextStyle(
             color: Colors.white,
             fontSize: isLargeScreen ? 16 : 14,
@@ -1480,12 +1515,16 @@ class ImprovedBrandDataView extends StatelessWidget {
   final String tabType;
   final ScrollController listScrollController;
   final bool isLoadingMore;
+  final Set<int> selectedBrandIds;
+  final ValueChanged<int> onToggleBrandSelection;
 
   const ImprovedBrandDataView({
     required this.brands,
     required this.tabType,
     required this.listScrollController,
     required this.isLoadingMore,
+    required this.selectedBrandIds,
+    required this.onToggleBrandSelection,
     super.key,
   });
 
@@ -1511,8 +1550,8 @@ class ImprovedBrandDataView extends StatelessWidget {
                       tabType == 'marks'.tr()
                           ? 'العلامات التجارية'
                           : tabType == 'models'.tr()
-                          ? 'النماذج الصناعية'
-                          : tabType,
+                              ? 'النماذج الصناعية'
+                              : tabType,
                       style: TextStyle(
                         fontSize: screenWidth > 1200 ? 24 : 20,
                         fontWeight: FontWeight.bold,
@@ -1533,7 +1572,7 @@ class ImprovedBrandDataView extends StatelessWidget {
                 ),
                 Container(
                   padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: ColorManager.primary,
                     borderRadius: BorderRadius.circular(20),
@@ -1625,6 +1664,9 @@ class ImprovedBrandDataView extends StatelessWidget {
                           builder: (_) => BranDetails(brandId: brand.id),
                         ),
                       ),
+                      isSelected: selectedBrandIds.contains(brand.id),
+                      onSelectionChanged: (_) =>
+                          onToggleBrandSelection(brand.id),
                     ),
                   );
                 }).toList(),
@@ -1690,12 +1732,16 @@ class ResponsiveBrandCard extends StatelessWidget {
   final bool isLargeScreen;
   final double screenWidth;
   final VoidCallback onTap;
+  final bool isSelected;
+  final ValueChanged<bool> onSelectionChanged;
 
   const ResponsiveBrandCard({
     required this.brand,
     required this.isLargeScreen,
     required this.screenWidth,
     required this.onTap,
+    required this.isSelected,
+    required this.onSelectionChanged,
     super.key,
   });
 
@@ -1743,34 +1789,69 @@ class ResponsiveBrandCard extends StatelessWidget {
       mainImage = null;
     }
 
-    return Container(
+    return SizedBox(
       height: cardHeight,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.15),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-                spreadRadius: 1,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? ColorManager.primary.withOpacity(0.03)
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.15),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                      spreadRadius: 1,
+                    ),
+                  ],
+                  border: Border.all(
+                    color: isSelected
+                        ? ColorManager.primary
+                        : statusColor.withOpacity(0.3),
+                    width: isSelected ? 2 : 1.5,
+                  ),
+                ),
+                child: shouldUseVerticalLayout
+                    ? _buildVerticalLayout(mainImage, statusColor,
+                        statusLightColor, statusText, screenWidth)
+                    : _buildHorizontalLayout(mainImage, statusColor,
+                        statusLightColor, statusText, screenWidth),
               ),
-            ],
-            border: Border.all(
-              color: statusColor.withOpacity(0.3),
-              width: 1.5,
             ),
           ),
-          child: shouldUseVerticalLayout
-              ? _buildVerticalLayout(mainImage, statusColor, statusLightColor,
-              statusText, screenWidth)
-              : _buildHorizontalLayout(mainImage, statusColor, statusLightColor,
-              statusText, screenWidth),
-        ),
+          PositionedDirectional(
+            top: 8,
+            start: 8,
+            child: Material(
+              elevation: 2,
+              color: Colors.white.withOpacity(0.9),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: BorderSide(
+                  color:
+                      isSelected ? ColorManager.primary : Colors.grey.shade300,
+                  width: 1,
+                ),
+              ),
+              child: Checkbox(
+                value: isSelected,
+                onChanged: (value) => onSelectionChanged(value ?? false),
+                activeColor: ColorManager.primary,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1799,7 +1880,7 @@ class ResponsiveBrandCard extends StatelessWidget {
             padding: EdgeInsets.all(
                 screenWidth > 1600 ? 18 : (screenWidth > 1200 ? 16 : 12)),
             child:
-            _buildBrandDetails(statusColor, statusText, screenWidth, false),
+                _buildBrandDetails(statusColor, statusText, screenWidth, false),
           ),
         ),
       ],
@@ -1829,7 +1910,7 @@ class ResponsiveBrandCard extends StatelessWidget {
             width: double.infinity,
             padding: EdgeInsets.all(screenWidth > 600 ? 14 : 10),
             child:
-            _buildBrandDetails(statusColor, statusText, screenWidth, true),
+                _buildBrandDetails(statusColor, statusText, screenWidth, true),
           ),
         ),
       ],
@@ -1916,7 +1997,8 @@ class ResponsiveBrandCard extends StatelessWidget {
     }
 
     // تحديد ما إذا كان النص طويل ويحتاج مساحة أكثر
-    final isLongStatusText = statusText.length > 12; // تقليل الحد للنصوص العربية
+    final isLongStatusText =
+        statusText.length > 12; // تقليل الحد للنصوص العربية
     final shouldShowIndicators = (!isVertical || screenWidth > 400) &&
         !(screenWidth > 1440 && !isVertical && isLongStatusText);
 
@@ -2214,7 +2296,8 @@ class WebIssuesDataView extends StatelessWidget {
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: ColorManager.primary,
                     borderRadius: BorderRadius.circular(20),
@@ -2250,7 +2333,8 @@ class WebIssuesDataView extends StatelessWidget {
               vertical: 10,
             ),
             child: SpGrid(
-              width: MediaQuery.of(context).size.width - (screenWidth > 1200 ? 40 : 32),
+              width: MediaQuery.of(context).size.width -
+                  (screenWidth > 1200 ? 40 : 32),
               gridSize: SpGridSize(
                 xs: 0,
                 sm: 480,
@@ -2266,11 +2350,11 @@ class WebIssuesDataView extends StatelessWidget {
                   final issue = entry.value;
 
                   return SpGridItem(
-                    xs: 12,  // 1 item for small mobile
-                    sm: 12,  // 1 item for large mobile
-                    md: 6,   // 2 items for small tablet
-                    lg: 4,   // 3 items for large tablet
-                    xl: 3,   // 4 items for large screens
+                    xs: 12, // 1 item for small mobile
+                    sm: 12, // 1 item for large mobile
+                    md: 6, // 2 items for small tablet
+                    lg: 4, // 3 items for large tablet
+                    xl: 3, // 4 items for large screens
 
                     order: SpOrder(
                       xs: index,
@@ -2285,9 +2369,9 @@ class WebIssuesDataView extends StatelessWidget {
                       screenWidth: screenWidth,
                       onTap: () {
                         // Navigate to issue details
-                                                      Navigator.pushNamed(
-                                context,
-                                Routes.issueDetailsRoute,
+                        Navigator.pushNamed(
+                          context,
+                          Routes.issueDetailsRoute,
                           arguments: {
                             'issueId': issue.id,
                             'customerId': issue.customer.id,
@@ -2368,7 +2452,7 @@ class ResponsiveIssueCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final shouldUseVerticalLayout = screenWidth <= 768;
-    
+
     double cardHeight = shouldUseVerticalLayout ? 200.0 : 160.0;
 
     return Container(
@@ -2502,7 +2586,7 @@ class ResponsiveIssueCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        
+
         const SizedBox(height: 8),
 
         // Issue status
@@ -2581,7 +2665,7 @@ class WebBrandUpdatesList extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLargeScreen = screenWidth > 1200;
     final isMobile = screenWidth <= 768;
-    
+
     return SpGrid(
       width: screenWidth,
       gridSize: SpGridSize(
@@ -2597,8 +2681,8 @@ class WebBrandUpdatesList extends StatelessWidget {
         ...brands.asMap().entries.map((entry) {
           final index = entry.key;
           final update = entry.value;
-          final brand = allBrands.isNotEmpty && index < allBrands.length 
-              ? allBrands[index] 
+          final brand = allBrands.isNotEmpty && index < allBrands.length
+              ? allBrands[index]
               : null;
 
           if (brand == null) {
@@ -2613,11 +2697,11 @@ class WebBrandUpdatesList extends StatelessWidget {
           }
 
           return SpGridItem(
-            xs: 12,  // 1 item for small mobile
-            sm: 12,  // 1 item for large mobile
-            md: 6,   // 2 items for small tablet
-            lg: 4,   // 3 items for large tablet
-            xl: 3,   // 4 items for large screens
+            xs: 12, // 1 item for small mobile
+            sm: 12, // 1 item for large mobile
+            md: 6, // 2 items for small tablet
+            lg: 4, // 3 items for large tablet
+            xl: 3, // 4 items for large screens
 
             child: WebBrandUpdateCard(
               brand: brand,
@@ -2660,7 +2744,7 @@ class WebBrandUpdateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLargeScreen = screenWidth > 1200;
     final isMobile = screenWidth <= 768;
-    
+
     final filteredImage = brand.images.isNotEmpty
         ? brand.images.firstWhere(
             (img) => img.conditionId == null,
@@ -2696,7 +2780,7 @@ class WebBrandUpdateCard extends StatelessWidget {
                     ),
                   ),
                 ),
-              
+
               if (filteredImage != null && filteredImage.image.isNotEmpty)
                 const SizedBox(width: 8),
 
@@ -2726,7 +2810,7 @@ class WebBrandUpdateCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    
+
                     // Brand Status
                     Expanded(
                       flex: 2,
@@ -2735,7 +2819,8 @@ class WebBrandUpdateCard extends StatelessWidget {
                         child: Text(
                           BrandStatusHelper.getStatusText(brand.currentStatus),
                           style: TextStyle(
-                            color: BrandStatusHelper.getStatusColor(brand.currentStatus),
+                            color: BrandStatusHelper.getStatusColor(
+                                brand.currentStatus),
                             fontSize: isMobile ? 11 : (isLargeScreen ? 12 : 11),
                             fontWeight: FontWeight.w600,
                             fontFamily: StringConstant.fontName,
@@ -2745,7 +2830,7 @@ class WebBrandUpdateCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    
+
                     // Update Date
                     Expanded(
                       flex: 1,
@@ -2772,15 +2857,16 @@ class WebBrandUpdateCard extends StatelessWidget {
                 width: isMobile ? 28 : 32,
                 height: isMobile ? 28 : 32,
                 decoration: BoxDecoration(
-                  color: BrandStatusHelper.getStatusLightColor(brand.currentStatus),
+                  color: BrandStatusHelper.getStatusLightColor(
+                      brand.currentStatus),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Icon(
                   brand.currentStatus == 2
                       ? Icons.check_circle
                       : brand.currentStatus == 3
-                      ? Icons.cancel
-                      : Icons.hourglass_empty,
+                          ? Icons.cancel
+                          : Icons.hourglass_empty,
                   color: BrandStatusHelper.getStatusColor(brand.currentStatus),
                   size: isMobile ? 18 : 20,
                 ),

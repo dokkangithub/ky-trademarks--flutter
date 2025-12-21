@@ -17,4 +17,4 @@ class GetIssueDetailsUseCase {
       customerId: customerId,
     );
   }
-} 
+}

@@ -31,7 +31,8 @@ class GetUserProvider extends ChangeNotifier {
     state = RequestState.loading;
     notifyListeners();
 
-    var result = await UpdateUserAvatarUseCase(sl()).call(avatarFile: avatarFile);
+    var result =
+        await UpdateUserAvatarUseCase(sl()).call(avatarFile: avatarFile);
     result.fold((l) {
       state = RequestState.failed;
       notifyListeners();
@@ -42,6 +43,4 @@ class GetUserProvider extends ChangeNotifier {
       notifyListeners();
     });
   }
-
-
 }

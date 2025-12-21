@@ -44,7 +44,10 @@ class _NotificationState extends State<NotificationScreen> {
         ),
         title: Text(
           "notification".tr(),
-          style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 18,fontFamily:StringConstant.fontName),
+          style: Theme.of(context)
+              .textTheme
+              .displayLarge
+              ?.copyWith(fontSize: 18, fontFamily: StringConstant.fontName),
         ),
       ),
       body: Consumer<NotificationProvider>(
@@ -100,7 +103,10 @@ class _NotificationState extends State<NotificationScreen> {
             );
           }
           if (model.state == RequestState.failed) {
-            return Text("something_wrong".tr(),style: TextStyle(fontFamily:StringConstant.fontName),);
+            return Text(
+              "something_wrong".tr(),
+              style: TextStyle(fontFamily: StringConstant.fontName),
+            );
           }
           if (model.state == RequestState.loaded) {
             return model.notification!.length == 0
@@ -116,7 +122,7 @@ class _NotificationState extends State<NotificationScreen> {
                           Text(
                             StringConstant.noDataFound,
                             style: TextStyle(
-                              fontFamily:StringConstant.fontName,
+                              fontFamily: StringConstant.fontName,
                               color: ColorManager.primary,
                               fontWeight: FontWeight.w500,
                               fontSize: 22,
@@ -134,7 +140,7 @@ class _NotificationState extends State<NotificationScreen> {
                           Text(
                             StringConstant.noDataFound,
                             style: TextStyle(
-                              fontFamily:StringConstant.fontName,
+                              fontFamily: StringConstant.fontName,
                               color: ColorManager.primary,
                               fontWeight: FontWeight.w500,
                               fontSize: 22,
@@ -191,7 +197,9 @@ class _NotificationState extends State<NotificationScreen> {
                                             .displayLarge
                                             ?.copyWith(
                                                 fontSize: 17,
-                                                color: Colors.black,fontFamily:StringConstant.fontName),
+                                                color: Colors.black,
+                                                fontFamily:
+                                                    StringConstant.fontName),
                                       ),
                                       Container(
                                         width:
@@ -204,7 +212,8 @@ class _NotificationState extends State<NotificationScreen> {
                                               .displayLarge
                                               ?.copyWith(
                                                   fontSize: 14,
-                                              fontFamily:StringConstant.fontName,
+                                                  fontFamily:
+                                                      StringConstant.fontName,
                                                   color: ColorManager.accent),
                                           maxLines: 2,
                                         ),

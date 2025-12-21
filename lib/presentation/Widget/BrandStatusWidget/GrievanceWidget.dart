@@ -165,13 +165,13 @@ class GrievanceWidget extends StatelessWidget {
                       data.grievanceGallery!.isEmpty ||
                       data.grievanceGallery == []
                   ? Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      InkWell(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        InkWell(
                           onTap: () => null,
                           child: Container(
-                            margin: EdgeInsetsDirectional.only(
-                                end: 10, bottom: 10),
+                            margin:
+                                EdgeInsetsDirectional.only(end: 10, bottom: 10),
                             padding: EdgeInsets.symmetric(
                                 horizontal: 14, vertical: 5),
                             decoration: BoxDecoration(
@@ -195,8 +195,8 @@ class GrievanceWidget extends StatelessWidget {
                             ),
                           ),
                         ),
-                    ],
-                  )
+                      ],
+                    )
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [

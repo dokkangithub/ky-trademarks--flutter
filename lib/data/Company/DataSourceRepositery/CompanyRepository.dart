@@ -14,7 +14,8 @@ class CompanyRepository extends BaseCompanyRepository {
   @override
   Future<Either<Failure, CompanyDataEntity>> getAllCompanies(context) async {
     try {
-      final result = await baseGetCompanyRemoteData.getAllCompaniesFromRemote(context);
+      final result =
+          await baseGetCompanyRemoteData.getAllCompaniesFromRemote(context);
       return Right(result);
     } on ServerException catch (failure) {
       return Left(ServerFailure(message: failure.errorModel.message));

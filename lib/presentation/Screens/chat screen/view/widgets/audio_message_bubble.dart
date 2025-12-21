@@ -99,7 +99,8 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
       if (mounted) {
         setState(() {
           _isPlaying = state == PlayerState.playing;
-          _isLoading = state == PlayerState.playing && _currentPosition == Duration.zero;
+          _isLoading =
+              state == PlayerState.playing && _currentPosition == Duration.zero;
         });
 
         if (_isPlaying) {
@@ -343,9 +344,11 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble>
                       builder: (context, child) {
                         return CustomPaint(
                           painter: ModernAudioWaveformPainter(
-                            animationValue: _isPlaying ? _waveAnimation.value : 0.0,
+                            animationValue:
+                                _isPlaying ? _waveAnimation.value : 0.0,
                             progress: _totalDuration.inMilliseconds > 0
-                                ? _currentPosition.inMilliseconds / _totalDuration.inMilliseconds
+                                ? _currentPosition.inMilliseconds /
+                                    _totalDuration.inMilliseconds
                                 : 0.0,
                             color: widget.isFromCurrentUser
                                 ? Colors.white.withOpacity(0.4)
@@ -436,11 +439,17 @@ class ModernAudioWaveformPainter extends CustomPainter {
 
       // Create more dynamic heights with animation
       final normalizedPosition = i / totalBars;
-      final baseHeight = 0.15 + 0.7 * (0.5 + 0.3 * math.sin(normalizedPosition * 6));
-      
+      final baseHeight =
+          0.15 + 0.7 * (0.5 + 0.3 * math.sin(normalizedPosition * 6));
+
       double animatedHeight;
       if (isPlaying) {
-        animatedHeight = baseHeight + 0.3 * (0.5 + 0.5 * math.sin(animationValue * 3 * math.pi + normalizedPosition * 8));
+        animatedHeight = baseHeight +
+            0.3 *
+                (0.5 +
+                    0.5 *
+                        math.sin(animationValue * 3 * math.pi +
+                            normalizedPosition * 8));
       } else {
         animatedHeight = baseHeight;
       }
@@ -480,4 +489,3 @@ class ModernAudioWaveformPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
-

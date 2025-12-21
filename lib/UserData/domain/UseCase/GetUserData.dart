@@ -3,7 +3,7 @@ import 'package:kyuser/UserData/domain/DominRepositery/BaseLoginRepositery.dart'
 import '../../../app/Failure.dart';
 import '../Entities/UserEntity.dart';
 
-class GetUserDataWithLogin  {
+class GetUserDataWithLogin {
   BaseBaseLoginRepository baseBaseLoginRepository;
 
   GetUserDataWithLogin({required this.baseBaseLoginRepository});

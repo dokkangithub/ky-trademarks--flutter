@@ -24,7 +24,8 @@ class GetBrandBySearchProvider extends ChangeNotifier {
     state = RequestState.loading;
   }
 
-  Future<void> getAllBrandsBySearch({required String keyWord, int page = 1}) async {
+  Future<void> getAllBrandsBySearch(
+      {required String keyWord, int page = 1}) async {
     if (page == 1) {
       state = RequestState.loading;
       allBrands.clear();
@@ -33,7 +34,8 @@ class GetBrandBySearchProvider extends ChangeNotifier {
     }
     notifyListeners();
 
-    var result = await GetAllBrandsBySearchUseCase(sl()).call(keyWord: keyWord, page: page);
+    var result = await GetAllBrandsBySearchUseCase(sl())
+        .call(keyWord: keyWord, page: page);
     result.fold((l) {
       state = RequestState.failed;
       _hasMoreData = false;
@@ -57,7 +59,8 @@ class GetBrandBySearchProvider extends ChangeNotifier {
   Future<void> loadMoreBrands(String keyWord) async {
     if (_isLoading || !_hasMoreData) return;
 
-    print("Loading more brands for: $keyWord, page: ${brandCurrentPage + 1}"); // Debug print
+    print(
+        "Loading more brands for: $keyWord, page: ${brandCurrentPage + 1}"); // Debug print
     _isLoading = true;
     notifyListeners();
 

@@ -8,7 +8,8 @@ class GetAllBrandsBySearchUseCase {
 
   GetAllBrandsBySearchUseCase(this.baseBrandGettingBySearchRepository);
 
-  Future<Either<Failure, BrandDataEntity>> call({required keyWord, required int page}) async {
+  Future<Either<Failure, BrandDataEntity>> call(
+      {required keyWord, required int page}) async {
     return await baseBrandGettingBySearchRepository.getAllBrandsBySearch(
         keyWord: keyWord, page: page);
   }

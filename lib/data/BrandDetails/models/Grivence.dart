@@ -25,11 +25,11 @@ class Grivence {
       brandId: json['brand_id'],
       name: json['name'],
       theDateOfPaymentOfTheGrievanceFee:
-      json['the_date_of_payment_of_the_grievance_fee'],
+          json['the_date_of_payment_of_the_grievance_fee'],
       grivenceNotes: json['grivence_notes'],
       grievanceCommitteeNumber: json['grievance_committee_number'],
       historyOfTheGrievanceCommittee:
-      json['history_of_the_grievance_committee'],
+          json['history_of_the_grievance_committee'],
       number: json['number'],
     );
   }

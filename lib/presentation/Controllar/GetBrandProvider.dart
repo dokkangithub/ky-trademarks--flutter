@@ -5,7 +5,6 @@ import 'package:kyuser/domain/Brand/UseCase/GetAllBrandsUseCase.dart';
 import 'package:kyuser/network/RestApi/Comman.dart';
 import '../../core/Services_locator.dart';
 
-
 class GetBrandProvider extends ChangeNotifier {
   List<BrandEntity> allBrands = [];
   List<BrandsUpdates> allBrandUpdates = [];
@@ -14,19 +13,23 @@ class GetBrandProvider extends ChangeNotifier {
   int brandCurrentPage = 1;
   bool _isLoading = false;
   bool _hasMoreData = true;
+  final Set<int> selectedBrandIds = {};
 
   bool get isLoading => _isLoading;
   bool get hasMoreData => _hasMoreData;
 
-  Future<void> getAllBrandsWidget({int page = 1,required int companyId}) async {
+  Future<void> getAllBrandsWidget(
+      {int page = 1, required int companyId}) async {
     if (page == 1) {
       state = RequestState.loading;
       allBrands.clear();
       allBrandUpdates.clear();
+      selectedBrandIds.clear();
     }
     notifyListeners();
 
-    var result = await GetAllBrandsUseCase(sl()).call(page: page, companyId: companyId);
+    var result =
+        await GetAllBrandsUseCase(sl()).call(page: page, companyId: companyId);
     result.fold((l) {
       state = RequestState.failed;
       _hasMoreData = false;
@@ -34,10 +37,10 @@ class GetBrandProvider extends ChangeNotifier {
       return toast(l.message.toString());
     }, (r) {
       if (page == 1) {
-        totalMarks=r.total;
+        totalMarks = r.total;
         print('dddd${r.total}');
         allBrands = r.brand;
-        allBrandUpdates=r.updates;
+        allBrandUpdates = r.updates;
       } else {
         allBrands.addAll(r.brand);
         allBrandUpdates.addAll(r.updates);
@@ -45,6 +48,7 @@ class GetBrandProvider extends ChangeNotifier {
 
       _hasMoreData = r.brand.isNotEmpty;
       state = RequestState.loaded;
+      _removeStaleSelections();
       notifyListeners();
     });
   }
@@ -60,5 +64,28 @@ class GetBrandProvider extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  bool isBrandSelected(int brandId) => selectedBrandIds.contains(brandId);
+
+  void toggleBrandSelection(int brandId) {
+    if (selectedBrandIds.contains(brandId)) {
+      selectedBrandIds.remove(brandId);
+    } else {
+      selectedBrandIds.add(brandId);
+    }
+    notifyListeners();
+  }
+
+  void clearSelections() {
+    if (selectedBrandIds.isEmpty) return;
+    selectedBrandIds.clear();
+    notifyListeners();
+  }
+
+  void _removeStaleSelections() {
+    if (selectedBrandIds.isEmpty) return;
+    final validIds = allBrands.map((b) => b.id).toSet();
+    selectedBrandIds.removeWhere((id) => !validIds.contains(id));
   }
 }

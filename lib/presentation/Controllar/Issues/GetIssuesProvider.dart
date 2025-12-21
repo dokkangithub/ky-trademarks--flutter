@@ -44,7 +44,7 @@ class GetIssuesProvider extends ChangeNotifier {
       page: page,
       perPage: perPage,
     );
-    
+
     result.fold((l) {
       state = RequestState.failed;
       _hasMoreData = false;
@@ -82,4 +82,4 @@ class GetIssuesProvider extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
-} 
+}

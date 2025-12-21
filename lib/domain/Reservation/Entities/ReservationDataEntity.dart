@@ -5,12 +5,14 @@ class ReservationDataEntity extends Equatable {
   final String message;
   final ReservationEntity reservationEntity;
 
-  const ReservationDataEntity({required this.status,required this.message,required this.reservationEntity});
+  const ReservationDataEntity(
+      {required this.status,
+      required this.message,
+      required this.reservationEntity});
 
   @override
   // TODO: implement props
-  List<Object?> get props => [status,message,reservationEntity];
-
+  List<Object?> get props => [status, message, reservationEntity];
 }
 
 class ReservationEntity extends Equatable {
@@ -31,5 +33,6 @@ class ReservationEntity extends Equatable {
 
   @override
   // TODO: implement props
-  List<Object?> get props => [name,phone,nationality,email,date_of_visit,city];
+  List<Object?> get props =>
+      [name, phone, nationality, email, date_of_visit, city];
 }

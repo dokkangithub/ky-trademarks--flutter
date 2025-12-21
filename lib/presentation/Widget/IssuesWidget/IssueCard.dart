@@ -39,11 +39,13 @@ class IssueCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: _getTypeColor().withOpacity(0.1),
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: _getTypeColor().withOpacity(0.3)),
+                      border:
+                          Border.all(color: _getTypeColor().withOpacity(0.3)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -77,9 +79,9 @@ class IssueCard extends StatelessWidget {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               // Brand name
               Text(
                 issue.brand.brandName,
@@ -92,9 +94,9 @@ class IssueCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              
+
               const SizedBox(height: 4),
-              
+
               // Company name
               Text(
                 issue.company.companyName,
@@ -106,10 +108,10 @@ class IssueCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              
+
               if (!isCompact) ...[
                 const SizedBox(height: 8),
-                
+
                 // Customer info
                 Row(
                   children: [
@@ -133,9 +135,9 @@ class IssueCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 4),
-                
+
                 // Statistics
                 Row(
                   children: [
@@ -153,9 +155,9 @@ class IssueCard extends StatelessWidget {
                   ],
                 ),
               ],
-              
+
               const SizedBox(height: 8),
-              
+
               // Created date
               Row(
                 children: [
@@ -214,14 +216,14 @@ class IssueCard extends StatelessWidget {
   }
 
   Color _getTypeColor() {
-    return issue.refusedType == 'opposition' 
-        ? Colors.red.shade600 
+    return issue.refusedType == 'opposition'
+        ? Colors.red.shade600
         : Colors.orange.shade600;
   }
 
   IconData _getTypeIcon() {
-    return issue.refusedType == 'opposition' 
-        ? Icons.gavel 
+    return issue.refusedType == 'opposition'
+        ? Icons.gavel
         : Icons.assignment_outlined;
   }
 
@@ -237,4 +239,4 @@ class IssueCard extends StatelessWidget {
       return dateStr;
     }
   }
-} 
+}

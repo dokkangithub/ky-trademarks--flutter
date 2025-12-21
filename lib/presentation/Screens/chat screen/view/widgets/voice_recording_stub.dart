@@ -6,5 +6,3 @@ class WebAudioRecorder {
   Future<Uint8List?> stopAndGetBytes() async => null;
   void cancel() {}
 }
-
-

@@ -22,7 +22,7 @@ import '../ProfileScreen.dart';
 
 class WebProfileView extends StatefulWidget {
   final ScreenType screenType;
-  
+
   const WebProfileView({super.key, required this.screenType});
 
   @override
@@ -30,7 +30,6 @@ class WebProfileView extends StatefulWidget {
 }
 
 class _WebProfileViewState extends State<WebProfileView> {
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -57,7 +56,6 @@ class _WebProfileViewState extends State<WebProfileView> {
           _buildSimpleActionsCard(context),
           const SizedBox(height: 24),
           _buildSimplePartnersCard(context),
-
         ],
       ),
     );
@@ -75,12 +73,11 @@ class _WebProfileViewState extends State<WebProfileView> {
             child: _buildSimpleUserCard(context),
           ),
           const SizedBox(width: 32),
-          
+
           // Main Content
           Expanded(
             child: Column(
               children: [
-
                 // Actions Section
                 _buildSimpleActionsCard(context),
 
@@ -119,11 +116,11 @@ class _WebProfileViewState extends State<WebProfileView> {
               // User Avatar
               _buildUserAvatar(userProvider),
               const SizedBox(height: 20),
-              
+
               // User Name
               Text(
-                userProvider.state == RequestState.loaded && 
-                       userProvider.userData != null
+                userProvider.state == RequestState.loaded &&
+                        userProvider.userData != null
                     ? userProvider.userData!.name
                     : globalAccountData.getUsername().toString(),
                 style: TextStyle(
@@ -137,11 +134,11 @@ class _WebProfileViewState extends State<WebProfileView> {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 8),
-              
+
               // User Email
               Text(
-                userProvider.state == RequestState.loaded && 
-                       userProvider.userData != null
+                userProvider.state == RequestState.loaded &&
+                        userProvider.userData != null
                     ? userProvider.userData!.email
                     : globalAccountData.getEmail().toString(),
                 style: TextStyle(
@@ -154,10 +151,11 @@ class _WebProfileViewState extends State<WebProfileView> {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 16),
-              
+
               // Status
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.green.shade50,
                   borderRadius: BorderRadius.circular(20),
@@ -206,8 +204,8 @@ class _WebProfileViewState extends State<WebProfileView> {
             color: Colors.grey.shade50,
           ),
           child: ClipOval(
-            child: userProvider.state == RequestState.loaded && 
-                   userProvider.userData != null
+            child: userProvider.state == RequestState.loaded &&
+                    userProvider.userData != null
                 ? cachedImage(
                     ApiConstant.imagePathUser + userProvider.userData!.avatar,
                     width: 100,
@@ -285,7 +283,7 @@ class _WebProfileViewState extends State<WebProfileView> {
               ],
             ),
           ),
-          
+
           // Divider
           Divider(
             height: 1,
@@ -293,7 +291,7 @@ class _WebProfileViewState extends State<WebProfileView> {
             indent: 20,
             endIndent: 20,
           ),
-          
+
           // Partners Grid
           Expanded(
             child: Consumer<GetSuccessPartners>(
@@ -315,7 +313,8 @@ class _WebProfileViewState extends State<WebProfileView> {
       return _buildLoadingGrid();
     } else if (model.state == RequestState.failed) {
       return _buildErrorState();
-    } else if (model.allPartnerSuccess == null || model.allPartnerSuccess!.isEmpty) {
+    } else if (model.allPartnerSuccess == null ||
+        model.allPartnerSuccess!.isEmpty) {
       return _buildEmptyState();
     } else {
       return _buildPartnersGridView(model.allPartnerSuccess!);
@@ -326,7 +325,7 @@ class _WebProfileViewState extends State<WebProfileView> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final crossAxisCount = _calculateCrossAxisCount(constraints.maxWidth);
-        
+
         return GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
@@ -372,7 +371,7 @@ class _WebProfileViewState extends State<WebProfileView> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final crossAxisCount = _calculateCrossAxisCount(constraints.maxWidth);
-        
+
         return GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
@@ -484,7 +483,6 @@ class _WebProfileViewState extends State<WebProfileView> {
             ],
           ),
           const SizedBox(height: 20),
-          
           LayoutBuilder(
             builder: (context, constraints) {
               if (constraints.maxWidth < 600) {
@@ -546,7 +544,7 @@ class _WebProfileViewState extends State<WebProfileView> {
     bool isDestructive = false,
   }) {
     final color = isDestructive ? Colors.red.shade600 : Colors.grey.shade600;
-    
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -648,7 +646,8 @@ class _WebProfileViewState extends State<WebProfileView> {
 
   void _launchRateApp() {
     if (!kIsWeb) {
-      final appId = Platform.isAndroid ? 'com.kytrademarkstrademarks' : '1605389392';
+      final appId =
+          Platform.isAndroid ? 'com.kytrademarkstrademarks' : '1605389392';
       final url = Uri.parse(
         Platform.isAndroid
             ? "market://details?id=$appId"
@@ -659,7 +658,8 @@ class _WebProfileViewState extends State<WebProfileView> {
         mode: LaunchMode.externalApplication,
       );
     } else {
-      final playStoreUrl = Uri.parse("https://play.google.com/store/apps/details?id=com.kytrademarks");
+      final playStoreUrl = Uri.parse(
+          "https://play.google.com/store/apps/details?id=com.kytrademarks");
       final appStoreUrl = Uri.parse("https://apps.apple.com/app/id1605389392");
       launchUrl(playStoreUrl, mode: LaunchMode.externalApplication);
       launchUrl(appStoreUrl, mode: LaunchMode.externalApplication);
@@ -737,4 +737,4 @@ class _WebProfileViewState extends State<WebProfileView> {
       },
     );
   }
-} 
+}

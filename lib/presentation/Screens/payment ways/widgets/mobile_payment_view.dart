@@ -30,12 +30,12 @@ class MobilePaymentView extends StatelessWidget {
           SliverToBoxAdapter(
             child: _buildMobileHeader(context),
           ),
-          
+
           // Title Section
           SliverToBoxAdapter(
             child: _buildTitleSection(context),
           ),
-          
+
           // Payment Options
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -43,7 +43,7 @@ class MobilePaymentView extends StatelessWidget {
               child: _buildPaymentOptionsCard(context),
             ),
           ),
-          
+
           // Footer
           SliverToBoxAdapter(
             child: _buildFooterSection(context),
@@ -73,28 +73,28 @@ class MobilePaymentView extends StatelessWidget {
           // Payment Animation
           _buildPaymentIllustration(context, size: 150),
           const SizedBox(height: 20),
-          
+
           // Header Text
           Text(
             "our_payment".tr(),
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              fontSize: 24,
-              color: ColorManager.primary,
-              fontWeight: FontWeight.w700,
-              fontFamily: StringConstant.fontName,
-            ),
+                  fontSize: 24,
+                  color: ColorManager.primary,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: StringConstant.fontName,
+                ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          
+
           Text(
             "payment_methods".tr(),
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              fontSize: 16,
-              color: ColorManager.accent,
-              fontWeight: FontWeight.w600,
-              fontFamily: StringConstant.fontName,
-            ),
+                  fontSize: 16,
+                  color: ColorManager.accent,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: StringConstant.fontName,
+                ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -102,7 +102,8 @@ class MobilePaymentView extends StatelessWidget {
     );
   }
 
-  Widget _buildPaymentIllustration(BuildContext context, {required double size}) {
+  Widget _buildPaymentIllustration(BuildContext context,
+      {required double size}) {
     return Container(
       width: size,
       height: size,
@@ -141,7 +142,8 @@ class MobilePaymentView extends StatelessWidget {
         decoration: BoxDecoration(
           color: ColorManager.primary.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: ColorManager.primary.withValues(alpha: 0.1)),
+          border:
+              Border.all(color: ColorManager.primary.withValues(alpha: 0.1)),
         ),
         child: Row(
           children: [
@@ -158,11 +160,11 @@ class MobilePaymentView extends StatelessWidget {
               child: Text(
                 "bank_account_way".tr(),
                 style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                  fontSize: 14,
-                  color: ColorManager.primaryByOpacity,
-                  fontFamily: StringConstant.fontName,
-                  height: 1.4,
-                ),
+                      fontSize: 14,
+                      color: ColorManager.primaryByOpacity,
+                      fontFamily: StringConstant.fontName,
+                      height: 1.4,
+                    ),
               ),
             ),
           ],
@@ -256,19 +258,19 @@ class MobilePaymentView extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Payment Options List
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
-              children: paymentOptions.map((option) => 
-                _buildMobilePaymentItem(
-                  context: context,
-                  text: option['text'] as String,
-                  icon: option['icon'] as IconData,
-                  color: option['color'] as Color,
-                )
-              ).toList(),
+              children: paymentOptions
+                  .map((option) => _buildMobilePaymentItem(
+                        context: context,
+                        text: option['text'] as String,
+                        icon: option['icon'] as IconData,
+                        color: option['color'] as Color,
+                      ))
+                  .toList(),
             ),
           ),
         ],
@@ -314,11 +316,11 @@ class MobilePaymentView extends StatelessWidget {
             child: Text(
               text,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: ColorManager.accent,
-                height: 1.5,
-                fontFamily: StringConstant.fontName,
-                fontWeight: FontWeight.w500,
-              ),
+                    color: ColorManager.accent,
+                    height: 1.5,
+                    fontFamily: StringConstant.fontName,
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
           ),
         ],
@@ -348,11 +350,11 @@ class MobilePaymentView extends StatelessWidget {
             child: Text(
               "agree_services".tr(),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: ColorManager.primary,
-                fontWeight: FontWeight.w500,
-                fontFamily: StringConstant.fontName,
-                height: 1.4,
-              ),
+                    color: ColorManager.primary,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: StringConstant.fontName,
+                    height: 1.4,
+                  ),
               textAlign: TextAlign.center,
             ),
           ),
@@ -360,4 +362,4 @@ class MobilePaymentView extends StatelessWidget {
       ),
     );
   }
-} 
+}

@@ -28,7 +28,7 @@ class BrandWidget extends StatelessWidget {
   List<BrandImages> _getFilteredImages(List<BrandEntity> brands) {
     return brands.map((brand) {
       return brand.images.firstWhere(
-            (image) => image.conditionId == null,
+        (image) => image.conditionId == null,
         orElse: () => ImagesModel(image: '', conditionId: '', type: ''),
       );
     }).toList();
@@ -66,7 +66,7 @@ class BrandWidget extends StatelessWidget {
               // الصورة
               _buildBrandImage(filteredImages[index].image),
               const SizedBox(width: 12),
-              
+
               // المعلومات
               Expanded(
                 child: Column(
@@ -85,7 +85,7 @@ class BrandWidget extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 6),
-                    
+
                     // رقم العلامة
                     Text(
                       "رقم العلامة: ${brand.brandNumber}",
@@ -111,16 +111,19 @@ class BrandWidget extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         // حالة العلامة
-                        if (brand.newCurrentStatus != '' || brand.currentStatus != null)
+                        if (brand.newCurrentStatus != '' ||
+                            brand.currentStatus != null)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
                               color: ColorManager.primary,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
                               brand.newCurrentStatus.isEmpty
-                                  ? convertStateBrandNumberToString(brand.currentStatus)
+                                  ? convertStateBrandNumberToString(
+                                      brand.currentStatus)
                                   : brand.newCurrentStatus,
                               style: TextStyle(
                                 color: Colors.white,
@@ -132,7 +135,6 @@ class BrandWidget extends StatelessWidget {
                           ),
                       ],
                     ),
-
                   ],
                 ),
               ),

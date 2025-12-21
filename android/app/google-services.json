@@ -1,65 +1,45 @@
 {
   "project_info": {
-    "project_number": "213413638616",
-    "project_id": "ky-trade-mark",
-    "storage_bucket": "ky-trade-mark.firebasestorage.app"
+    "project_number": "60208463116",
+    "project_id": "ky-app-27178",
+    "storage_bucket": "ky-app-27178.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:213413638616:android:f51e2334697d65e24502ad",
+        "mobilesdk_app_id": "1:60208463116:android:86e86c015f3ce015489d29",
         "android_client_info": {
-          "package_name": "com.dokkan.ky"
+          "package_name": "com.kytrademarks"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "213413638616-2472t8h68ddhjv13d9qpbdqhjekpqsui.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDOkryo3H-OaROy8kN4R3qJriRzKFjK4Uw"
+          "current_key": "AIzaSyArDD-k5hQxOX7NSf9TqLwtDhQwjDLKAFM"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "213413638616-2472t8h68ddhjv13d9qpbdqhjekpqsui.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:213413638616:android:8a96412e766f41ba4502ad",
+        "mobilesdk_app_id": "1:60208463116:android:70b9467971a23a49489d29",
         "android_client_info": {
-          "package_name": "com.kytrademarks"
+          "package_name": "ky.app_200"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "213413638616-2472t8h68ddhjv13d9qpbdqhjekpqsui.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDOkryo3H-OaROy8kN4R3qJriRzKFjK4Uw"
+          "current_key": "AIzaSyArDD-k5hQxOX7NSf9TqLwtDhQwjDLKAFM"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "213413638616-2472t8h68ddhjv13d9qpbdqhjekpqsui.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

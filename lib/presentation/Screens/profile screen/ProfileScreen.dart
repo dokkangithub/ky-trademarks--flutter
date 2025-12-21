@@ -18,7 +18,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  
   // Enhanced responsive breakpoints
   ScreenType _getScreenType(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -42,7 +41,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     // Initialize data providers
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      Provider.of<GetSuccessPartners>(context, listen: false).getSuccessPartners();
+      Provider.of<GetSuccessPartners>(context, listen: false)
+          .getSuccessPartners();
       Provider.of<GetUserProvider>(context, listen: false).getUserData();
     });
   }
@@ -50,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final screenType = _getScreenType(context);
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFE),
       appBar: !_isWebView(context) ? const CustomAppBar() : null,

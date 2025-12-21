@@ -29,7 +29,7 @@ class WebPaymentView extends StatelessWidget {
   Widget _buildHeroSection(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth < 1024;
-    
+
     return Container(
       margin: EdgeInsets.all(screenWidth < 768 ? 16 : 32),
       padding: EdgeInsets.all(screenWidth < 768 ? 24 : 48),
@@ -44,7 +44,9 @@ class WebPaymentView extends StatelessWidget {
           ),
         ],
       ),
-      child: isTablet ? _buildTabletHeroLayout(context) : _buildDesktopHeroLayout(context),
+      child: isTablet
+          ? _buildTabletHeroLayout(context)
+          : _buildDesktopHeroLayout(context),
     );
   }
 
@@ -124,7 +126,8 @@ class WebPaymentView extends StatelessWidget {
 
   Widget _buildHeroContent(BuildContext context, {required bool isTablet}) {
     return Column(
-      crossAxisAlignment: isTablet ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      crossAxisAlignment:
+          isTablet ? CrossAxisAlignment.center : CrossAxisAlignment.start,
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -208,7 +211,7 @@ class WebPaymentView extends StatelessWidget {
 
   Widget _buildPaymentOptionsSection(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: screenWidth < 768 ? 16 : 32),
       child: Column(
@@ -241,12 +244,12 @@ class WebPaymentView extends StatelessWidget {
 
   Widget _buildPaymentGrid(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     // Determine columns and spacing based on screen size
     int crossAxisCount = 1;
     double spacing = 16;
     double childAspectRatio = 4.5;
-    
+
     if (screenWidth >= 1200) {
       crossAxisCount = 2;
       spacing = 24;
@@ -317,7 +320,7 @@ class WebPaymentView extends StatelessWidget {
 
   Widget _buildPaymentCard(Map<String, dynamic> option, double screenWidth) {
     final isSmallScreen = screenWidth < 768;
-    
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -397,7 +400,7 @@ class WebPaymentView extends StatelessWidget {
   Widget _buildSecuritySection(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 768;
-    
+
     return Container(
       margin: EdgeInsets.all(isSmallScreen ? 16 : 32),
       padding: EdgeInsets.all(isSmallScreen ? 20 : 32),
@@ -424,7 +427,8 @@ class WebPaymentView extends StatelessWidget {
                   color: ColorManager.primary,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.verified_user, color: Colors.white, size: 24),
+                child: const Icon(Icons.verified_user,
+                    color: Colors.white, size: 24),
               ),
               const SizedBox(width: 16),
               Text(
@@ -481,4 +485,4 @@ class WebPaymentView extends StatelessWidget {
       ],
     );
   }
-} 
+}

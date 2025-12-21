@@ -45,7 +45,9 @@ class AcceptWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         /// DATA OF ACCEPT
-                        stateOfBrand(displayLarge, brandDetailsDataEntity.states,
+                        stateOfBrand(
+                            displayLarge,
+                            brandDetailsDataEntity.states,
                             brandDetailsDataEntity.created_at),
                         SizedBox(height: 8),
                         checkNullValue(
@@ -493,77 +495,79 @@ class AcceptWidget extends StatelessWidget {
                         const SizedBox(
                           height: 15,
                         ),
-                        brandDetailsDataEntity
-                            .acceptGallery==null||brandDetailsDataEntity
-                            .acceptGallery!.isEmpty||brandDetailsDataEntity
-                            .acceptGallery==[]
+                        brandDetailsDataEntity.acceptGallery == null ||
+                                brandDetailsDataEntity.acceptGallery!.isEmpty ||
+                                brandDetailsDataEntity.acceptGallery == []
                             ? InkWell(
-                          onTap: () => null,
-                          child: Container(
-                            margin:
-                            EdgeInsetsDirectional.only(end: 10, bottom: 10),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 5),
-                            decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    ColorManager.primary,
-                                    ColorManager.primaryByOpacity
-                                        .withOpacity(0.9),
-                                  ],
+                                onTap: () => null,
+                                child: Container(
+                                  margin: EdgeInsetsDirectional.only(
+                                      end: 10, bottom: 10),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 14, vertical: 5),
+                                  decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          ColorManager.primary,
+                                          ColorManager.primaryByOpacity
+                                              .withOpacity(0.9),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(15)),
+                                  child: Text(
+                                    "no_Attachments".tr(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .displayLarge
+                                        ?.copyWith(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500),
+                                  ),
                                 ),
-                                borderRadius: BorderRadius.circular(15)),
-                            child: Text(
-                              "no_Attachments".tr(),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .displayLarge
-                                  ?.copyWith(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                        ) : Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            InkWell(
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => GalleryPage(
-                                          imagesList: brandDetailsDataEntity
-                                              .acceptGallery,
-                                        )),
-                              ),
-                              child: Container(
-                                margin: EdgeInsetsDirectional.only(
-                                    end: 10, bottom: 10),
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 5),
-                                decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        ColorManager.primary,
-                                        ColorManager.primaryByOpacity
-                                            .withOpacity(0.9),
-                                      ],
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  InkWell(
+                                    onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => GalleryPage(
+                                                imagesList:
+                                                    brandDetailsDataEntity
+                                                        .acceptGallery,
+                                              )),
                                     ),
-                                    borderRadius: BorderRadius.circular(15)),
-                                child: Text(
-                                  "attachments".tr(),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .displayLarge
-                                      ?.copyWith(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
+                                    child: Container(
+                                      margin: EdgeInsetsDirectional.only(
+                                          end: 10, bottom: 10),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 14, vertical: 5),
+                                      decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              ColorManager.primary,
+                                              ColorManager.primaryByOpacity
+                                                  .withOpacity(0.9),
+                                            ],
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(15)),
+                                      child: Text(
+                                        "attachments".tr(),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .displayLarge
+                                            ?.copyWith(
+                                                color: Colors.white,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
                       ],
                     ),
                   )

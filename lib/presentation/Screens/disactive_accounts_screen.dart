@@ -24,11 +24,13 @@ class InactiveAccountScreen extends StatelessWidget {
   void _launchEmail(String email) async {
     // Email subject and body in Arabic
     String subject = 'طلب إنشاء حساب جديد - Ky Trademarks';
-    String body = 'مرحباً،\n\nمن فضلك أريد إنشاء حساب جديد في تطبيق Ky Trademarks وأحتاج مساعدة في تفعيل الحساب.\n\nشكراً لكم';
+    String body =
+        'مرحباً،\n\nمن فضلك أريد إنشاء حساب جديد في تطبيق Ky Trademarks وأحتاج مساعدة في تفعيل الحساب.\n\nشكراً لكم';
 
     // Try simple mailto scheme first
     try {
-      final Uri uri = Uri.parse('mailto:$email?subject=${Uri.encodeComponent(subject)}&body=${Uri.encodeComponent(body)}');
+      final Uri uri = Uri.parse(
+          'mailto:$email?subject=${Uri.encodeComponent(subject)}&body=${Uri.encodeComponent(body)}');
       await launchUrl(uri, mode: LaunchMode.externalApplication);
       return;
     } catch (e) {
@@ -37,7 +39,8 @@ class InactiveAccountScreen extends StatelessWidget {
 
     // Fallback: Try with subject only
     try {
-      final Uri uri = Uri.parse('mailto:$email?subject=${Uri.encodeComponent(subject)}');
+      final Uri uri =
+          Uri.parse('mailto:$email?subject=${Uri.encodeComponent(subject)}');
       await launchUrl(uri, mode: LaunchMode.externalApplication);
       return;
     } catch (e) {
@@ -58,7 +61,8 @@ class InactiveAccountScreen extends StatelessWidget {
 
   void _launchWhatsApp(BuildContext context, String phone) async {
     // Clean the phone number
-    String cleanPhone = phone.replaceAll('+', '').replaceAll(' ', '').replaceAll('-', '');
+    String cleanPhone =
+        phone.replaceAll('+', '').replaceAll(' ', '').replaceAll('-', '');
 
     // Message text in Arabic
     String message = 'مرحباً، من فضلك أحتاج مساعدة في تفعيل الحساب';
@@ -66,7 +70,8 @@ class InactiveAccountScreen extends StatelessWidget {
 
     // First, try the direct WhatsApp scheme
     try {
-      final Uri whatsappUri = Uri.parse('whatsapp://send?phone=$cleanPhone&text=$encodedMessage');
+      final Uri whatsappUri =
+          Uri.parse('whatsapp://send?phone=$cleanPhone&text=$encodedMessage');
       await launchUrl(whatsappUri, mode: LaunchMode.externalApplication);
       return;
     } catch (e) {
@@ -75,7 +80,8 @@ class InactiveAccountScreen extends StatelessWidget {
 
     // Fallback to web WhatsApp
     try {
-      final Uri webUri = Uri.parse('https://wa.me/$cleanPhone?text=$encodedMessage');
+      final Uri webUri =
+          Uri.parse('https://wa.me/$cleanPhone?text=$encodedMessage');
       await launchUrl(webUri, mode: LaunchMode.externalApplication);
       return;
     } catch (e) {
@@ -92,7 +98,8 @@ class InactiveAccountScreen extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('واتساب غير متوفر'),
-          content: Text('لا يمكن فتح واتساب. يمكنك نسخ الرقم والتواصل يدوياً:\n$phone'),
+          content: Text(
+              'لا يمكن فتح واتساب. يمكنك نسخ الرقم والتواصل يدوياً:\n$phone'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -131,7 +138,8 @@ class InactiveAccountScreen extends StatelessWidget {
                 style: const TextStyle(fontSize: 16),
               ),
             ),
-            Icon(Icons.arrow_forward_ios, color: primary.withOpacity(0.5), size: 16),
+            Icon(Icons.arrow_forward_ios,
+                color: primary.withOpacity(0.5), size: 16),
           ],
         ),
       ),

@@ -159,7 +159,8 @@ class _MobileLoginViewState extends State<MobileLoginView>
           SliverFillRemaining(
             hasScrollBody: false,
             child: Padding(
-              padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 40.0),
+              padding:
+                  const EdgeInsets.only(left: 20.0, right: 20.0, top: 40.0),
               child: Column(
                 children: [
                   const Spacer(flex: 2),
@@ -214,7 +215,8 @@ class _MobileLoginViewState extends State<MobileLoginView>
             return Transform.scale(
               scale: _pulseAnimation.value,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(25),
                   gradient: LinearGradient(
@@ -452,7 +454,8 @@ class _MobileLoginViewState extends State<MobileLoginView>
                     fontFamily: StringConstant.fontName,
                     fontSize: 16,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                   border: InputBorder.none,
                   prefixIcon: prefixIcon != null
                       ? Padding(
@@ -464,7 +467,7 @@ class _MobileLoginViewState extends State<MobileLoginView>
                           ),
                         )
                       : null,
-                  suffixIcon: suffixIcon != null 
+                  suffixIcon: suffixIcon != null
                       ? Padding(
                           padding: const EdgeInsets.only(right: 12),
                           child: suffixIcon,
@@ -673,18 +676,14 @@ class _MobileLoginViewState extends State<MobileLoginView>
         icon: Icon(
           icon,
           size: 20,
-          color: isPrimary
-              ? Colors.black87
-              : Colors.white.withOpacity(0.95),
+          color: isPrimary ? Colors.black87 : Colors.white.withOpacity(0.95),
         ),
         label: Text(
           label,
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: isPrimary
-                ? Colors.black87
-                : Colors.white.withOpacity(0.95),
+            color: isPrimary ? Colors.black87 : Colors.white.withOpacity(0.95),
             fontFamily: StringConstant.fontName,
           ),
         ),
@@ -692,9 +691,8 @@ class _MobileLoginViewState extends State<MobileLoginView>
           backgroundColor: isPrimary
               ? const Color(0xFFFFD700).withOpacity(0.95)
               : Colors.transparent,
-          foregroundColor: isPrimary
-              ? Colors.black87
-              : Colors.white.withOpacity(0.95),
+          foregroundColor:
+              isPrimary ? Colors.black87 : Colors.white.withOpacity(0.95),
           elevation: isPrimary ? 8 : 0,
           side: isPrimary
               ? null

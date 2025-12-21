@@ -10,8 +10,10 @@ import '../../../core/Services_locator.dart';
 /// Use this for testing the new Issues endpoints
 class IssuesTestProvider extends ChangeNotifier {
   final GetIssuesProvider _issuesProvider = sl<GetIssuesProvider>();
-  final GetIssueDetailsProvider _issueDetailsProvider = sl<GetIssueDetailsProvider>();
-  final GetIssuesSummaryProvider _issuesSummaryProvider = sl<GetIssuesSummaryProvider>();
+  final GetIssueDetailsProvider _issueDetailsProvider =
+      sl<GetIssueDetailsProvider>();
+  final GetIssuesSummaryProvider _issuesSummaryProvider =
+      sl<GetIssuesSummaryProvider>();
   final SearchIssuesProvider _searchIssuesProvider = sl<SearchIssuesProvider>();
 
   // Getters to access provider states
@@ -22,7 +24,7 @@ class IssuesTestProvider extends ChangeNotifier {
 
   /// Example usage of Issues API endpoints
   /// Replace customerId with actual customer ID (244 is from the example)
-  
+
   /// 1. Get Issues List
   /// curl -X GET "https://yourdomain.com/api/issues?customer_id=123&page=1&per_page=10"
   Future<void> testGetIssues({int customerId = 244}) async {
@@ -32,13 +34,14 @@ class IssuesTestProvider extends ChangeNotifier {
       page: 1,
       perPage: 10,
     );
-    
+
     if (_issuesProvider.state == RequestState.loaded) {
       print('✅ Get Issues API Success!');
       print('Total Issues: ${_issuesProvider.totalIssues}');
       print('Issues Count: ${_issuesProvider.allIssues.length}');
       _issuesProvider.allIssues.forEach((issue) {
-        print('- Issue ID: ${issue.id}, Type: ${issue.refusedType}, Brand: ${issue.brand.brandName}');
+        print(
+            '- Issue ID: ${issue.id}, Type: ${issue.refusedType}, Brand: ${issue.brand.brandName}');
       });
     } else if (_issuesProvider.state == RequestState.failed) {
       print('❌ Get Issues API Failed');
@@ -47,13 +50,14 @@ class IssuesTestProvider extends ChangeNotifier {
 
   /// 2. Get Issue Details
   /// curl -X GET "https://yourdomain.com/api/issues/1?customer_id=123"
-  Future<void> testGetIssueDetails({int issueId = 2, int customerId = 244}) async {
+  Future<void> testGetIssueDetails(
+      {int issueId = 2, int customerId = 244}) async {
     print('Testing Get Issue Details API...');
     await _issueDetailsProvider.getIssueDetails(
       issueId: issueId,
       customerId: customerId,
     );
-    
+
     if (_issueDetailsProvider.state == RequestState.loaded) {
       print('✅ Get Issue Details API Success!');
       final issue = _issueDetailsProvider.issueDetails!;
@@ -73,7 +77,7 @@ class IssuesTestProvider extends ChangeNotifier {
   Future<void> testGetIssuesSummary({int customerId = 244}) async {
     print('Testing Get Issues Summary API...');
     await _issuesSummaryProvider.getIssuesSummary(customerId: customerId);
-    
+
     if (_issuesSummaryProvider.state == RequestState.loaded) {
       print('✅ Get Issues Summary API Success!');
       final summary = _issuesSummaryProvider.issuesSummary!;
@@ -100,14 +104,15 @@ class IssuesTestProvider extends ChangeNotifier {
       page: 1,
       perPage: 15,
     );
-    
+
     if (_searchIssuesProvider.state == RequestState.loaded) {
       print('✅ Search Issues API Success!');
       print('Search Query: ${query}');
       print('Total Results: ${_searchIssuesProvider.totalResults}');
       print('Results Count: ${_searchIssuesProvider.searchResults.length}');
       _searchIssuesProvider.searchResults.forEach((issue) {
-        print('- Issue ID: ${issue.id}, Type: ${issue.refusedType}, Brand: ${issue.brandName}');
+        print(
+            '- Issue ID: ${issue.id}, Type: ${issue.refusedType}, Brand: ${issue.brandName}');
       });
     } else if (_searchIssuesProvider.state == RequestState.failed) {
       print('❌ Search Issues API Failed');
@@ -119,22 +124,22 @@ class IssuesTestProvider extends ChangeNotifier {
     print('========================================');
     print('🧪 Testing All Issues API Endpoints');
     print('========================================');
-    
+
     // Test 1: Get Issues List
     await testGetIssues(customerId: customerId);
     await Future.delayed(Duration(seconds: 1));
-    
+
     // Test 2: Get Issue Details (using issue ID 2 from the example)
     await testGetIssueDetails(issueId: 2, customerId: customerId);
     await Future.delayed(Duration(seconds: 1));
-    
+
     // Test 3: Get Issues Summary
     await testGetIssuesSummary(customerId: customerId);
     await Future.delayed(Duration(seconds: 1));
-    
+
     // Test 4: Search Issues
     await testSearchIssues(query: 'Dokkan', customerId: customerId);
-    
+
     print('========================================');
     print('✅ All Tests Completed!');
     print('========================================');
@@ -148,4 +153,4 @@ class IssuesTestProvider extends ChangeNotifier {
     _searchIssuesProvider.clearSearch();
     notifyListeners();
   }
-} 
+}

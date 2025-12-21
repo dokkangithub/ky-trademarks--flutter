@@ -14,11 +14,11 @@ class GetIssuesSummaryProvider extends ChangeNotifier {
   }) async {
     state = RequestState.loading;
     notifyListeners();
-    
+
     var result = await GetIssuesSummaryUseCase(sl()).call(
       customerId: customerId,
     );
-    
+
     result.fold((l) {
       state = RequestState.failed;
       notifyListeners();
@@ -35,4 +35,4 @@ class GetIssuesSummaryProvider extends ChangeNotifier {
     state = RequestState.loading;
     notifyListeners();
   }
-} 
+}

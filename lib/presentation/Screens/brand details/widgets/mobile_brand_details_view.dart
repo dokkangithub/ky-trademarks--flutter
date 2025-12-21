@@ -110,7 +110,8 @@ class MobileBrandDetailsView extends StatelessWidget {
             delegate: SliverChildBuilderDelegate(
               (context, index) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: _buildMobileStatusCard(context, statusData[index], index),
+                child:
+                    _buildMobileStatusCard(context, statusData[index], index),
               ),
               childCount: statusData.length,
             ),
@@ -240,22 +241,22 @@ class MobileBrandDetailsView extends StatelessWidget {
           Text(
             globalAccountData.getUsername() ?? 'User',
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              fontSize: 20,
-              color: ColorManager.primary,
-              fontWeight: FontWeight.w600,
-              fontFamily: StringConstant.fontName,
-            ),
+                  fontSize: 20,
+                  color: ColorManager.primary,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: StringConstant.fontName,
+                ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 5),
           Text(
             globalAccountData.getEmail() ?? 'user@example.com',
             style: Theme.of(context).textTheme.displayLarge?.copyWith(
-              fontSize: 14,
-              color: Colors.grey.shade600,
-              fontWeight: FontWeight.w400,
-              fontFamily: StringConstant.fontName,
-            ),
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w400,
+                  fontFamily: StringConstant.fontName,
+                ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -263,7 +264,8 @@ class MobileBrandDetailsView extends StatelessWidget {
     );
   }
 
-  Widget _buildMobileBrandTable(BuildContext context, List<List<String>> brandData) {
+  Widget _buildMobileBrandTable(
+      BuildContext context, List<List<String>> brandData) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
@@ -316,7 +318,8 @@ class MobileBrandDetailsView extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             itemCount: brandData.length,
             separatorBuilder: (context, index) => const Divider(height: 1),
-            itemBuilder: (context, index) => _buildMobileTableRow(context, brandData[index]),
+            itemBuilder: (context, index) =>
+                _buildMobileTableRow(context, brandData[index]),
           ),
         ],
       ),
@@ -459,7 +462,8 @@ class MobileBrandDetailsView extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.file_download_outlined, color: Colors.white, size: 24),
+                Icon(Icons.file_download_outlined,
+                    color: Colors.white, size: 24),
                 const SizedBox(width: 12),
                 Text(
                   "download_pdf".tr(),
@@ -523,7 +527,8 @@ class MobileBrandDetailsView extends StatelessWidget {
       ],
       [
         "complete_request".tr(),
-        _getPowerOfAttorneyStatus(model.brandDetails!.brand.completedPowerOfAttorneyRequest),
+        _getPowerOfAttorneyStatus(
+            model.brandDetails!.brand.completedPowerOfAttorneyRequest),
       ],
       ["incoming_number".tr(), model.brandDetails!.brand.importNumber ?? ''],
       ["attorney_date".tr(), model.brandDetails!.brand.dateOfSupply ?? ''],
@@ -561,29 +566,37 @@ class MobileBrandDetailsView extends StatelessWidget {
       return AcceptWidget(brandDetailsDataEntity: data);
     }
     if (data.states == "الرفض") {
-      return RefusedWidget(brandDetailsDataEntity: model.brandDetails!, number: index);
+      return RefusedWidget(
+          brandDetailsDataEntity: model.brandDetails!, number: index);
     }
     if (data.states == "الطعن ضد التظلم") {
-      return AppealGrivenceWidget(brandDetailsDataEntity: model.brandDetails!, number: index);
+      return AppealGrivenceWidget(
+          brandDetailsDataEntity: model.brandDetails!, number: index);
     }
     if (data.states == "التظلم") {
-      return GrievanceWidget(brandDetailsDataEntity: model.brandDetails!, number: index);
+      return GrievanceWidget(
+          brandDetailsDataEntity: model.brandDetails!, number: index);
     }
     if (data.states == "قرار لجنه التظلم") {
-      return GrievanceTeamDecisionWidget(brandDetailsDataEntity: model.brandDetails!, number: index);
+      return GrievanceTeamDecisionWidget(
+          brandDetailsDataEntity: model.brandDetails!, number: index);
     }
     if (data.states == "التجديدات") {
-      return RenovationsWidget(brandDetailsDataEntity: model.brandDetails!, number: index);
+      return RenovationsWidget(
+          brandDetailsDataEntity: model.brandDetails!, number: index);
     }
     if (data.states == "قبول مشترط") {
-      return ConditionalAcceptanceWidget(brandDetailsDataEntity: model.brandDetails!, number: index);
+      return ConditionalAcceptanceWidget(
+          brandDetailsDataEntity: model.brandDetails!, number: index);
     }
     if (data.states == StringConstant.giveUp) {
-      return GiveUpWidget(brandDetailsDataEntity: model.brandDetails!, number: index);
+      return GiveUpWidget(
+          brandDetailsDataEntity: model.brandDetails!, number: index);
     }
     if (data.states == StringConstant.appealBrandRegistration) {
-      return AppealBrandRegistration(brandDetailsDataEntity: model.brandDetails!, number: index);
+      return AppealBrandRegistration(
+          brandDetailsDataEntity: model.brandDetails!, number: index);
     }
     return const SizedBox.shrink();
   }
-} 
+}

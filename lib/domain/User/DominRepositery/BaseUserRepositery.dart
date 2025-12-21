@@ -7,6 +7,6 @@ import '../../../app/Failure.dart';
 
 abstract class BaseUserRepository {
   Future<Either<Failure, UserDataEntity>> getUserData();
-  Future<Either<Failure, UserDataEntity>> updateUserAvatar({required File avatarFile});
-
+  Future<Either<Failure, UserDataEntity>> updateUserAvatar(
+      {required File avatarFile});
 }

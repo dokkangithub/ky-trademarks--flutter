@@ -55,8 +55,6 @@ class BrandDetailsEntity {
   final List<ImagesModel> completedPowerOfAttorneyRequestImages;
   final List<TypesModel> completedPowerOfAttorneyRequestTypes;
 
-
-
   const BrandDetailsEntity({
     required this.id,
     required this.customerId,
@@ -90,186 +88,179 @@ class BrandDetailsEntity {
     required this.cr,
     required this.completedPowerOfAttorneyRequestImages,
     required this.completedPowerOfAttorneyRequestTypes,
-
   });
 }
 
 class AllResult {
-   String  ? states;
-    // Rejection ? rejection;
-    // Grivence ? grivence;
-    // Acceptance  ?  acceptance;
-    // AppealGrivence ? appealGrivence;
-    // ConditionalAcceptance? conditionalAcceptance;
-    // Renovations ?  renovations;
-    // Decision ? decision;
-    // UnderTechnicalInspection ? underTechnicalInspection;
-     int? id;
-     int? brandId;
-     String? name;
-     String? dateOfTheCaseOfTheDecisionOfTheGrievanceCommittee;
-     String? theDecisionOfTheApplicationToAcceptOrReject;
-     String? technicalOpinionDecision;
-     int? number;
-     String? dateOfRenewalStatus;
-     String? dateOfRenewalFee;
-     String? renewalDateRenovations;
-     String? renewalPeriod;
-     String? admissionStatusDateConditional;
-     String? recordConditional;
-     String? publicityFeePaymentDateConditional;
-     String? publishDateConditional;
-     String? numberOfNewspaperConditional;
-     String? exhibitionDetailsConditional;
-     String? theApplicantResponseToTheObjectionConditional;
-     String? theDateOfTheHearingSessionConditional;
-     String? decisionOfTheExhibitionCommitteeConditional;
-     String? renewalDateConditional;
-     String? dateOfPaymentOfTheRegistrationFeeConditional;
-     String? dateOfRegistrationConditional;
-     String? noteTheConditionalAcceptance;
-     String? requirements;
-     String? notifyTheStudentOfTheOpposition;
-     String? firstNotificationOfTheOppositionApostate;
-     String? secondNotificationOfTheOppositionApostate;
-     String? theDateOfPaymentOfTheAppealFee;
-     String? appealDecision;
-     String? appealNotes;
-     String? admissionStatusDate;
-     String? record;
-     String? publicityFeePaymentDate;
-     String? publishDate;
-     String? numberOfNewspaper;
-     String? notifyTheStudentOfOpposition;
-     String? exhibitionDetails;
-     String? firstNoticeOfOppositionApostate;
-     String? secondNoticeOfOppositionApostate;
-     String? theApplicantResponseToTheObjection;
-     String? theDateOfTheHearingSession;
-     String? decisionOfTheExhibitionCommittee;
-     String? dateOfPaymentOfTheRegistrationFee;
-     String? dateOfRegistration;
-     String? renewalDate;
-     String? acceptanceNote;
-     String? theDateOfPaymentOfTheGrievanceFee;
-     String? grivenceNotes;
-     String? grievanceCommitteeNumber;
-     String? historyOfTheGrievanceCommittee;
-     String? theDateOfTheRejection;
-     String? theReasonOfRefuse;
-     String? technicalOpinion;
-     String ? created_at;
-     String ? dateNotifyStudentOpposition;
-     ///AppealBrandRegistration
-     String? dateOfAppeal;
-     String? commissionersDecision;
-     String? courtDecision;
-     String? dateNotifyTheStudentOfOpposition;
-     ///GiveUp
-      String? giveUpDate;
-      String? giveUpNotes;
-      String? replyImportNumOpposition;
-      String? opposition_note;
-      String? importNumberPosition;
-      List<dynamic>? acceptGallery;
-      List<dynamic>? appealBrandRegistrationGallery;
-      List<dynamic>? appealGrivenceGallery;
-      List<dynamic>? conditionalAcceptanceGallery;
-      List<dynamic>? giveUpGallery;
-      List<dynamic>? grievanceTeamDecisionGallery;
-      List<dynamic>? grievanceGallery;
-      List<dynamic>? processingGallery;
-      List<dynamic>? refusedGallery;
-      List<dynamic>? renovationsGallery;
-      List<dynamic>? publish_date_Gallery;
+  String? states;
+  // Rejection ? rejection;
+  // Grivence ? grivence;
+  // Acceptance  ?  acceptance;
+  // AppealGrivence ? appealGrivence;
+  // ConditionalAcceptance? conditionalAcceptance;
+  // Renovations ?  renovations;
+  // Decision ? decision;
+  // UnderTechnicalInspection ? underTechnicalInspection;
+  int? id;
+  int? brandId;
+  String? name;
+  String? dateOfTheCaseOfTheDecisionOfTheGrievanceCommittee;
+  String? theDecisionOfTheApplicationToAcceptOrReject;
+  String? technicalOpinionDecision;
+  int? number;
+  String? dateOfRenewalStatus;
+  String? dateOfRenewalFee;
+  String? renewalDateRenovations;
+  String? renewalPeriod;
+  String? admissionStatusDateConditional;
+  String? recordConditional;
+  String? publicityFeePaymentDateConditional;
+  String? publishDateConditional;
+  String? numberOfNewspaperConditional;
+  String? exhibitionDetailsConditional;
+  String? theApplicantResponseToTheObjectionConditional;
+  String? theDateOfTheHearingSessionConditional;
+  String? decisionOfTheExhibitionCommitteeConditional;
+  String? renewalDateConditional;
+  String? dateOfPaymentOfTheRegistrationFeeConditional;
+  String? dateOfRegistrationConditional;
+  String? noteTheConditionalAcceptance;
+  String? requirements;
+  String? notifyTheStudentOfTheOpposition;
+  String? firstNotificationOfTheOppositionApostate;
+  String? secondNotificationOfTheOppositionApostate;
+  String? theDateOfPaymentOfTheAppealFee;
+  String? appealDecision;
+  String? appealNotes;
+  String? admissionStatusDate;
+  String? record;
+  String? publicityFeePaymentDate;
+  String? publishDate;
+  String? numberOfNewspaper;
+  String? notifyTheStudentOfOpposition;
+  String? exhibitionDetails;
+  String? firstNoticeOfOppositionApostate;
+  String? secondNoticeOfOppositionApostate;
+  String? theApplicantResponseToTheObjection;
+  String? theDateOfTheHearingSession;
+  String? decisionOfTheExhibitionCommittee;
+  String? dateOfPaymentOfTheRegistrationFee;
+  String? dateOfRegistration;
+  String? renewalDate;
+  String? acceptanceNote;
+  String? theDateOfPaymentOfTheGrievanceFee;
+  String? grivenceNotes;
+  String? grievanceCommitteeNumber;
+  String? historyOfTheGrievanceCommittee;
+  String? theDateOfTheRejection;
+  String? theReasonOfRefuse;
+  String? technicalOpinion;
+  String? created_at;
+  String? dateNotifyStudentOpposition;
 
+  ///AppealBrandRegistration
+  String? dateOfAppeal;
+  String? commissionersDecision;
+  String? courtDecision;
+  String? dateNotifyTheStudentOfOpposition;
 
+  ///GiveUp
+  String? giveUpDate;
+  String? giveUpNotes;
+  String? replyImportNumOpposition;
+  String? opposition_note;
+  String? importNumberPosition;
+  List<dynamic>? acceptGallery;
+  List<dynamic>? appealBrandRegistrationGallery;
+  List<dynamic>? appealGrivenceGallery;
+  List<dynamic>? conditionalAcceptanceGallery;
+  List<dynamic>? giveUpGallery;
+  List<dynamic>? grievanceTeamDecisionGallery;
+  List<dynamic>? grievanceGallery;
+  List<dynamic>? processingGallery;
+  List<dynamic>? refusedGallery;
+  List<dynamic>? renovationsGallery;
+  List<dynamic>? publish_date_Gallery;
 
-     AllResult({
-      this.states,
-       this.id,
-       this.brandId,
-       this.number,
-       this.name,
-       this.dateOfTheCaseOfTheDecisionOfTheGrievanceCommittee,
-       this.theDecisionOfTheApplicationToAcceptOrReject,
-       this.technicalOpinionDecision,
-       this.dateOfRenewalStatus,
-       this.dateOfRenewalFee,
-       this.renewalDateRenovations,
-       this.renewalPeriod,
-       this.admissionStatusDateConditional,
-       this.recordConditional,
-       this.publicityFeePaymentDateConditional,
-       this.publishDateConditional,
-       this.numberOfNewspaperConditional,
-       this.exhibitionDetailsConditional,
-       this.theApplicantResponseToTheObjectionConditional,
-       this.theDateOfTheHearingSessionConditional,
-       this.decisionOfTheExhibitionCommitteeConditional,
-       this.renewalDateConditional,
-       this.dateOfPaymentOfTheRegistrationFeeConditional,
-       this.dateOfRegistrationConditional,
-       this.noteTheConditionalAcceptance,
-       this.requirements,
-       this.notifyTheStudentOfTheOpposition,
-       this.firstNotificationOfTheOppositionApostate,
-       this.secondNotificationOfTheOppositionApostate,
-       this.theDateOfPaymentOfTheAppealFee,
-       this.appealDecision,
-       this.appealNotes,
-       this.admissionStatusDate,
-       this.record,
-       this.publicityFeePaymentDate,
-       this.publishDate,
-       this.numberOfNewspaper,
-       this.notifyTheStudentOfOpposition,
-       this.exhibitionDetails,
-       this.firstNoticeOfOppositionApostate,
-       this.secondNoticeOfOppositionApostate,
-       this.theApplicantResponseToTheObjection,
-       this.theDateOfTheHearingSession,
-       this.decisionOfTheExhibitionCommittee,
-       this.dateOfPaymentOfTheRegistrationFee,
-       this.dateOfRegistration,
-       this.renewalDate,
-       this.acceptanceNote,
-       this.theDateOfPaymentOfTheGrievanceFee,
-       this.grivenceNotes,
-       this.grievanceCommitteeNumber,
-       this.historyOfTheGrievanceCommittee,
-       this.theDateOfTheRejection,
-       this.theReasonOfRefuse,
-       this.technicalOpinion,
-       this.created_at,
-       this.dateOfAppeal,
-       this.commissionersDecision,
-       this.courtDecision,
-       this.giveUpDate,
-       this.giveUpNotes,
-       this.acceptGallery,
-       this.appealBrandRegistrationGallery,
-       this.appealGrivenceGallery,
-       this.conditionalAcceptanceGallery,
-       this.giveUpGallery,
-       this.grievanceGallery,
-       this.grievanceTeamDecisionGallery,
-       this.processingGallery,
-       this.refusedGallery,
-       this.renovationsGallery,
-       this.publish_date_Gallery,
-       this.replyImportNumOpposition,
-       this.dateNotifyTheStudentOfOpposition,
-       this.opposition_note,
-       this.importNumberPosition
+  AllResult(
+      {this.states,
+      this.id,
+      this.brandId,
+      this.number,
+      this.name,
+      this.dateOfTheCaseOfTheDecisionOfTheGrievanceCommittee,
+      this.theDecisionOfTheApplicationToAcceptOrReject,
+      this.technicalOpinionDecision,
+      this.dateOfRenewalStatus,
+      this.dateOfRenewalFee,
+      this.renewalDateRenovations,
+      this.renewalPeriod,
+      this.admissionStatusDateConditional,
+      this.recordConditional,
+      this.publicityFeePaymentDateConditional,
+      this.publishDateConditional,
+      this.numberOfNewspaperConditional,
+      this.exhibitionDetailsConditional,
+      this.theApplicantResponseToTheObjectionConditional,
+      this.theDateOfTheHearingSessionConditional,
+      this.decisionOfTheExhibitionCommitteeConditional,
+      this.renewalDateConditional,
+      this.dateOfPaymentOfTheRegistrationFeeConditional,
+      this.dateOfRegistrationConditional,
+      this.noteTheConditionalAcceptance,
+      this.requirements,
+      this.notifyTheStudentOfTheOpposition,
+      this.firstNotificationOfTheOppositionApostate,
+      this.secondNotificationOfTheOppositionApostate,
+      this.theDateOfPaymentOfTheAppealFee,
+      this.appealDecision,
+      this.appealNotes,
+      this.admissionStatusDate,
+      this.record,
+      this.publicityFeePaymentDate,
+      this.publishDate,
+      this.numberOfNewspaper,
+      this.notifyTheStudentOfOpposition,
+      this.exhibitionDetails,
+      this.firstNoticeOfOppositionApostate,
+      this.secondNoticeOfOppositionApostate,
+      this.theApplicantResponseToTheObjection,
+      this.theDateOfTheHearingSession,
+      this.decisionOfTheExhibitionCommittee,
+      this.dateOfPaymentOfTheRegistrationFee,
+      this.dateOfRegistration,
+      this.renewalDate,
+      this.acceptanceNote,
+      this.theDateOfPaymentOfTheGrievanceFee,
+      this.grivenceNotes,
+      this.grievanceCommitteeNumber,
+      this.historyOfTheGrievanceCommittee,
+      this.theDateOfTheRejection,
+      this.theReasonOfRefuse,
+      this.technicalOpinion,
+      this.created_at,
+      this.dateOfAppeal,
+      this.commissionersDecision,
+      this.courtDecision,
+      this.giveUpDate,
+      this.giveUpNotes,
+      this.acceptGallery,
+      this.appealBrandRegistrationGallery,
+      this.appealGrivenceGallery,
+      this.conditionalAcceptanceGallery,
+      this.giveUpGallery,
+      this.grievanceGallery,
+      this.grievanceTeamDecisionGallery,
+      this.processingGallery,
+      this.refusedGallery,
+      this.renovationsGallery,
+      this.publish_date_Gallery,
+      this.replyImportNumOpposition,
+      this.dateNotifyTheStudentOfOpposition,
+      this.opposition_note,
+      this.importNumberPosition
 
-
-
-
-
-
-
-       // this.rejection,
+      // this.rejection,
       // this.grivence,
       // this.acceptance,
       // this.appealGrivence,
@@ -277,5 +268,5 @@ class AllResult {
       // this.renovations,
       // this.decision,
       // this.underTechnicalInspection,
-  });
+      });
 }

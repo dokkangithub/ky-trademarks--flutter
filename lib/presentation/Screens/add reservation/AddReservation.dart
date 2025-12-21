@@ -67,7 +67,8 @@ class _AddReservationState extends State<AddReservation> {
 
   Future<bool> _isFirstLaunch() async {
     final prefs = await SharedPreferences.getInstance();
-    final isFirst = prefs.getBool(AddReservation.preferencesFirstLaunch) ?? true;
+    final isFirst =
+        prefs.getBool(AddReservation.preferencesFirstLaunch) ?? true;
     if (isFirst) {
       await prefs.setBool(AddReservation.preferencesFirstLaunch, false);
     }
@@ -181,8 +182,8 @@ class _AddReservationState extends State<AddReservation> {
               Text(
                 "تم اضافة الحجز بنجاح",
                 style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                  fontFamily: StringConstant.fontName,
-                ),
+                      fontFamily: StringConstant.fontName,
+                    ),
               ),
             ],
           ),
@@ -199,32 +200,32 @@ class _AddReservationState extends State<AddReservation> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: _isWebView(context)?null:_buildAppBar(),
+      appBar: _isWebView(context) ? null : _buildAppBar(),
       body: _isWebView(context)
           ? WebReservationView(
-        formKey: _formKey,
-        descriptionKey: _descriptionKey,
-        nameController: _name,
-        emailController: _email,
-        phoneController: _phone,
-        nationalityController: _nationality,
-        cityController: _city,
-        dateController: _date,
-        onSubmitReservation: _submitReservation,
-        tutorialTargets: _tutorialTargets,
-      )
+              formKey: _formKey,
+              descriptionKey: _descriptionKey,
+              nameController: _name,
+              emailController: _email,
+              phoneController: _phone,
+              nationalityController: _nationality,
+              cityController: _city,
+              dateController: _date,
+              onSubmitReservation: _submitReservation,
+              tutorialTargets: _tutorialTargets,
+            )
           : MobileReservationView(
-        formKey: _formKey,
-        descriptionKey: _descriptionKey,
-        nameController: _name,
-        emailController: _email,
-        phoneController: _phone,
-        nationalityController: _nationality,
-        cityController: _city,
-        dateController: _date,
-        onSubmitReservation: _submitReservation,
-        tutorialTargets: _tutorialTargets,
-      ),
+              formKey: _formKey,
+              descriptionKey: _descriptionKey,
+              nameController: _name,
+              emailController: _email,
+              phoneController: _phone,
+              nationalityController: _nationality,
+              cityController: _city,
+              dateController: _date,
+              onSubmitReservation: _submitReservation,
+              tutorialTargets: _tutorialTargets,
+            ),
     );
   }
 
@@ -252,10 +253,10 @@ class _AddReservationState extends State<AddReservation> {
                 Text(
                   "add_reservation".tr(),
                   style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    color: Colors.white,
-                    fontFamily: StringConstant.fontName,
-                    fontSize: _isWebView(context) ? 22 : 18,
-                  ),
+                        color: Colors.white,
+                        fontFamily: StringConstant.fontName,
+                        fontSize: _isWebView(context) ? 22 : 18,
+                      ),
                 ),
                 InkWell(
                   onTap: _initTutorial,

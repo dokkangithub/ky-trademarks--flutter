@@ -11,11 +11,11 @@ class RequestProvider extends ChangeNotifier {
   RequestState? state;
 
   Future<void> sendRequest(
-      Map<String, String> json, {
-        dynamic image1, // Changed to dynamic to accept File or XFile
-        dynamic image2,
-        dynamic image3,
-      }) async {
+    Map<String, String> json, {
+    dynamic image1, // Changed to dynamic to accept File or XFile
+    dynamic image2,
+    dynamic image3,
+  }) async {
     state = RequestState.loading;
     notifyListeners();
 
@@ -24,7 +24,8 @@ class RequestProvider extends ChangeNotifier {
       if (image1 == null) {
         state = RequestState.failed;
         notifyListeners();
-        toast("photo_at_least".tr()); // Assuming toast is available via Comman.dart
+        toast("photo_at_least"
+            .tr()); // Assuming toast is available via Comman.dart
         return;
       }
 
@@ -37,12 +38,12 @@ class RequestProvider extends ChangeNotifier {
       );
 
       result.fold(
-            (l) {
+        (l) {
           state = RequestState.failed;
           notifyListeners();
           toast(l.message.toString()); // Show error message
         },
-            (r) {
+        (r) {
           state = RequestState.loaded;
           notifyListeners();
         },

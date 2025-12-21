@@ -67,13 +67,13 @@ class _MobileSearchViewState extends State<MobileSearchView> {
   Widget _buildMobileSearchHeader(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-            colors: [
-              ColorManager.primaryByOpacity.withValues(alpha: 0.9),
-              ColorManager.primary,
-            ],
-            stops: [0.2,0.7]
-        ),
+        gradient: LinearGradient(colors: [
+          ColorManager.primaryByOpacity.withValues(alpha: 0.9),
+          ColorManager.primary,
+        ], stops: [
+          0.2,
+          0.7
+        ]),
         boxShadow: [
           BoxShadow(
             color: ColorManager.primary.withValues(alpha: 0.3),
@@ -274,21 +274,28 @@ class _MobileSearchViewState extends State<MobileSearchView> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: widget.searchController.text.trim().length >= 2
-                  ? [ColorManager.primary, ColorManager.primary.withValues(alpha: 0.8)]
+                  ? [
+                      ColorManager.primary,
+                      ColorManager.primary.withValues(alpha: 0.8)
+                    ]
                   : [Colors.grey.shade300, Colors.grey.shade400],
             ),
             borderRadius: BorderRadius.circular(12),
-            boxShadow: widget.searchController.text.trim().length >= 2 ? [
-              BoxShadow(
-                color: ColorManager.primary.withValues(alpha: 0.3),
-                spreadRadius: 1,
-                blurRadius: 6,
-                offset: const Offset(0, 3),
-              ),
-            ] : [],
+            boxShadow: widget.searchController.text.trim().length >= 2
+                ? [
+                    BoxShadow(
+                      color: ColorManager.primary.withValues(alpha: 0.3),
+                      spreadRadius: 1,
+                      blurRadius: 6,
+                      offset: const Offset(0, 3),
+                    ),
+                  ]
+                : [],
           ),
           child: ElevatedButton(
-            onPressed: widget.searchController.text.trim().length >= 2 ? _performSearch : null,
+            onPressed: widget.searchController.text.trim().length >= 2
+                ? _performSearch
+                : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.transparent,
               foregroundColor: Colors.white,
@@ -331,20 +338,22 @@ class _MobileSearchViewState extends State<MobileSearchView> {
         fontSize: 12,
       ),
       prefixIcon: Icon(
-        widget.currentSearchType == 0 ? Icons.business_center_outlined : Icons.gavel_outlined,
+        widget.currentSearchType == 0
+            ? Icons.business_center_outlined
+            : Icons.gavel_outlined,
         color: Colors.grey.shade400,
         size: 20,
       ),
       suffixIcon: widget.searchController.text.isNotEmpty
           ? IconButton(
-        onPressed: () {
-          widget.searchController.clear();
-          setState(() {
-            _hasSearched = false;
-          });
-        },
-        icon: Icon(Icons.clear, color: Colors.grey.shade600),
-      )
+              onPressed: () {
+                widget.searchController.clear();
+                setState(() {
+                  _hasSearched = false;
+                });
+              },
+              icon: Icon(Icons.clear, color: Colors.grey.shade600),
+            )
           : null,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -379,8 +388,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
         int customerId = globalAccountData.getId() != null
             ? int.parse(globalAccountData.getId()!)
             : 0;
-        Provider.of<SearchIssuesProvider>(context, listen: false)
-            .searchIssues(
+        Provider.of<SearchIssuesProvider>(context, listen: false).searchIssues(
           query: widget.searchController.text.trim(),
           customerId: customerId,
         );
@@ -564,7 +572,8 @@ class _MobileSearchViewState extends State<MobileSearchView> {
     );
   }
 
-  Widget _buildBrandSearchResultsContent(BuildContext context, GetBrandBySearchProvider model) {
+  Widget _buildBrandSearchResultsContent(
+      BuildContext context, GetBrandBySearchProvider model) {
     if (model.state == RequestState.loading) {
       return _buildLoadingState();
     } else if (model.state == RequestState.failed) {
@@ -579,7 +588,8 @@ class _MobileSearchViewState extends State<MobileSearchView> {
     return Container();
   }
 
-  Widget _buildIssueSearchResultsContent(BuildContext context, SearchIssuesProvider model) {
+  Widget _buildIssueSearchResultsContent(
+      BuildContext context, SearchIssuesProvider model) {
     if (model.state == RequestState.loading && model.searchResults.isEmpty) {
       return _buildLoadingState();
     } else if (model.state == RequestState.failed) {
@@ -661,7 +671,8 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                 ),
                 if (model.hasMoreData) ...[
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.orange.shade100,
                       borderRadius: BorderRadius.circular(6),
@@ -700,8 +711,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                 return Center(
                   child: Container(
                       padding: const EdgeInsets.all(10),
-                      child: LoadingWidget()
-                  ),
+                      child: LoadingWidget()),
                 );
               }
 
@@ -782,7 +792,8 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                 ),
                 if (model.hasMoreData) ...[
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: Colors.orange.shade100,
                       borderRadius: BorderRadius.circular(6),
@@ -821,8 +832,7 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                 return Center(
                   child: Container(
                       padding: const EdgeInsets.all(10),
-                      child: LoadingWidget()
-                  ),
+                      child: LoadingWidget()),
                 );
               }
 
@@ -836,7 +846,8 @@ class _MobileSearchViewState extends State<MobileSearchView> {
     );
   }
 
-  Widget _buildMobileIssueCard(BuildContext context, SearchIssuesProvider model, int index) {
+  Widget _buildMobileIssueCard(
+      BuildContext context, SearchIssuesProvider model, int index) {
     final issue = model.searchResults[index];
 
     return Container(
@@ -847,9 +858,9 @@ class _MobileSearchViewState extends State<MobileSearchView> {
       child: InkWell(
         onTap: () {
           // Navigate to issue details
-                                    Navigator.pushNamed(
-                            context,
-                            Routes.issueDetailsRoute,
+          Navigator.pushNamed(
+            context,
+            Routes.issueDetailsRoute,
             arguments: {
               'issueId': issue.id,
               'customerId': 1, // Default customer ID for search results
@@ -898,7 +909,8 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                         ),
                         if (issue.refusedType.isNotEmpty)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.grey.shade100,
                               borderRadius: BorderRadius.circular(4),
@@ -998,7 +1010,8 @@ class _MobileSearchViewState extends State<MobileSearchView> {
                 width: 30,
                 height: 30,
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(ColorManager.primary),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(ColorManager.primary),
                   strokeWidth: 3,
                 ),
               ),
@@ -1228,7 +1241,8 @@ class _MobileSearchViewState extends State<MobileSearchView> {
     );
   }
 
-  Widget _buildMobileBrandCard(BuildContext context, GetBrandBySearchProvider model, int index) {
+  Widget _buildMobileBrandCard(
+      BuildContext context, GetBrandBySearchProvider model, int index) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,

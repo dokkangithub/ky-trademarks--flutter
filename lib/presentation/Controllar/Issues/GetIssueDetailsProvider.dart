@@ -15,12 +15,12 @@ class GetIssueDetailsProvider extends ChangeNotifier {
   }) async {
     state = RequestState.loading;
     notifyListeners();
-    
+
     var result = await GetIssueDetailsUseCase(sl()).call(
       issueId: issueId,
       customerId: customerId,
     );
-    
+
     result.fold((l) {
       state = RequestState.failed;
       notifyListeners();
@@ -37,4 +37,4 @@ class GetIssueDetailsProvider extends ChangeNotifier {
     state = RequestState.loading;
     notifyListeners();
   }
-} 
+}

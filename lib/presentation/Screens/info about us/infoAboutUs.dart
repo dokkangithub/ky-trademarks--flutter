@@ -17,9 +17,7 @@ class InfoUs extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _buildAppBar(context),
-      body: _isWebView(context)
-          ? const WebInfoView()
-          : const MobileInfoView(),
+      body: _isWebView(context) ? const WebInfoView() : const MobileInfoView(),
     );
   }
 
@@ -32,15 +30,16 @@ class InfoUs extends StatelessWidget {
       title: Text(
         "من نحن",
         style: Theme.of(context).textTheme.displayLarge?.copyWith(
-          color: Colors.white,
-          fontFamily: StringConstant.fontName,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
+              color: Colors.white,
+              fontFamily: StringConstant.fontName,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
       ),
       leading: IconButton(
         icon: Icon(Icons.arrow_back_ios_rounded, color: Colors.white, size: 22),
-        onPressed: () => Navigator.canPop(context) ? Navigator.pop(context) : null,
+        onPressed: () =>
+            Navigator.canPop(context) ? Navigator.pop(context) : null,
       ),
       flexibleSpace: Container(
         height: 80,

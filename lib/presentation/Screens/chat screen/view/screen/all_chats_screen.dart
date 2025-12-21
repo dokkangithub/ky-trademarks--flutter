@@ -5,7 +5,6 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:provider/provider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:kyuser/presentation/Screens/chat%20screen/view/screen/chat_screen.dart';
-import 'package:kyuser/presentation/Widget/loading_widget.dart';
 import '../../../../../resources/Color_Manager.dart';
 import '../../model/chat_model.dart';
 import '../../model/message_model.dart';
@@ -29,7 +28,8 @@ class AllChatsScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(ColorManager.primary),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                ColorManager.primary),
                           ),
                           SizedBox(height: 16),
                           Text(
@@ -80,21 +80,23 @@ class AllChatsScreen extends StatelessWidget {
           ],
         ),
       ),
-      leading: kIsWeb?SizedBox.shrink(): Container(
-        margin: EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
-          shape: BoxShape.circle,
-        ),
-        child: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.white,
-            size: 20,
-          ),
-        ),
-      ),
+      leading: kIsWeb
+          ? SizedBox.shrink()
+          : Container(
+              margin: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
       title: Row(
         children: [
           Expanded(
@@ -144,9 +146,7 @@ class AllChatsScreen extends StatelessWidget {
           ),
           SizedBox(height: 24),
           Text(
-            viewModel.isAdmin
-                ? 'no_chats_yet'.tr()
-                : 'start_chat_support'.tr(),
+            viewModel.isAdmin ? 'no_chats_yet'.tr() : 'start_chat_support'.tr(),
             style: TextStyle(
               fontSize: 20,
               color: Colors.black87,
@@ -200,18 +200,21 @@ class AllChatsScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ChatScreen(chatId: chat.chatId, userName: chat.username??'',),
+        builder: (context) => ChatScreen(
+          chatId: chat.chatId,
+          userName: chat.username ?? '',
+        ),
       ),
     );
   }
-
 }
 
 class ChatTile extends StatelessWidget {
   final ChatModel chat;
   final VoidCallback onTap;
 
-  const ChatTile({Key? key, required this.chat, required this.onTap}) : super(key: key);
+  const ChatTile({Key? key, required this.chat, required this.onTap})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -276,7 +279,8 @@ class ChatTile extends StatelessWidget {
                           border: Border.all(color: Colors.white, width: 2),
                           boxShadow: [
                             BoxShadow(
-                              color: _getStatusColor(chat.userStatus).withOpacity(0.3),
+                              color: _getStatusColor(chat.userStatus)
+                                  .withOpacity(0.3),
                               blurRadius: 4,
                               offset: Offset(0, 1),
                             ),
@@ -319,14 +323,13 @@ class ChatTile extends StatelessWidget {
                             ),
                         ],
                       ),
-
                       SizedBox(height: 6),
-
                       Row(
                         children: [
                           Expanded(
                             child: Text(
-                              chat.lastMessage ?? 'start_conversation_hint'.tr(),
+                              chat.lastMessage ??
+                                  'start_conversation_hint'.tr(),
                               style: TextStyle(
                                 color: Colors.grey.shade600,
                                 fontSize: 14,
@@ -339,7 +342,8 @@ class ChatTile extends StatelessWidget {
                           if (chat.unreadCount > 0) ...[
                             SizedBox(width: 8),
                             Container(
-                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
@@ -352,7 +356,8 @@ class ChatTile extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: ColorManager.primary.withOpacity(0.3),
+                                    color:
+                                        ColorManager.primary.withOpacity(0.3),
                                     blurRadius: 4,
                                     offset: Offset(0, 1),
                                   ),

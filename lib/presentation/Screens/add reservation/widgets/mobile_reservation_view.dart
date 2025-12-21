@@ -120,25 +120,25 @@ class MobileReservationView extends StatelessWidget {
                     ),
             ),
             const SizedBox(height: 12),
-                          Text(
-                "add_reservation".tr(),
-                style: TextStyle(
-                  fontFamily: StringConstant.fontName,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: ColorManager.primary,
-                ),
+            Text(
+              "add_reservation".tr(),
+              style: TextStyle(
+                fontFamily: StringConstant.fontName,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: ColorManager.primary,
               ),
-              const SizedBox(height: 4),
-              Text(
-                "fill_to_reservation".tr(),
-                style: TextStyle(
-                  fontFamily: StringConstant.fontName,
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                ),
-                textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              "fill_to_reservation".tr(),
+              style: TextStyle(
+                fontFamily: StringConstant.fontName,
+                fontSize: 12,
+                color: Colors.grey.shade600,
               ),
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),
@@ -306,7 +306,8 @@ class MobileReservationView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(15),
                 borderSide: BorderSide(color: Colors.red.shade400, width: 1.5),
               ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
             ),
           ),
         ),
@@ -339,7 +340,8 @@ class MobileReservationView extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -377,4 +379,4 @@ class MobileReservationView extends StatelessWidget {
     if (!value.contains("/")) return "enter_date_in".tr();
     return null;
   }
-} 
+}

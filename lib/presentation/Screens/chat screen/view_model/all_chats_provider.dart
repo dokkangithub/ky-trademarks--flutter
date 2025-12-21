@@ -40,10 +40,6 @@ class AllChatsViewModel extends ChangeNotifier {
 
   // Removed legacy admin listeners and unused helpers to reduce complexity and lints
 
-  
-
-  
-
   void _fetchUserChat() {
     print('Fetching user chat for user: $userId');
 
@@ -64,7 +60,9 @@ class AllChatsViewModel extends ChangeNotifier {
           // Prefer stored counter if present, otherwise fall back to aggregation count.
           int? storedUnread = data['unreadForUser'] is int
               ? data['unreadForUser'] as int
-              : (data['unreadCount'] is int ? data['unreadCount'] as int : null);
+              : (data['unreadCount'] is int
+                  ? data['unreadCount'] as int
+                  : null);
 
           int unreadCount;
           if (storedUnread != null) {
@@ -72,7 +70,8 @@ class AllChatsViewModel extends ChangeNotifier {
           } else {
             // Only compute when last message is from other party; otherwise it's 0 for the user
             final lastFromOther = data['lastSenderId'] != userId;
-            unreadCount = lastFromOther ? await _getUserUnreadCount(userChatId) : 0;
+            unreadCount =
+                lastFromOther ? await _getUserUnreadCount(userChatId) : 0;
           }
 
           _chats = [
@@ -119,10 +118,6 @@ class AllChatsViewModel extends ChangeNotifier {
     });
   }
 
-  
-
-  
-
   Future<int> _getUserUnreadCount(String chatId) async {
     try {
       final currentUserId = userId;
@@ -165,8 +160,7 @@ class AllChatsViewModel extends ChangeNotifier {
           .doc(chatId)
           .collection('messages')
           .where('senderId', isNotEqualTo: currentUserId)
-          .where('status', whereIn: ['sent', 'delivered'])
-          .get();
+          .where('status', whereIn: ['sent', 'delivered']).get();
 
       if (query.docs.isNotEmpty) {
         final batch = FirebaseFirestore.instance.batch();
@@ -212,7 +206,8 @@ class AllChatsViewModel extends ChangeNotifier {
 
     return _chats.where((chat) {
       return chat.username!.toLowerCase().contains(query.toLowerCase()) ||
-          (chat.lastMessage?.toLowerCase().contains(query.toLowerCase()) ?? false);
+          (chat.lastMessage?.toLowerCase().contains(query.toLowerCase()) ??
+              false);
     }).toList();
   }
 

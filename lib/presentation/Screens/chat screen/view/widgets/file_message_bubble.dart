@@ -97,7 +97,8 @@ class FileMessageBubble extends StatelessWidget {
                       Text(
                         fileName,
                         style: TextStyle(
-                          color: isFromCurrentUser ? Colors.white : Colors.black87,
+                          color:
+                              isFromCurrentUser ? Colors.white : Colors.black87,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -108,8 +109,8 @@ class FileMessageBubble extends StatelessWidget {
                       Text(
                         'file'.tr(),
                         style: TextStyle(
-                          color: isFromCurrentUser 
-                              ? Colors.white.withOpacity(0.8) 
+                          color: isFromCurrentUser
+                              ? Colors.white.withOpacity(0.8)
                               : Colors.grey.shade600,
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
@@ -120,8 +121,8 @@ class FileMessageBubble extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.open_in_new,
-                            color: isFromCurrentUser 
-                                ? Colors.white.withOpacity(0.8) 
+                            color: isFromCurrentUser
+                                ? Colors.white.withOpacity(0.8)
                                 : ColorManager.primary,
                             size: 16,
                           ),
@@ -129,8 +130,8 @@ class FileMessageBubble extends StatelessWidget {
                           Text(
                             'tap_to_open'.tr(),
                             style: TextStyle(
-                              color: isFromCurrentUser 
-                                  ? Colors.white.withOpacity(0.8) 
+                              color: isFromCurrentUser
+                                  ? Colors.white.withOpacity(0.8)
                                   : ColorManager.primary,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -152,14 +153,14 @@ class FileMessageBubble extends StatelessWidget {
   Future<void> _openFile(BuildContext context) async {
     try {
       final Uri url = Uri.parse(fileUrl);
-      
+
       // محاولة فتح الملف في تطبيق خارجي أولاً
       if (await canLaunchUrl(url)) {
         final result = await launchUrl(
           url,
           mode: LaunchMode.externalApplication,
         );
-        
+
         if (!result) {
           // إذا فشل، جرب فتح في متصفح خارجي
           await launchUrl(
@@ -189,7 +190,7 @@ class FileMessageBubble extends StatelessWidget {
       }
     } catch (e) {
       print('Error opening file: $e');
-      
+
       // محاولة أخيرة بفتح في متصفح
       try {
         final Uri url = Uri.parse(fileUrl);
@@ -199,7 +200,7 @@ class FileMessageBubble extends StatelessWidget {
         );
       } catch (finalError) {
         print('Final error opening file: $finalError');
-        
+
         // إذا فشل كلاهما، اعرض رسالة خطأ
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -213,4 +214,4 @@ class FileMessageBubble extends StatelessWidget {
       }
     }
   }
-} 
+}

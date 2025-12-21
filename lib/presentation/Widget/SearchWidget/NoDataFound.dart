@@ -21,7 +21,9 @@ class NoDataFound extends StatelessWidget {
           child: Opacity(
             opacity: 0.1,
             child: Image(
-              image: AssetImage(ImagesConstants.background,),
+              image: AssetImage(
+                ImagesConstants.background,
+              ),
               color: Colors.white.withValues(alpha: 0.05),
               colorBlendMode: BlendMode.modulate,
             ),
@@ -33,16 +35,22 @@ class NoDataFound extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(height: 50,),
+              SizedBox(
+                height: 50,
+              ),
               Padding(
                 padding: const EdgeInsetsDirectional.only(end: 20),
                 child: Center(
                   child: kIsWeb
-                      ? Image.asset('assets/images/no_data_image.png', width: 300, height: 300)
-                      : Lottie.asset(ImagesConstants.noData, width: 300, height: 300, fit: BoxFit.contain),
+                      ? Image.asset('assets/images/no_data_image.png',
+                          width: 300, height: 300)
+                      : Lottie.asset(ImagesConstants.noData,
+                          width: 300, height: 300, fit: BoxFit.contain),
                 ),
               ),
-              SizedBox(height: 50,),
+              SizedBox(
+                height: 50,
+              ),
               SizedBox(
                 width: 310,
                 child: Text(
@@ -56,7 +64,9 @@ class NoDataFound extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: 15,),
+              SizedBox(
+                height: 15,
+              ),
               SizedBox(
                 width: 280,
                 child: Text(

@@ -1,184 +1,249 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
+import 'dart:math' as math;
+
+import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kyuser/utilits/Local_User_Data.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:mime/mime.dart';
+
 import '../../../../core/Constant/Api_Constant.dart';
 import '../model/message_model.dart';
-import 'package:mime/mime.dart'; // لـ lookupMimeType
-import 'package:http_parser/http_parser.dart'; // لـ MediaType
-import 'dart:math' as math; // لـ _generateRandomString
-// FFmpeg removed; no local conversion
-
 
 class ChatViewModel extends ChangeNotifier {
-  final String chatId;
-  List<MessageModel> _messages = [];
-  bool isLoading = true;
-  String? userId;
-  String? userName;
-  String? userEmail;
-  // Admin mode removed: chat is user-to-user
-  UserStatus currentUserStatus = UserStatus.online;
-  UserStatus otherUserStatus = UserStatus.offline; // Status UI will be removed
-  bool isTyping = false; // Typing feature removed
-  String? typingUserId; // Typing feature removed
-  Timer? _typingTimer; // Typing feature removed
-  // Removed status timer (feature removed)
-  StreamSubscription? _messagesSubscription;
-  StreamSubscription? _userStatusSubscription; // Removed
-  StreamSubscription? _typingSubscription; // Removed
-
   ChatViewModel(this.chatId) {
     _initializeChat();
   }
 
-  List<MessageModel> get messages => _messages;
+  /// الـ UI لسه بيباصي `chatId`، لكن فعلياً الشات مربوط بـ conversation من الـ API.
+  final String chatId;
+
+  final List<MessageModel> _messages = [];
+  bool isLoading = true;
+  bool isSending = false;
+  String? userId;
+  String? userName;
+  String? userEmail;
+  String? _authToken;
+
+  /// الـ ID بتاع الـ conversation اللي بيرجع من `/support/conversation`
+  int? conversationId;
+
+  /// `customer_id` اللي بيرجع من نفس الريكوست وبيتباصى تحت.
+  int? customerId;
+
+  Timer? _refreshTimer;
+
+  List<MessageModel> get messages => List.unmodifiable(_messages);
+
+  // ==================== INITIALIZATION ====================
 
   Future<void> _initializeChat() async {
     await _getUserData();
-    _fetchMessages();
-    // Status and typing removed
+    await _createOrGetConversation();
+    await fetchMessages();
+    await _markConversationAsRead();
+
+    // Poll بسيط لتحديث الشات (مفيش WebSocket).
+    _refreshTimer = Timer.periodic(
+      const Duration(seconds: 15),
+      (_) => fetchMessages(silent: true),
+    );
   }
 
   Future<void> _getUserData() async {
     userId = await globalAccountData.getId();
     userName = await globalAccountData.getUsername();
     userEmail = await globalAccountData.getEmail();
-    print('Chat initialized - User: $userId, ChatId: $chatId');
+    _authToken = await globalAccountData.getToken();
 
-    // Status removed
+    debugPrint('Support chat init: userId=$userId, email=$userEmail');
   }
 
-  // Removed: do not create chat document on open; it will be created/updated on first message
+  // ==================== API HELPERS ====================
 
-  void _fetchMessages() {
-    print('Fetching messages for chat: $chatId');
+  /// Base = `https://app.kytrademarks.com/api` (بدون سلاش زيادة في الآخر)
+  static String get _baseApi {
+    final raw = '${ApiConstant.baseUrl}${ApiConstant.slug}';
+    return raw.replaceAll(RegExp(r'\/+$'), '');
+  }
 
-    _messagesSubscription = FirebaseFirestore.instance
-        .collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .orderBy('createdAt', descending: true)
-        .limit(50)
-        .snapshots()
-        .listen((snapshot) {
-      print('Received ${snapshot.docs.length} messages');
+  Uri get _conversationUrl => Uri.parse('$_baseApi/support/conversation');
 
-      _messages = snapshot.docs
-          .map((doc) {
-        final message = MessageModel.fromJson(doc.data(), doc.id);
-        final currentUserId = userId;
-        
-        // Determine message ownership
-        final bool isFromCurrentUser =
-            currentUserId != null && message.senderId == currentUserId;
-        
-        return message.copyWith(
-          isFromCurrentUser: isFromCurrentUser,
+  Uri get _messagesUrl {
+    if (conversationId == null) {
+      throw StateError(
+          'conversationId is null – call _createOrGetConversation first');
+    }
+    return Uri.parse(
+        '$_baseApi/support/conversations/$conversationId/messages');
+  }
+
+  Uri get _readUrl {
+    if (conversationId == null) {
+      throw StateError(
+          'conversationId is null – call _createOrGetConversation first');
+    }
+    return Uri.parse('$_baseApi/support/conversations/$conversationId/read');
+  }
+
+  Map<String, String> get _authHeaders {
+    final token = _authToken;
+    return {
+      'Accept': 'application/json',
+      if (token != null) 'Authorization': 'Bearer $token',
+    };
+  }
+
+  Map<String, String> get _jsonHeaders => {
+        ..._authHeaders,
+        'Content-Type': 'application/json',
+      };
+
+  Future<void> _createOrGetConversation() async {
+    try {
+      // الـ API بحسب الرسالة بيدعم GET مش POST
+      final response = await http.get(_conversationUrl, headers: _authHeaders);
+
+      if (response.statusCode != 200) {
+        debugPrint(
+            'support/conversation failed: status=${response.statusCode}, body=${response.body}');
+        throw Exception('Failed to open support conversation');
+      }
+
+      final data = MessageModel.safeJsonDecode(response.body);
+      final conversation = data['data']?['conversation'];
+
+      if (conversation == null) {
+        throw Exception('conversation object missing in response');
+      }
+
+      conversationId = conversation['id'] is int
+          ? conversation['id'] as int
+          : int.tryParse(conversation['id'].toString());
+
+      customerId = conversation['customer_id'] is int
+          ? conversation['customer_id'] as int
+          : int.tryParse(conversation['customer_id'].toString());
+
+      debugPrint(
+          'Support conversation: id=$conversationId, customerId=$customerId');
+    } catch (e) {
+      debugPrint('Error creating/getting support conversation: $e');
+      // ما نرميش exception عشان ما يوقعش الشاشة كلها؛
+      // لو في مشكلة في الـ API هيبان اللوج بس.
+    }
+  }
+
+  // ==================== FETCH / READ ====================
+
+  Future<void> fetchMessages({bool silent = false}) async {
+    if (conversationId == null) return;
+
+    if (!silent) {
+      isLoading = true;
+      notifyListeners();
+    }
+
+    try {
+      final response = await http.get(_messagesUrl, headers: _authHeaders);
+
+      if (response.statusCode != 200) {
+        debugPrint(
+            'GET support/conversations/$conversationId/messages failed: status=${response.statusCode}, body=${response.body}');
+        throw Exception('Failed to load messages');
+      }
+
+      final jsonMap = MessageModel.safeJsonDecode(response.body);
+      final List<dynamic> rawMessages = jsonMap['data']?['messages'] ?? [];
+
+      final currentUserId = userId ?? '';
+
+      _messages
+        ..clear()
+        ..addAll(
+          rawMessages
+              .map(
+                (m) => MessageModel.fromSupportApiJson(
+                  m as Map<String, dynamic>,
+                  currentUserId: currentUserId,
+                ),
+              )
+              .toList()
+            ..sort(
+              (a, b) => b.createdAt.compareTo(a.createdAt),
+            ),
         );
-      })
-          .toList();
-
-      // Mark messages as seen if they're not from current user
-      _markMessagesAsSeen();
 
       isLoading = false;
+      // دائماً نحدث الـ UI حتى لو كان silent
       notifyListeners();
-    }, onError: (error) {
-      print('Error fetching messages: $error');
+    } catch (e) {
+      debugPrint('Error fetching support messages: $e');
       isLoading = false;
+      // دائماً نحدث الـ UI حتى لو كان silent
       notifyListeners();
-    });
-  }
-
-  Future<void> _markMessagesAsSeen() async {
-    final currentUserId = userId!;
-
-    final unseenMessages = _messages
-        .where((msg) =>
-    msg.senderId != currentUserId &&
-        msg.status != MessageStatus.seen)
-        .toList();
-
-    if (unseenMessages.isEmpty) return;
-
-    print('Marking ${unseenMessages.length} messages as seen');
-
-    final batch = FirebaseFirestore.instance.batch();
-
-    for (final message in unseenMessages) {
-      final docRef = FirebaseFirestore.instance
-          .collection('chats')
-          .doc(chatId)
-          .collection('messages')
-          .doc(message.id);
-
-      batch.update(docRef, {
-        'status': MessageStatus.seen.toString().split('.').last,
-        'seenAt': DateTime.now().millisecondsSinceEpoch,
-      });
-    }
-
-    try {
-      await batch.commit();
-    } catch (e) {
-      print('Error marking messages as seen: $e');
-    }
-
-    // Reset stored counters for this user to avoid future count queries
-    try {
-      await FirebaseFirestore.instance
-          .collection('chats')
-          .doc(chatId)
-          .set({
-        'unreadForUser': 0,
-        'unreadCount': 0,
-      }, SetOptions(merge: true));
-    } catch (e) {
-      print('Error resetting unread counters: $e');
     }
   }
 
-  // User status feature removed
+  Future<void> _markConversationAsRead() async {
+    if (conversationId == null) return;
 
-  // Typing listener removed
-
-  // Status timer removed
-
-  Future<void> setTypingStatus(bool typing) async { /* typing removed */ }
-
-  static const String uploadEndpoint = '${ApiConstant.baseUrl}${ApiConstant.slug}files/upload';
-
-  // Upload file to server with new endpoint
-  Future<String?> _uploadFile({File? file, Uint8List? bytes, required String fileName}) async {
     try {
-      String? customerId = await globalAccountData.getId();
-      String? authToken = await globalAccountData.getToken();
+      final body = <String, dynamic>{};
+      if (customerId != null) {
+        body['customer_id'] = customerId;
+      } else if (userId != null) {
+        body['customer_id'] = int.tryParse(userId!);
+      }
 
-      if (customerId == null) {
-        print('Customer ID is null');
+      final response = await http.post(_readUrl,
+          headers: _jsonHeaders, body: MessageModel.toJsonString(body));
+
+      if (response.statusCode != 200) {
+        debugPrint(
+            'POST support/conversations/$conversationId/read failed: status=${response.statusCode}, body=${response.body}');
+      }
+    } catch (e) {
+      debugPrint('Error marking conversation as read: $e');
+    }
+  }
+
+  // ==================== SENDING ====================
+
+  static const String uploadEndpoint =
+      '${ApiConstant.baseUrl}${ApiConstant.slug}files/upload';
+
+  /// نفس رفع الملفات القديم، لكن النتيجة بتُستخدم في `attachment_url` للـ API.
+  Future<String?> _uploadFile({
+    File? file,
+    Uint8List? bytes,
+    required String fileName,
+  }) async {
+    try {
+      final customer = await globalAccountData.getId();
+      final token = await globalAccountData.getToken();
+
+      if (customer == null) {
+        debugPrint('Customer ID is null while uploading file');
         return null;
       }
 
       final pathForMime = file != null ? file.path : fileName;
-      final mimeType = lookupMimeType(pathForMime); // e.g., video/mp4 or audio/webm
+      final mimeType = lookupMimeType(pathForMime);
       final mediaType = mimeType != null ? MediaType.parse(mimeType) : null;
 
-      // إنشاء اسم فريد للملف
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final randomString = _generateRandomString(8);
-      final fileExtension = fileName.split('.').last;
-      final uniqueFileName = '${customerId}_${timestamp}_${randomString}.$fileExtension';
+      final ext = fileName.split('.').last;
+      final uniqueFileName = '${customer}_${timestamp}_$randomString.$ext';
 
-      var request = http.MultipartRequest('POST', Uri.parse(uploadEndpoint));
+      final request = http.MultipartRequest('POST', Uri.parse(uploadEndpoint));
 
       if (bytes != null) {
         request.files.add(
@@ -199,64 +264,74 @@ class ChatViewModel extends ChangeNotifier {
           ),
         );
       } else {
-        print('No file or bytes provided to upload');
+        debugPrint('No file or bytes provided to upload');
         return null;
       }
 
-      request.fields['customer_id'] = customerId;
+      request.fields['customer_id'] = customer;
 
-      if (authToken != null) {
+      if (token != null) {
         request.headers.addAll({
-          'Authorization': 'Bearer $authToken',
+          'Authorization': 'Bearer $token',
           'Accept': 'application/json',
         });
       }
 
-      print('Uploading file: $uniqueFileName (original: $fileName) for customer: $customerId');
+      final response = await request.send();
 
-      var response = await request.send();
-
-      if (response.statusCode == 200) {
-        var responseData = await response.stream.bytesToString();
-        var jsonResponse = json.decode(responseData);
-
-        String? fileUrl;
-        if (jsonResponse is Map<String, dynamic>) {
-          var data = jsonResponse['data'];
-          if (data != null && data is Map<String, dynamic>) {
-            fileUrl = '${data['file_url'].toString().replaceFirst(' ', '')}';
-          }
-        }
-
-        if (fileUrl != null) {
-          print('File uploaded successfully: $fileUrl');
-          return fileUrl;
-        } else {
-          print('No URL found in response: $jsonResponse');
-          return null;
-        }
-      } else {
-        print('Upload failed with status: ${response.statusCode}');
-        var errorData = await response.stream.bytesToString();
-        print('Error response: $errorData');
+      if (response.statusCode != 200) {
+        debugPrint('Upload failed: status=${response.statusCode}');
+        debugPrint('Error response: ${await response.stream.bytesToString()}');
         return null;
       }
+
+      final responseData = await response.stream.bytesToString();
+      final jsonResponse = MessageModel.safeJsonDecode(responseData);
+
+      final data = jsonResponse['data'];
+      if (data is Map<String, dynamic> && data['file_url'] != null) {
+        final url = data['file_url'].toString().replaceFirst(' ', '');
+        debugPrint('File uploaded successfully: $url');
+        return url;
+      }
+
+      debugPrint('No file_url found in upload response: $jsonResponse');
+      return null;
     } catch (e) {
-      print('Upload error: $e');
+      debugPrint('Upload error: $e');
       return null;
     }
   }
 
-  // دالة لإنشاء سلسلة عشوائية
   String _generateRandomString(int length) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const chars =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final random = math.Random();
     return String.fromCharCodes(
-      Iterable.generate(length, (_) => chars.codeUnitAt(random.nextInt(chars.length))),
+      Iterable.generate(
+        length,
+        (_) => chars.codeUnitAt(random.nextInt(chars.length)),
+      ),
     );
   }
 
-  // Audio conversion removed; handle webm at playback time
+  String _mapMessageTypeToApi(MessageType type) {
+    switch (type) {
+      case MessageType.image:
+        return 'image';
+      case MessageType.video:
+        return 'video';
+      case MessageType.audio:
+        return 'audio';
+      case MessageType.pdf:
+        return 'pdf';
+      case MessageType.file:
+        return 'file';
+      case MessageType.text:
+      default:
+        return 'text';
+    }
+  }
 
   Future<void> sendMessage({
     String? text,
@@ -265,111 +340,137 @@ class ChatViewModel extends ChangeNotifier {
     String? fileName,
     MessageType type = MessageType.text,
   }) async {
-    if ((text?.trim().isEmpty ?? true) && file == null && fileBytes == null) return;
+    if ((text?.trim().isEmpty ?? true) && file == null && fileBytes == null)
+      return;
+    if (conversationId == null) {
+      await _createOrGetConversation();
+    }
 
-    final currentUserId = userId!;
+    final currentUserId = userId ?? '';
     final currentUserName = userName ?? 'User';
 
-    // حفظ الاسم الأصلي للملف للعرض في الرسالة
-    final originalFileName = fileName;
-
-    // Create message immediately with sending status
-    final message = MessageModel(
-      id: '',
-      senderId: currentUserId,
-      senderName: currentUserName,
-      chatId: chatId,
-      text: text?.trim(),
-      mediaUrl: null, // Will be updated after upload
-      fileName: originalFileName, // استخدام الاسم الأصلي للعرض
-      fileSize: file != null ? await file.length() : (fileBytes != null ? fileBytes.length : null),
-      type: type,
-      status: MessageStatus.sending,
-      createdAt: DateTime.now(),
-      isFromCurrentUser: true, // Ensure it's marked as from current user
-    );
+    final trimmedText = text?.trim();
+    int? fileSize;
+    final bool hasAttachment = file != null || fileBytes != null;
 
     try {
-      print('Sending message: ${message.text ?? 'Media message'}');
+      if (hasAttachment) {
+        fileSize = file != null ? await file.length() : fileBytes?.length;
+      }
 
-      // Add to Firestore immediately with sending status
-      final docRef = await FirebaseFirestore.instance
-          .collection('chats')
-          .doc(chatId)
-          .collection('messages')
-          .add(message.toJson());
-
-      // Update message ID
-      final updatedMessage = MessageModel(
-        id: docRef.id,
+      final localMessage = MessageModel(
+        id: '',
         senderId: currentUserId,
         senderName: currentUserName,
-        chatId: chatId,
-        text: text?.trim(),
-        mediaUrl: null,
-        fileName: originalFileName, // استخدام الاسم الأصلي للعرض
-        fileSize: file != null ? await file.length() : (fileBytes != null ? fileBytes.length : null),
+        chatId: (conversationId ?? 0).toString(),
+        text: trimmedText,
+        mediaUrl: null, // هيتم جلب الـ URL الحقيقي بعد ما السيرفر يحفظ الرسالة
+        fileName: fileName,
+        fileSize: fileSize,
         type: type,
         status: MessageStatus.sending,
         createdAt: DateTime.now(),
-        isFromCurrentUser: true, // Ensure it's marked as from current user
+        isFromCurrentUser: true,
       );
 
-      // Upload file if provided
-      String? mediaUrl;
-      if (file != null || fileBytes != null) {
-        print('Uploading file after adding message...');
-        mediaUrl = await _uploadFile(file: file, bytes: fileBytes, fileName: fileName ?? 'file');
-        if (mediaUrl == null) {
-          print('Failed to upload file');
-          // Update message status to failed
-          await docRef.update({
-            'status': 'failed',
-            'error': 'Upload failed',
-          });
+      _messages.insert(0, localMessage);
+      notifyListeners();
+
+      if (hasAttachment) {
+        // في حالة وجود ملف، الـ API طالب حقل "file" يكون فايل حقيقي (multipart)
+        final request = http.MultipartRequest('POST', _messagesUrl);
+        request.headers.addAll(_authHeaders);
+
+        final customer =
+            customerId ?? (userId != null ? int.tryParse(userId!) : null);
+        if (customer != null) {
+          request.fields['customer_id'] = customer.toString();
+        }
+
+        request.fields['message_type'] = _mapMessageTypeToApi(type);
+
+        if (trimmedText?.isNotEmpty == true) {
+          request.fields['message'] = trimmedText!;
+        }
+
+        if (file != null) {
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'file',
+              file.path,
+              filename: fileName ?? file.path.split('/').last,
+            ),
+          );
+        } else if (fileBytes != null) {
+          request.files.add(
+            http.MultipartFile.fromBytes(
+              'file',
+              fileBytes,
+              filename: fileName ?? 'file',
+            ),
+          );
+        }
+
+        final streamed = await request.send();
+        final response = await http.Response.fromStream(streamed);
+
+        if (response.statusCode != 200 && response.statusCode != 201) {
+          debugPrint(
+              'POST support/conversations/$conversationId/messages failed (multipart): status=${response.statusCode}, body=${response.body}');
+          final failedIndex = _messages.indexOf(localMessage);
+          if (failedIndex != -1) {
+            _messages[failedIndex] =
+                localMessage.copyWith(status: MessageStatus.failed);
+          }
+          notifyListeners();
+          return;
+        }
+      } else {
+        // رسالة نصية فقط بدون مرفق
+        final payload = <String, dynamic>{
+          'customer_id':
+              customerId ?? (userId != null ? int.tryParse(userId!) : null),
+          'message_type': _mapMessageTypeToApi(type),
+        };
+
+        if (trimmedText?.isNotEmpty == true) {
+          payload['message'] = trimmedText;
+        }
+
+        final response = await http.post(
+          _messagesUrl,
+          headers: _jsonHeaders,
+          body: MessageModel.toJsonString(payload),
+        );
+
+        if (response.statusCode != 200 && response.statusCode != 201) {
+          debugPrint(
+              'POST support/conversations/$conversationId/messages failed: status=${response.statusCode}, body=${response.body}');
+          final failedIndex = _messages.indexOf(localMessage);
+          if (failedIndex != -1) {
+            _messages[failedIndex] =
+                localMessage.copyWith(status: MessageStatus.failed);
+          }
+          notifyListeners();
           return;
         }
       }
 
-      // Update message with media URL and sent status
-      await docRef.update({
-        'mediaUrl': mediaUrl,
-        'status': MessageStatus.sent.toString().split('.').last,
-      });
-
-      // Update chat metadata
-      await _updateChatMetadata(updatedMessage);
-
-      // Stop typing
-      await setTypingStatus(false);
-
-      print('Message sent successfully');
+      await fetchMessages(silent: true);
+      await _markConversationAsRead();
     } catch (e) {
-      print('Error sending message: $e');
-      // You might want to show an error message to the user
+      debugPrint('Error sending support message: $e');
+
+      // في حالة الفشل نعلّم آخر رسالة مضافة من المستخدم إنها Failed (لو لسه موجودة)
+      if (_messages.isNotEmpty && _messages.first.isFromCurrentUser) {
+        _messages[0] = _messages[0].copyWith(status: MessageStatus.failed);
+        notifyListeners();
+      }
     }
   }
 
-  Future<void> _updateChatMetadata(MessageModel message) async {
-    final chatData = {
-      'lastMessage': message.text ?? _getMediaTypeText(message.type),
-      'lastMessageTime': message.createdAt.millisecondsSinceEpoch,
-      'lastSenderId': message.senderId,
-      'updatedAt': DateTime.now().millisecondsSinceEpoch,
-      // Increment admin's unread counter. For the user app, current sender is the user.
-      'unreadForAdmin': FieldValue.increment(1),
-    };
-
-    try {
-      await FirebaseFirestore.instance
-          .collection('chats')
-          .doc(chatId)
-          .set(chatData, SetOptions(merge: true));
-
-      print('Chat metadata updated');
-    } catch (e) {
-      print('Error updating chat metadata: $e');
-    }
+  Future<void> setTypingStatus(bool typing) async {
+    // لا يوجد API للـ typing حالياً – ممكن يتضاف بعدين
   }
 
   String _getMediaTypeText(MessageType type) {
@@ -413,31 +514,31 @@ class ChatViewModel extends ChangeNotifier {
                   context,
                   Icons.photo,
                   'image'.tr(),
-                      () => _pickMedia(context, MessageType.image),
+                  () => _pickMedia(context, MessageType.image),
                 ),
                 _buildAttachmentOption(
                   context,
                   Icons.videocam,
                   'video'.tr(),
-                      () => _pickMedia(context, MessageType.video),
+                  () => _pickMedia(context, MessageType.video),
                 ),
                 _buildAttachmentOption(
                   context,
                   Icons.audiotrack,
                   'audio'.tr(),
-                      () => _pickMedia(context, MessageType.audio),
+                  () => _pickMedia(context, MessageType.audio),
                 ),
                 _buildAttachmentOption(
                   context,
                   Icons.picture_as_pdf,
                   'pdf'.tr(),
-                      () => _pickMedia(context, MessageType.pdf),
+                  () => _pickMedia(context, MessageType.pdf),
                 ),
                 _buildAttachmentOption(
                   context,
                   Icons.insert_drive_file,
                   'file'.tr(),
-                      () => _pickMedia(context, MessageType.file),
+                  () => _pickMedia(context, MessageType.file),
                 ),
               ],
             ),
@@ -449,11 +550,11 @@ class ChatViewModel extends ChangeNotifier {
   }
 
   Widget _buildAttachmentOption(
-      BuildContext context,
-      IconData icon,
-      String label,
-      VoidCallback onTap,
-      ) {
+    BuildContext context,
+    IconData icon,
+    String label,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -531,7 +632,7 @@ class ChatViewModel extends ChangeNotifier {
         case MessageType.audio:
           final result = await FilePicker.platform.pickFiles(
             type: FileType.custom,
-            allowedExtensions: ['webm','mp3','m4a','wav','ogg'],
+            allowedExtensions: ['webm', 'mp3', 'm4a', 'wav', 'ogg'],
             allowMultiple: false,
           );
           if (result != null && result.files.isNotEmpty) {
@@ -606,20 +707,16 @@ class ChatViewModel extends ChangeNotifier {
       print('Error picking media: $e');
       // Show error message to user
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('failed_pick_document'.tr() + ': ${e.toString()}')),
+        SnackBar(
+            content: Text('failed_pick_document'.tr() + ': ${e.toString()}')),
       );
     }
   }
 
   @override
   void dispose() {
-    print('Disposing ChatViewModel');
-
-    _typingTimer?.cancel();
-    _messagesSubscription?.cancel();
-    _userStatusSubscription?.cancel();
-    _typingSubscription?.cancel();
-
+    debugPrint('Disposing ChatViewModel');
+    _refreshTimer?.cancel();
     super.dispose();
   }
 }

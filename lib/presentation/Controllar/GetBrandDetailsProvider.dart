@@ -15,7 +15,8 @@ class GetBrandDetailsProvider extends ChangeNotifier {
   Future<void> getBrandDetails({required int brandNumber}) async {
     state = RequestState.loading;
     notifyListeners();
-    var result = await GetBrandsDetailsUseCase(sl()).call(brandNumber:brandNumber);
+    var result =
+        await GetBrandsDetailsUseCase(sl()).call(brandNumber: brandNumber);
     result.fold((l) {
       state = RequestState.failed;
       notifyListeners();
@@ -27,6 +28,4 @@ class GetBrandDetailsProvider extends ChangeNotifier {
       return brandDetails = r;
     });
   }
-
-
 }
