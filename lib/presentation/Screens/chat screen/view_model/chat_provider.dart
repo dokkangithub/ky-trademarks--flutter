@@ -17,7 +17,6 @@ import 'package:http_parser/http_parser.dart'; // لـ MediaType
 import 'dart:math' as math; // لـ _generateRandomString
 // FFmpeg removed; no local conversion
 
-
 class ChatViewModel extends ChangeNotifier {
   final String chatId;
   List<MessageModel> _messages = [];
@@ -72,20 +71,18 @@ class ChatViewModel extends ChangeNotifier {
         .listen((snapshot) {
       print('Received ${snapshot.docs.length} messages');
 
-      _messages = snapshot.docs
-          .map((doc) {
+      _messages = snapshot.docs.map((doc) {
         final message = MessageModel.fromJson(doc.data(), doc.id);
         final currentUserId = userId;
-        
+
         // Determine message ownership
         final bool isFromCurrentUser =
             currentUserId != null && message.senderId == currentUserId;
-        
+
         return message.copyWith(
           isFromCurrentUser: isFromCurrentUser,
         );
-      })
-          .toList();
+      }).toList();
 
       // Mark messages as seen if they're not from current user
       _markMessagesAsSeen();
@@ -104,8 +101,7 @@ class ChatViewModel extends ChangeNotifier {
 
     final unseenMessages = _messages
         .where((msg) =>
-    msg.senderId != currentUserId &&
-        msg.status != MessageStatus.seen)
+            msg.senderId != currentUserId && msg.status != MessageStatus.seen)
         .toList();
 
     if (unseenMessages.isEmpty) return;
@@ -135,10 +131,7 @@ class ChatViewModel extends ChangeNotifier {
 
     // Reset stored counters for this user to avoid future count queries
     try {
-      await FirebaseFirestore.instance
-          .collection('chats')
-          .doc(chatId)
-          .set({
+      await FirebaseFirestore.instance.collection('chats').doc(chatId).set({
         'unreadForUser': 0,
         'unreadCount': 0,
       }, SetOptions(merge: true));
@@ -153,12 +146,14 @@ class ChatViewModel extends ChangeNotifier {
 
   // Status timer removed
 
-  Future<void> setTypingStatus(bool typing) async { /* typing removed */ }
+  Future<void> setTypingStatus(bool typing) async {/* typing removed */}
 
-  static const String uploadEndpoint = '${ApiConstant.baseUrl}${ApiConstant.slug}files/upload';
+  static const String uploadEndpoint =
+      '${ApiConstant.baseUrl}${ApiConstant.slug}files/upload';
 
   // Upload file to server with new endpoint
-  Future<String?> _uploadFile({File? file, Uint8List? bytes, required String fileName}) async {
+  Future<String?> _uploadFile(
+      {File? file, Uint8List? bytes, required String fileName}) async {
     try {
       String? customerId = await globalAccountData.getId();
       String? authToken = await globalAccountData.getToken();
@@ -169,14 +164,16 @@ class ChatViewModel extends ChangeNotifier {
       }
 
       final pathForMime = file != null ? file.path : fileName;
-      final mimeType = lookupMimeType(pathForMime); // e.g., video/mp4 or audio/webm
+      final mimeType =
+          lookupMimeType(pathForMime); // e.g., video/mp4 or audio/webm
       final mediaType = mimeType != null ? MediaType.parse(mimeType) : null;
 
       // إنشاء اسم فريد للملف
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final randomString = _generateRandomString(8);
       final fileExtension = fileName.split('.').last;
-      final uniqueFileName = '${customerId}_${timestamp}_${randomString}.$fileExtension';
+      final uniqueFileName =
+          '${customerId}_${timestamp}_${randomString}.$fileExtension';
 
       var request = http.MultipartRequest('POST', Uri.parse(uploadEndpoint));
 
@@ -212,7 +209,8 @@ class ChatViewModel extends ChangeNotifier {
         });
       }
 
-      print('Uploading file: $uniqueFileName (original: $fileName) for customer: $customerId');
+      print(
+          'Uploading file: $uniqueFileName (original: $fileName) for customer: $customerId');
 
       var response = await request.send();
 
@@ -249,10 +247,12 @@ class ChatViewModel extends ChangeNotifier {
 
   // دالة لإنشاء سلسلة عشوائية
   String _generateRandomString(int length) {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const chars =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final random = math.Random();
     return String.fromCharCodes(
-      Iterable.generate(length, (_) => chars.codeUnitAt(random.nextInt(chars.length))),
+      Iterable.generate(
+          length, (_) => chars.codeUnitAt(random.nextInt(chars.length))),
     );
   }
 
@@ -265,7 +265,8 @@ class ChatViewModel extends ChangeNotifier {
     String? fileName,
     MessageType type = MessageType.text,
   }) async {
-    if ((text?.trim().isEmpty ?? true) && file == null && fileBytes == null) return;
+    if ((text?.trim().isEmpty ?? true) && file == null && fileBytes == null)
+      return;
 
     final currentUserId = userId!;
     final currentUserName = userName ?? 'User';
@@ -282,7 +283,9 @@ class ChatViewModel extends ChangeNotifier {
       text: text?.trim(),
       mediaUrl: null, // Will be updated after upload
       fileName: originalFileName, // استخدام الاسم الأصلي للعرض
-      fileSize: file != null ? await file.length() : (fileBytes != null ? fileBytes.length : null),
+      fileSize: file != null
+          ? await file.length()
+          : (fileBytes != null ? fileBytes.length : null),
       type: type,
       status: MessageStatus.sending,
       createdAt: DateTime.now(),
@@ -308,7 +311,9 @@ class ChatViewModel extends ChangeNotifier {
         text: text?.trim(),
         mediaUrl: null,
         fileName: originalFileName, // استخدام الاسم الأصلي للعرض
-        fileSize: file != null ? await file.length() : (fileBytes != null ? fileBytes.length : null),
+        fileSize: file != null
+            ? await file.length()
+            : (fileBytes != null ? fileBytes.length : null),
         type: type,
         status: MessageStatus.sending,
         createdAt: DateTime.now(),
@@ -319,7 +324,8 @@ class ChatViewModel extends ChangeNotifier {
       String? mediaUrl;
       if (file != null || fileBytes != null) {
         print('Uploading file after adding message...');
-        mediaUrl = await _uploadFile(file: file, bytes: fileBytes, fileName: fileName ?? 'file');
+        mediaUrl = await _uploadFile(
+            file: file, bytes: fileBytes, fileName: fileName ?? 'file');
         if (mediaUrl == null) {
           print('Failed to upload file');
           // Update message status to failed
@@ -413,31 +419,31 @@ class ChatViewModel extends ChangeNotifier {
                   context,
                   Icons.photo,
                   'image'.tr(),
-                      () => _pickMedia(context, MessageType.image),
+                  () => _pickMedia(context, MessageType.image),
                 ),
                 _buildAttachmentOption(
                   context,
                   Icons.videocam,
                   'video'.tr(),
-                      () => _pickMedia(context, MessageType.video),
+                  () => _pickMedia(context, MessageType.video),
                 ),
                 _buildAttachmentOption(
                   context,
                   Icons.audiotrack,
                   'audio'.tr(),
-                      () => _pickMedia(context, MessageType.audio),
+                  () => _pickMedia(context, MessageType.audio),
                 ),
                 _buildAttachmentOption(
                   context,
                   Icons.picture_as_pdf,
                   'pdf'.tr(),
-                      () => _pickMedia(context, MessageType.pdf),
+                  () => _pickMedia(context, MessageType.pdf),
                 ),
                 _buildAttachmentOption(
                   context,
                   Icons.insert_drive_file,
                   'file'.tr(),
-                      () => _pickMedia(context, MessageType.file),
+                  () => _pickMedia(context, MessageType.file),
                 ),
               ],
             ),
@@ -449,11 +455,11 @@ class ChatViewModel extends ChangeNotifier {
   }
 
   Widget _buildAttachmentOption(
-      BuildContext context,
-      IconData icon,
-      String label,
-      VoidCallback onTap,
-      ) {
+    BuildContext context,
+    IconData icon,
+    String label,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -529,9 +535,9 @@ class ChatViewModel extends ChangeNotifier {
           break;
 
         case MessageType.audio:
-          final result = await FilePicker.platform.pickFiles(
+          final result = await FilePicker.pickFiles(
             type: FileType.custom,
-            allowedExtensions: ['webm','mp3','m4a','wav','ogg'],
+            allowedExtensions: ['webm', 'mp3', 'm4a', 'wav', 'ogg'],
             allowMultiple: false,
           );
           if (result != null && result.files.isNotEmpty) {
@@ -553,7 +559,7 @@ class ChatViewModel extends ChangeNotifier {
           break;
 
         case MessageType.pdf:
-          final result = await FilePicker.platform.pickFiles(
+          final result = await FilePicker.pickFiles(
             type: FileType.custom,
             allowedExtensions: ['pdf'],
             allowMultiple: false,
@@ -577,7 +583,7 @@ class ChatViewModel extends ChangeNotifier {
           break;
 
         case MessageType.file:
-          final result = await FilePicker.platform.pickFiles(
+          final result = await FilePicker.pickFiles(
             type: FileType.any,
             allowMultiple: false,
           );
@@ -606,7 +612,8 @@ class ChatViewModel extends ChangeNotifier {
       print('Error picking media: $e');
       // Show error message to user
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('failed_pick_document'.tr() + ': ${e.toString()}')),
+        SnackBar(
+            content: Text('failed_pick_document'.tr() + ': ${e.toString()}')),
       );
     }
   }

@@ -155,6 +155,8 @@
   "download_power_attroney": "Download Power of Attorney",
   "download_image": "Download Image",
   "download_attachment": "Download Attachment",
+  "download_attachments_pdf": "Download all images as PDF",
+  "no_images_for_pdf": "No images available to convert to PDF",
   "image_downloded_succ": "Image Downloaded Successfully",
   "attachment_downloaded_succ": "The attachment has been successfully downloaded",
   "pow_of_attr_down_succ":"The power of attorney image downloaded successfully ",

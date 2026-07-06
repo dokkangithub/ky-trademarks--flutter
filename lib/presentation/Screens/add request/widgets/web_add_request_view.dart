@@ -50,7 +50,7 @@ class WebAddRequestView extends StatelessWidget {
                 // Header Section
                 _buildHeader(context),
                 const SizedBox(height: 40),
-                
+
                 // Main Content
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,7 +61,7 @@ class WebAddRequestView extends StatelessWidget {
                       child: _buildFormSection(context),
                     ),
                     const SizedBox(width: 40),
-                    
+
                     // Right Column - Images
                     Expanded(
                       flex: 1,
@@ -69,9 +69,9 @@ class WebAddRequestView extends StatelessWidget {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 40),
-                
+
                 // Submit Button Section
                 _buildSubmitSection(context),
               ],
@@ -202,7 +202,8 @@ class WebAddRequestView extends StatelessWidget {
                       color: ColorManager.primary,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(Icons.edit_outlined, color: Colors.white, size: 24),
+                    child: Icon(Icons.edit_outlined,
+                        color: Colors.white, size: 24),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -233,7 +234,7 @@ class WebAddRequestView extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Form Fields
             Padding(
               padding: const EdgeInsets.all(32),
@@ -414,7 +415,8 @@ class WebAddRequestView extends StatelessWidget {
                     color: ColorManager.primary,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(Icons.photo_library_outlined, color: Colors.white, size: 24),
+                  child: Icon(Icons.photo_library_outlined,
+                      color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -445,7 +447,7 @@ class WebAddRequestView extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Images Grid
           Padding(
             padding: const EdgeInsets.all(24),
@@ -469,8 +471,12 @@ class WebAddRequestView extends StatelessWidget {
   }
 
   Widget _buildImageSlot(BuildContext context, int position) {
-    final image = position == 1 ? image1 : position == 2 ? image2 : image3;
-    
+    final image = position == 1
+        ? image1
+        : position == 2
+            ? image2
+            : image3;
+
     return Container(
       width: double.infinity,
       height: 200,
@@ -487,11 +493,12 @@ class WebAddRequestView extends StatelessWidget {
         onTap: () => _showImagePickerDialog(context, position),
         borderRadius: BorderRadius.circular(16),
         child: DottedBorder(
-          color: ColorManager.primary,
-          borderType: BorderType.RRect,
-          radius: const Radius.circular(16),
-          strokeWidth: 2,
-          dashPattern: const [8, 4],
+          options: RoundedRectDottedBorderOptions(
+            radius: const Radius.circular(16),
+            color: ColorManager.primary,
+            strokeWidth: 2,
+            dashPattern: const [8, 4],
+          ),
           child: Container(
             width: double.infinity,
             height: 200,
@@ -572,7 +579,8 @@ class WebAddRequestView extends StatelessWidget {
                             height: 200,
                             color: Colors.grey.shade200,
                             child: Center(
-                              child: CircularProgressIndicator(color: ColorManager.primary),
+                              child: CircularProgressIndicator(
+                                  color: ColorManager.primary),
                             ),
                           ),
                   )
@@ -583,7 +591,7 @@ class WebAddRequestView extends StatelessWidget {
                     height: 200,
                   ),
           ),
-          
+
           // Remove Button
           Positioned(
             top: 12,
@@ -608,7 +616,7 @@ class WebAddRequestView extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Image Info Overlay
           Positioned(
             bottom: 12,
@@ -846,7 +854,8 @@ class WebAddRequestView extends StatelessWidget {
           decoration: BoxDecoration(
             color: ColorManager.primary.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: ColorManager.primary.withValues(alpha: 0.2)),
+            border:
+                Border.all(color: ColorManager.primary.withValues(alpha: 0.2)),
           ),
           child: Column(
             children: [
@@ -874,4 +883,4 @@ class WebAddRequestView extends StatelessWidget {
       ),
     );
   }
-} 
+}

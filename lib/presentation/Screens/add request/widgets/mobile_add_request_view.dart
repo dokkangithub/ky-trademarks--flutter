@@ -137,16 +137,17 @@ class MobileAddRequestView extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontFamily: StringConstant.fontName,
-            fontWeight: FontWeight.w600,
-            color: ColorManager.primary,
-          ),
+                fontFamily: StringConstant.fontName,
+                fontWeight: FontWeight.w600,
+                color: ColorManager.primary,
+              ),
         ),
         const SizedBox(height: 8),
         Card(
           color: Colors.white,
           elevation: 3,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           child: TextFormField(
             controller: controller,
             style: TextStyle(
@@ -161,7 +162,8 @@ class MobileAddRequestView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(15),
                 borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
               hintText: label,
               hintStyle: TextStyle(
                 color: Colors.grey.shade400,
@@ -185,15 +187,16 @@ class MobileAddRequestView extends StatelessWidget {
       children: [
         Row(
           children: [
-            Icon(Icons.photo_library_outlined, color: ColorManager.primary, size: 20),
+            Icon(Icons.photo_library_outlined,
+                color: ColorManager.primary, size: 20),
             const SizedBox(width: 8),
             Text(
               "images".tr(),
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontFamily: StringConstant.fontName,
-                fontWeight: FontWeight.w600,
-                color: ColorManager.primary,
-              ),
+                    fontFamily: StringConstant.fontName,
+                    fontWeight: FontWeight.w600,
+                    color: ColorManager.primary,
+                  ),
             ),
           ],
         ),
@@ -211,22 +214,29 @@ class MobileAddRequestView extends StatelessWidget {
     );
   }
 
-  Widget _buildMobileImageSlot(BuildContext context, int position, double size) {
-    final image = position == 1 ? image1 : position == 2 ? image2 : image3;
+  Widget _buildMobileImageSlot(
+      BuildContext context, int position, double size) {
+    final image = position == 1
+        ? image1
+        : position == 2
+            ? image2
+            : image3;
     return image == null
         ? _buildMobileAddImageButton(context, position, size)
         : _buildMobileImagePreview(image, position, size);
   }
 
-  Widget _buildMobileAddImageButton(BuildContext context, int position, double size) {
+  Widget _buildMobileAddImageButton(
+      BuildContext context, int position, double size) {
     return InkWell(
       onTap: () => _showMobileImagePickerSheet(context, position),
       child: DottedBorder(
-        color: ColorManager.primary,
-        borderType: BorderType.RRect,
-        radius: const Radius.circular(15),
-        strokeWidth: 2,
-        dashPattern: const [8, 4],
+        options: RoundedRectDottedBorderOptions(
+          radius: const Radius.circular(15),
+          color: ColorManager.primary,
+          strokeWidth: 2,
+          dashPattern: const [8, 4],
+        ),
         child: Container(
           width: size,
           height: size,
@@ -282,14 +292,17 @@ class MobileAddRequestView extends StatelessWidget {
                 ? FutureBuilder<Uint8List>(
                     future: image.readAsBytes(),
                     builder: (context, snapshot) => snapshot.hasData
-                        ? Image.memory(snapshot.data!, fit: BoxFit.cover, width: size, height: size)
+                        ? Image.memory(snapshot.data!,
+                            fit: BoxFit.cover, width: size, height: size)
                         : Container(
                             width: size,
                             height: size,
                             color: Colors.grey.shade200,
-                            child: const Center(child: CircularProgressIndicator()),
+                            child: const Center(
+                                child: CircularProgressIndicator()),
                           ))
-                : Image.file(File(image.path), fit: BoxFit.cover, width: size, height: size),
+                : Image.file(File(image.path),
+                    fit: BoxFit.cover, width: size, height: size),
           ),
           Positioned(
             top: 4,
@@ -350,7 +363,8 @@ class MobileAddRequestView extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -447,7 +461,8 @@ class MobileAddRequestView extends StatelessWidget {
         decoration: BoxDecoration(
           color: ColorManager.primary.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: ColorManager.primary.withValues(alpha: 0.2)),
+          border:
+              Border.all(color: ColorManager.primary.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
@@ -480,4 +495,4 @@ class MobileAddRequestView extends StatelessWidget {
       ),
     );
   }
-} 
+}

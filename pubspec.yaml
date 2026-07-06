@@ -72,6 +72,7 @@ dependencies:
   flutter_chat_types:
   path_provider:
   file_picker:
+  pdf:
   chewie:
   video_player:
   flutter_staggered_animations:
