@@ -12,6 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../core/Constant/Api_Constant.dart';
 import '../../network/RestApi/Comman.dart';
 import '../../resources/Color_Manager.dart';
+import '../../utilits/Local_User_Data.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
@@ -101,9 +102,12 @@ class _GalleryPageState extends State<GalleryPage> {
     throw Exception('Could not open file');
   }
 
-  Future<Uint8List?> _downloadImage(String url) async {
+  Future<Uint8List?> _downloadFile(String url) async {
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer ${globalAccountData.getToken()}'},
+      ).timeout(const Duration(seconds: 30));
       if (response.statusCode == 200) {
         return response.bodyBytes;
       } else {
@@ -128,28 +132,48 @@ class _GalleryPageState extends State<GalleryPage> {
     });
 
     try {
-      if (kIsWeb || !_isImageUrl(url)) {
+      if (kIsWeb) {
         await _openFileUrl(url);
         return;
       }
 
-      final imageBytes = await _downloadImage(url);
-      if (imageBytes == null) {
-        throw Exception('Failed to download image');
+      final fileBytes = await _downloadFile(url);
+      if (fileBytes == null) {
+        throw Exception('Failed to download attachment');
       }
 
-      final directory = await getApplicationDocumentsDirectory();
       final filePathFromUrl = Uri.tryParse(url)?.path ?? '';
       final extension = filePathFromUrl.contains('.')
-          ? filePathFromUrl.split('.').last
-          : 'jpg';
+          ? filePathFromUrl.split('.').last.toLowerCase()
+          : (_isImageUrl(url) ? 'jpg' : 'bin');
       final fileName =
           "attachment_${DateTime.now().millisecondsSinceEpoch}.$extension";
-      final filePath = '${directory.path}/$fileName';
-      final file = File(filePath);
-      await file.writeAsBytes(imageBytes);
 
-      _showSnackBar(_downloadSuccessMessage());
+      if (Platform.isAndroid) {
+        final tempDirectory = await getTemporaryDirectory();
+        final tempFile = File('${tempDirectory.path}/$fileName');
+        await tempFile.writeAsBytes(fileBytes, flush: true);
+
+        await _fileSaverChannel.invokeMethod<String>(
+          'saveFile',
+          {
+            'filePath': tempFile.path,
+            'fileName': fileName,
+          },
+        );
+
+        _showSnackBar(_downloadSuccessMessage());
+        return;
+      }
+
+      final savedPath = await FilePicker.saveFile(
+        dialogTitle: 'download_attachment'.tr(),
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: [extension],
+        bytes: fileBytes,
+      );
+      if (savedPath != null) _showSnackBar(_downloadSuccessMessage());
     } catch (e) {
       print(e);
       _showSnackBar('download_failed'.tr());
@@ -180,7 +204,7 @@ class _GalleryPageState extends State<GalleryPage> {
       final document = pw.Document();
 
       for (final url in imageUrls) {
-        final imageBytes = await _downloadImage(url);
+        final imageBytes = await _downloadFile(url);
         if (imageBytes == null) continue;
 
         final image = pw.MemoryImage(imageBytes);

@@ -25,7 +25,9 @@ class _NotificationState extends State<NotificationScreen> {
   void initState() {
     SchedulerBinding.instance.addPostFrameCallback((_) {
       Provider.of<NotificationProvider>(context, listen: false)
-          .getUserNotification();
+          .getUserNotification()
+          .then((_) => Provider.of<NotificationProvider>(context, listen: false)
+              .markAllAsRead());
     });
     super.initState();
   }
@@ -144,10 +146,11 @@ class _NotificationState extends State<NotificationScreen> {
                           highlightColor: Colors.transparent,
                           splashColor: Colors.transparent,
                           onTap: () {
-                            if (model.notification[index].id != 0) {
+                            if (model.notification[index].brandId != 0) {
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => BranDetails(
-                                        brandId: model.notification[index].id,
+                                        brandId:
+                                            model.notification[index].brandId,
                                       )));
                             }
                           },

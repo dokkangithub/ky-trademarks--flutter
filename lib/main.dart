@@ -5,6 +5,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:provider/provider.dart';
+import 'package:kyuser/presentation/Controllar/notificationModel/notificationProvider.dart';
 import 'package:kyuser/utilits/Local_User_Data.dart';
 import 'package:oktoast/oktoast.dart';
 import 'app/app.dart';
@@ -16,19 +18,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Only initialize if not already initialized
   if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform);
   }
 
   debugPrint('Handling a background message ${message.messageId}');
 
   // Initialize FlutterLocalNotificationsPlugin
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
 
   const AndroidInitializationSettings initializationSettingsAndroid =
-  AndroidInitializationSettings('@android:drawable/ic_dialog_info');
+      AndroidInitializationSettings('@android:drawable/ic_dialog_info');
   final DarwinInitializationSettings initializationSettingsIOS =
-  DarwinInitializationSettings(
+      DarwinInitializationSettings(
     requestAlertPermission: true,
     requestBadgePermission: true,
     requestSoundPermission: true,
@@ -51,14 +54,14 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     'high_importance_channel', // id
     'High Importance Notifications', // title
     description:
-    'This channel is used for important notifications.', // description
+        'This channel is used for important notifications.', // description
     importance: Importance.high,
   );
 
   // Create the notification channel
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<
-      AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
 
   // Display the notification
@@ -93,16 +96,16 @@ AndroidNotificationChannel channel = const AndroidNotificationChannel(
   'high_importance_channel', // id
   'High Importance Notifications', // title
   description:
-  'This channel is used for important notifications.', // description
+      'This channel is used for important notifications.', // description
   importance: Importance.high,
 );
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
+    FlutterLocalNotificationsPlugin();
 AppLifecycleState appLifecycleState = AppLifecycleState.detached;
 const AndroidInitializationSettings initializationSettingsAndroid =
-AndroidInitializationSettings('@android:drawable/ic_dialog_info');
+    AndroidInitializationSettings('@android:drawable/ic_dialog_info');
 final DarwinInitializationSettings initializationSettingsIOS =
-DarwinInitializationSettings(
+    DarwinInitializationSettings(
   requestAlertPermission: true,
   requestBadgePermission: true,
   requestSoundPermission: true,
@@ -129,10 +132,12 @@ Future<void> _requestNotificationPermissions() async {
         badge: true,
         sound: true,
       );
-      debugPrint('Notification permission status: ${settings.authorizationStatus}');
+      debugPrint(
+          'Notification permission status: ${settings.authorizationStatus}');
     } else {
       // For web, we handle it differently and don't wait for user response
-      debugPrint('Running on web - notification permissions handled by browser');
+      debugPrint(
+          'Running on web - notification permissions handled by browser');
     }
   } catch (e) {
     debugPrint('Error requesting notification permissions: $e');
@@ -196,7 +201,7 @@ void main() async {
     // Create notification channel (only on Android)
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
 
     // Set background message handler
@@ -209,6 +214,9 @@ void main() async {
   // Listen to foreground messages (only on mobile)
   if (!kIsWeb) {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      navigatorKey.currentContext
+          ?.read<NotificationProvider>()
+          .registerIncomingNotification();
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
 
@@ -239,7 +247,7 @@ void main() async {
 
     // Check if the app was opened from a terminated state via a notification
     RemoteMessage? initialMessage =
-    await FirebaseMessaging.instance.getInitialMessage();
+        await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
       _handleMessage(initialMessage);
     }
@@ -257,8 +265,7 @@ void main() async {
     } catch (e) {
       debugPrint("Error setting up FCM token: $e");
     }
-  }
-  else {
+  } else {
     debugPrint("Skipping FCM token on web - handled by browser");
   }
 
@@ -270,8 +277,6 @@ void main() async {
   if (!kIsWeb) {
     HttpOverrides.global = MyHttpOverrides();
   }
-
-
 
   await globalAccountData.setIsAdmin(false);
 

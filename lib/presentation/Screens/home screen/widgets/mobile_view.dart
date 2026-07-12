@@ -12,10 +12,13 @@ import '../../../../app/RequestState/RequestState.dart';
 import '../../../../core/Constant/Api_Constant.dart';
 import '../../../../utilits/Local_User_Data.dart';
 import '../../../../utilits/pdf_download_helper.dart';
+import '../../../../utilits/file_download_helper.dart';
 import '../../../../data/Brand/models/BrandDataModel.dart';
 import '../../../../domain/Brand/Entities/BrandEntity.dart' as brand_entity;
-import '../../../../domain/Company/Entities/CompanyEntity.dart' as company_entity;
-import '../../../../domain/Issues/Entities/IssuesEntity.dart' as issues_entities;
+import '../../../../domain/Company/Entities/CompanyEntity.dart'
+    as company_entity;
+import '../../../../domain/Issues/Entities/IssuesEntity.dart'
+    as issues_entities;
 import '../../../../resources/ImagesConstant.dart';
 import '../../../../network/RestApi/Comman.dart';
 import '../../../../resources/Color_Manager.dart';
@@ -24,6 +27,7 @@ import '../../../Controllar/GetBrandProvider.dart';
 import '../../../Controllar/GetCompanyProvider.dart';
 import '../../../Controllar/Issues/GetIssuesProvider.dart';
 import '../../../Controllar/Issues/GetIssuesSummaryProvider.dart';
+import '../../../Controllar/notificationModel/notificationProvider.dart';
 import '../../../Widget/loading_widget.dart';
 import '../../add request/AddRequest.dart';
 import '../../brand details/BrandDetails.dart';
@@ -148,8 +152,10 @@ class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
   void _loadInitialData() {
     // Fetch issues data when the widget is initialized
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      final issuesProvider = Provider.of<GetIssuesProvider>(context, listen: false);
-      final summaryProvider = Provider.of<GetIssuesSummaryProvider>(context, listen: false);
+      final issuesProvider =
+          Provider.of<GetIssuesProvider>(context, listen: false);
+      final summaryProvider =
+          Provider.of<GetIssuesSummaryProvider>(context, listen: false);
       final customerId = globalAccountData.getId();
 
       if (customerId != null) {
@@ -166,13 +172,14 @@ class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
   }
 
   // Get unique brand descriptions from all brands
-  static List<String> _getUniqueBrandDescriptions(List<brand_entity.BrandEntity> brands) {
+  static List<String> _getUniqueBrandDescriptions(
+      List<brand_entity.BrandEntity> brands) {
     final descriptions = brands
         .map((brand) => _cleanBrandDescription(brand.brandDescription))
         .where((desc) => desc.isNotEmpty)
         .toSet()
         .toList();
-    
+
     // Add "الكل" option at the beginning
     descriptions.insert(0, "");
     return descriptions;
@@ -181,16 +188,16 @@ class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
   // Helper function to clean HTML tags and escape characters from brand description
   static String _cleanBrandDescription(String text) {
     if (text.isEmpty) return text;
-    
+
     // Replace HTML tags with space (to preserve word separation)
     String cleaned = text.replaceAll(RegExp(r'<[^>]*>'), ' ');
-    
+
     // Replace escape characters with space
     cleaned = cleaned.replaceAll(RegExp(r'\\r\\n|\\n|\\r|\r\n|\n|\r'), ' ');
-    
+
     // Remove extra whitespaces and trim
     cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ').trim();
-    
+
     return cleaned;
   }
 
@@ -207,9 +214,10 @@ class _MobileViewState extends State<MobileView> with TickerProviderStateMixin {
             byStatus: widget.byStatus,
             byBrandDescription: widget.byBrandDescription,
             onFilterChanged: widget.onFilterChanged,
-            onBrandDescriptionFilterChanged: widget.onBrandDescriptionFilterChanged,
+            onBrandDescriptionFilterChanged:
+                widget.onBrandDescriptionFilterChanged,
           ),
-          
+
           // Enhanced latest updates section
           Container(
             decoration: BoxDecoration(
@@ -329,7 +337,8 @@ class MobileHeader extends StatelessWidget {
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.9),
-                      borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                      borderRadius:
+                          BorderRadius.circular(AppConstants.borderRadius),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.1),
@@ -367,7 +376,9 @@ class MobileHeader extends StatelessWidget {
                   // Enhanced dropdown filters
                   Row(
                     children: [
-                      Expanded(child: _buildEnhancedCompanyDropdown(context, companyProvider)),
+                      Expanded(
+                          child: _buildEnhancedCompanyDropdown(
+                              context, companyProvider)),
                       const SizedBox(width: 12),
                       Expanded(child: _buildEnhancedFilterDropdown(context)),
                     ],
@@ -387,7 +398,8 @@ class MobileHeader extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                  borderRadius:
+                      BorderRadius.circular(AppConstants.borderRadius),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.grey.withValues(alpha: 0.15),
@@ -398,7 +410,8 @@ class MobileHeader extends StatelessWidget {
                   ],
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppConstants.borderRadius),
+                  borderRadius:
+                      BorderRadius.circular(AppConstants.borderRadius),
                   child: AnimatedBuilder(
                     animation: tabController.animation!,
                     builder: (context, child) {
@@ -422,7 +435,8 @@ class MobileHeader extends StatelessWidget {
   }
 
   // Enhanced Company Dropdown
-  Widget _buildEnhancedCompanyDropdown(BuildContext context, GetCompanyProvider companyProvider) {
+  Widget _buildEnhancedCompanyDropdown(
+      BuildContext context, GetCompanyProvider companyProvider) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.9),
@@ -448,9 +462,9 @@ class MobileHeader extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'select_company'.tr(), 
+                      'select_company'.tr(),
                       style: TextStyle(
-                        color: ColorManager.primary, 
+                        color: ColorManager.primary,
                         fontFamily: StringConstant.fontName,
                         fontSize: 13,
                       ),
@@ -460,21 +474,27 @@ class MobileHeader extends StatelessWidget {
                 ],
               ),
               dropdownColor: Colors.white,
-              style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName),
-              icon: Icon(Icons.keyboard_arrow_down, color: ColorManager.primary),
+              style: TextStyle(
+                  color: ColorManager.primary,
+                  fontFamily: StringConstant.fontName),
+              icon:
+                  Icon(Icons.keyboard_arrow_down, color: ColorManager.primary),
               underline: Container(),
               isExpanded: true,
               onChanged: (company_entity.CompanyEntity? newValue) {
                 if (newValue != null) {
                   companyProvider.setSelectedCompany(newValue);
-                  Provider.of<GetBrandProvider>(context, listen: false).getAllBrandsWidget(companyId: newValue.id);
+                  Provider.of<GetBrandProvider>(context, listen: false)
+                      .getAllBrandsWidget(companyId: newValue.id);
                 }
               },
-              items: companyProvider.allCompanies.map<DropdownMenuItem<company_entity.CompanyEntity>>((company_entity.CompanyEntity company) {
+              items: companyProvider.allCompanies
+                  .map<DropdownMenuItem<company_entity.CompanyEntity>>(
+                      (company_entity.CompanyEntity company) {
                 return DropdownMenuItem<company_entity.CompanyEntity>(
-                  value: company, 
-                  child: Text(company.companyName, overflow: TextOverflow.ellipsis)
-                );
+                    value: company,
+                    child: Text(company.companyName,
+                        overflow: TextOverflow.ellipsis));
               }).toList(),
             ),
     );
@@ -499,25 +519,26 @@ class MobileHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       child: DropdownButton<String>(
         value: byStatus.isEmpty ? null : byStatus,
-              hint: Row(
-        children: [
-          Icon(Icons.location_on, size: 16, color: ColorManager.primary),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'اختر الموقع', 
-              style: TextStyle(
-                color: ColorManager.primary, 
-                fontFamily: StringConstant.fontName,
-                fontSize: 13,
+        hint: Row(
+          children: [
+            Icon(Icons.location_on, size: 16, color: ColorManager.primary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'اختر الموقع',
+                style: TextStyle(
+                  color: ColorManager.primary,
+                  fontFamily: StringConstant.fontName,
+                  fontSize: 13,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
-              overflow: TextOverflow.ellipsis,
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
         dropdownColor: Colors.white,
-        style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName),
+        style: TextStyle(
+            color: ColorManager.primary, fontFamily: StringConstant.fontName),
         icon: Icon(Icons.keyboard_arrow_down, color: ColorManager.primary),
         underline: Container(),
         isExpanded: true,
@@ -529,9 +550,11 @@ class MobileHeader extends StatelessWidget {
             value: "",
             child: Row(
               children: [
-                Icon(Icons.all_inclusive, size: 16, color: Colors.blue.shade600),
+                Icon(Icons.all_inclusive,
+                    size: 16, color: Colors.blue.shade600),
                 const SizedBox(width: 8),
-                Text('الكل', style: TextStyle(fontFamily: StringConstant.fontName)),
+                Text('الكل',
+                    style: TextStyle(fontFamily: StringConstant.fontName)),
               ],
             ),
           ),
@@ -541,7 +564,8 @@ class MobileHeader extends StatelessWidget {
               children: [
                 Icon(Icons.flag, size: 16, color: Colors.green.shade600),
                 const SizedBox(width: 8),
-                Text('in_egypt'.tr(), style: TextStyle(fontFamily: StringConstant.fontName)),
+                Text('in_egypt'.tr(),
+                    style: TextStyle(fontFamily: StringConstant.fontName)),
               ],
             ),
           ),
@@ -551,7 +575,8 @@ class MobileHeader extends StatelessWidget {
               children: [
                 Icon(Icons.public, size: 16, color: Colors.orange.shade600),
                 const SizedBox(width: 8),
-                Text('out_egypt'.tr(), style: TextStyle(fontFamily: StringConstant.fontName)),
+                Text('out_egypt'.tr(),
+                    style: TextStyle(fontFamily: StringConstant.fontName)),
               ],
             ),
           ),
@@ -585,9 +610,9 @@ class MobileHeader extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'اختر الوصف', 
+                'اختر الوصف',
                 style: TextStyle(
-                  color: ColorManager.primary, 
+                  color: ColorManager.primary,
                   fontFamily: StringConstant.fontName,
                   fontSize: 13,
                 ),
@@ -597,35 +622,41 @@ class MobileHeader extends StatelessWidget {
           ],
         ),
         dropdownColor: Colors.white,
-        style: TextStyle(color: ColorManager.primary, fontFamily: StringConstant.fontName),
+        style: TextStyle(
+            color: ColorManager.primary, fontFamily: StringConstant.fontName),
         icon: Icon(Icons.keyboard_arrow_down, color: ColorManager.primary),
         underline: Container(),
         isExpanded: true,
         onChanged: (String? newValue) {
           if (newValue != null) onBrandDescriptionFilterChanged(newValue);
         },
-                 items: _MobileViewState._getUniqueBrandDescriptions(Provider.of<GetBrandProvider>(context).allBrands).map<DropdownMenuItem<String>>((String description) {
-           return DropdownMenuItem<String>(
-             value: description,
-             child: Row(
-               children: [
-                 Icon(
-                   description.isEmpty ? Icons.all_inclusive : Icons.description_outlined, 
-                   size: 16, 
-                   color: description.isEmpty ? Colors.blue.shade600 : Colors.purple.shade600
-                 ),
-                 const SizedBox(width: 8),
-                 Expanded(
-                   child: Text(
-                     description.isEmpty ? 'الكل' : description, 
-                     style: TextStyle(fontFamily: StringConstant.fontName),
-                     overflow: TextOverflow.ellipsis,
-                   ),
-                 ),
-               ],
-             ),
-           );
-         }).toList(),
+        items: _MobileViewState._getUniqueBrandDescriptions(
+                Provider.of<GetBrandProvider>(context).allBrands)
+            .map<DropdownMenuItem<String>>((String description) {
+          return DropdownMenuItem<String>(
+            value: description,
+            child: Row(
+              children: [
+                Icon(
+                    description.isEmpty
+                        ? Icons.all_inclusive
+                        : Icons.description_outlined,
+                    size: 16,
+                    color: description.isEmpty
+                        ? Colors.blue.shade600
+                        : Colors.purple.shade600),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    description.isEmpty ? 'الكل' : description,
+                    style: TextStyle(fontFamily: StringConstant.fontName),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
       ),
     );
   }
@@ -640,7 +671,9 @@ class MobileHeader extends StatelessWidget {
             child: Center(child: CircularProgressIndicator()),
           );
         }
-        final filteredData = provider.allBrands.where((brand) => _filterBrands(brand, type)).toList();
+        final filteredData = provider.allBrands
+            .where((brand) => _filterBrands(brand, type))
+            .toList();
 
         if (filteredData.isEmpty) {
           return _NoDataView();
@@ -663,7 +696,9 @@ class MobileHeader extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    type == ContentType.brands ? 'العلامات التجارية' : 'النماذج الصناعية',
+                    type == ContentType.brands
+                        ? 'العلامات التجارية'
+                        : 'النماذج الصناعية',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -672,7 +707,8 @@ class MobileHeader extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: ColorManager.primary,
                       borderRadius: BorderRadius.circular(12),
@@ -745,7 +781,8 @@ class MobileHeader extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: ColorManager.primary,
                       borderRadius: BorderRadius.circular(12),
@@ -775,23 +812,24 @@ class MobileHeader extends StatelessWidget {
               physics: const BouncingScrollPhysics(),
               child: Padding(
                 padding: const EdgeInsets.all(AppConstants.paddingHorizontal),
-                             child: Column(
-                   crossAxisAlignment: CrossAxisAlignment.start,
-                   children: [
-                     // List of issues with enhanced card design
-                     ListView.separated(
-                       shrinkWrap: true,
-                       physics: const NeverScrollableScrollPhysics(),
-                       itemCount: issuesProvider.allIssues.length,
-                       separatorBuilder: (context, index) => const SizedBox(height: 12),
-                       itemBuilder: (context, index) {
-                         final issue = issuesProvider.allIssues[index];
-                         return _buildEnhancedIssueCard(context, issue, index);
-                       },
-                     ),
-                     const SizedBox(height: 20),
-                   ],
-                 ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // List of issues with enhanced card design
+                    ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: issuesProvider.allIssues.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final issue = issuesProvider.allIssues[index];
+                        return _buildEnhancedIssueCard(context, issue, index);
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
           ],
@@ -801,11 +839,13 @@ class MobileHeader extends StatelessWidget {
   }
 
   // Enhanced Issue Card that looks similar to Brand cards
-  Widget _buildEnhancedIssueCard(BuildContext context, issues_entities.IssueEntity issue, int index) {
+  Widget _buildEnhancedIssueCard(
+      BuildContext context, issues_entities.IssueEntity issue, int index) {
     return Card(
       elevation: 8,
       shadowColor: ColorManager.primary.withValues(alpha: 0.2),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppConstants.borderRadius)),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -816,9 +856,9 @@ class MobileHeader extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppConstants.borderRadius),
           onTap: () {
             // Navigate to issue details screen
-                                    Navigator.pushNamed(
-                          context,
-                          Routes.issueDetailsRoute,
+            Navigator.pushNamed(
+              context,
+              Routes.issueDetailsRoute,
               arguments: {
                 'issueId': issue.id,
                 'customerId': issue.customer.id,
@@ -841,7 +881,8 @@ class MobileHeader extends StatelessWidget {
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: ColorManager.primary.withValues(alpha: 0.2)),
+                    border: Border.all(
+                        color: ColorManager.primary.withValues(alpha: 0.2)),
                   ),
                   child: Icon(
                     Icons.gavel,
@@ -858,43 +899,47 @@ class MobileHeader extends StatelessWidget {
                       // Issue title/brand name
                       Text(
                         issue.brand.brandName,
-                        style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                          fontSize: 16, 
-                          fontWeight: FontWeight.w600,
-                          fontFamily: StringConstant.fontName,
-                          color: Colors.black87,
-                        ),
+                        style:
+                            Theme.of(context).textTheme.displayLarge?.copyWith(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: StringConstant.fontName,
+                                  color: Colors.black87,
+                                ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 2,
                       ),
-                                             const SizedBox(height: 6),
-                       // Issue status only
-                       Row(
-                         children: [
-                           Icon(
-                             Icons.info_outline,
-                             size: 16,
-                             color: Colors.grey.shade600,
-                           ),
-                           const SizedBox(width: 6),
-                           Expanded(
-                             child: Text(
-                               issue.refusedType,
-                               style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                                 color: Colors.grey.withValues(alpha: 0.8), 
-                                 fontSize: 14,
-                                 fontFamily: StringConstant.fontName
-                               ),
-                               overflow: TextOverflow.ellipsis,
-                               maxLines: 1,
-                             ),
-                           ),
-                         ],
-                       ),
+                      const SizedBox(height: 6),
+                      // Issue status only
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 16,
+                            color: Colors.grey.shade600,
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              issue.refusedType,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displayLarge
+                                  ?.copyWith(
+                                      color: Colors.grey.withValues(alpha: 0.8),
+                                      fontSize: 14,
+                                      fontFamily: StringConstant.fontName),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 8),
                       // Status container (similar to brand status)
                       Container(
-                        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 6, horizontal: 12),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -947,8 +992,10 @@ class MobileHeader extends StatelessWidget {
 
     // Apply brand description filter first - clean both for comparison
     if (byBrandDescription.isNotEmpty) {
-      final cleanedBrandDesc = _MobileViewState._cleanBrandDescription(brand.brandDescription);
-      final cleanedFilterDesc = _MobileViewState._cleanBrandDescription(byBrandDescription);
+      final cleanedBrandDesc =
+          _MobileViewState._cleanBrandDescription(brand.brandDescription);
+      final cleanedFilterDesc =
+          _MobileViewState._cleanBrandDescription(byBrandDescription);
       if (cleanedBrandDesc != cleanedFilterDesc) {
         return false;
       }
@@ -969,13 +1016,29 @@ class MobileHeader extends StatelessWidget {
 enum ContentType { brands, models }
 
 // Keeping existing widgets but they might need minor adjustments
-class MobileHeaderContent extends StatelessWidget {
+class MobileHeaderContent extends StatefulWidget {
   const MobileHeaderContent({super.key});
+
+  @override
+  State<MobileHeaderContent> createState() => _MobileHeaderContentState();
+}
+
+class _MobileHeaderContentState extends State<MobileHeaderContent> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<NotificationProvider>().getUserNotification();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05),
+      padding: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width * 0.05),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1010,17 +1073,53 @@ class MobileHeaderContent extends StatelessWidget {
               ],
             ),
           ),
-          InkWell(
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const NotificationScreen()),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 15),
-              child: Image.asset(
-                ImagesConstants.notification,
-                width: 40,
-                height: 30,
-                color: Colors.white,
+          Consumer<NotificationProvider>(
+            builder: (context, notifications, _) => InkWell(
+              onTap: () {
+                notifications.markAllAsRead();
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const NotificationScreen()),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(top: 15),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Image.asset(
+                      ImagesConstants.notification,
+                      width: 40,
+                      height: 30,
+                      color: Colors.white,
+                    ),
+                    if (notifications.unreadCount > 0)
+                      PositionedDirectional(
+                        top: -8,
+                        end: -7,
+                        child: Container(
+                          constraints:
+                              const BoxConstraints(minWidth: 20, minHeight: 20),
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade600,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white, width: 1.5),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            notifications.unreadCount > 99
+                                ? '99+'
+                                : notifications.unreadCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -1126,12 +1225,15 @@ class MobileActionRows extends StatelessWidget {
                             borderRadius: BorderRadius.circular(15)),
                         child: Text(
                           "payment methods".tr(),
-                          style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: ColorManager.primary,
-                            fontFamily: StringConstant.fontName,
-                          ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .displayMedium
+                              ?.copyWith(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: ColorManager.primary,
+                                fontFamily: StringConstant.fontName,
+                              ),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -1143,8 +1245,8 @@ class MobileActionRows extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (_) => const AddRequest(
-                              canBack: true,
-                            )),
+                                  canBack: true,
+                                )),
                       ),
                       child: Container(
                         margin: EdgeInsets.symmetric(horizontal: 4),
@@ -1154,12 +1256,15 @@ class MobileActionRows extends StatelessWidget {
                             borderRadius: BorderRadius.circular(15)),
                         child: Text(
                           "new_ask".tr(),
-                          style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w900,
-                            color: ColorManager.primary,
-                            fontFamily: StringConstant.fontName,
-                          ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .displayMedium
+                              ?.copyWith(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                color: ColorManager.primary,
+                                fontFamily: StringConstant.fontName,
+                              ),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -1183,41 +1288,84 @@ class MobileDownloadButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        final url = "${ApiConstant.baseUrl}pdfAll/${globalAccountData.getId()}?download=pdf";
-        final fileName = "all_brands_${DateTime.now().millisecondsSinceEpoch}.pdf";
-        final authToken = globalAccountData.getToken();
-        
-        PdfDownloadHelper.downloadPdfWithToken(
-          url: url,
+    return Row(
+      children: [
+        Expanded(
+            child: _downloadButton(
           context: context,
-          fileName: fileName,
-          authToken: authToken,
-        );
-      },
+          label: 'تحميل PDF كامل',
+          icon: Icons.picture_as_pdf_outlined,
+          onTap: () {
+            final url =
+                "${ApiConstant.baseUrl}pdfAll/${globalAccountData.getId()}?download=pdf";
+            final fileName =
+                "all_brands_${DateTime.now().millisecondsSinceEpoch}.pdf";
+            final authToken = globalAccountData.getToken();
+
+            PdfDownloadHelper.downloadPdfWithToken(
+              url: url,
+              context: context,
+              fileName: fileName,
+              authToken: authToken,
+            );
+          },
+        )),
+        const SizedBox(width: 10),
+        Expanded(
+            child: _downloadButton(
+          context: context,
+          label: 'تحميل Excel كامل',
+          icon: Icons.table_view_outlined,
+          onTap: () {
+            final fileName =
+                'all_brands_${DateTime.now().millisecondsSinceEpoch}.xlsx';
+            FileDownloadHelper.download(
+              context: context,
+              url:
+                  '${ApiConstant.baseUrl}excelAll/${globalAccountData.getId()}',
+              fileName: fileName,
+              extension: 'xlsx',
+              authToken: globalAccountData.getToken(),
+            );
+          },
+        )),
+      ],
+    );
+  }
+
+  Widget _downloadButton({
+    required BuildContext context,
+    required String label,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(45),
       child: Container(
-        width: double.infinity,
-        height: 40,
+        height: 42,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              ColorManager.primary,
-              ColorManager.primaryByOpacity.withValues(alpha: 0.7),
-            ],
-          ),
+          color: ColorManager.primary,
           borderRadius: BorderRadius.circular(45),
         ),
-        child: Center(
-          child: Text(
-            "download_full_pdf".tr(),
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              fontFamily: StringConstant.fontName,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 18),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: StringConstant.fontName,
+                    ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -1322,7 +1470,8 @@ class EnhancedMobileBrandCard extends StatelessWidget {
                     topRight: Radius.circular(20),
                     bottomRight: Radius.circular(20),
                   ),
-                  child: _buildMobileImage(mainImage, statusColor, statusLightColor),
+                  child: _buildMobileImage(
+                      mainImage, statusColor, statusLightColor),
                 ),
               ),
               // Content Section (2/3 of width)
@@ -1341,7 +1490,8 @@ class EnhancedMobileBrandCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMobileImage(ImagesModel? image, Color statusColor, Color statusLightColor) {
+  Widget _buildMobileImage(
+      ImagesModel? image, Color statusColor, Color statusLightColor) {
     if (image != null && image.image.isNotEmpty) {
       String imageUrl = ApiConstant.imagePath + image.image;
 
@@ -1587,7 +1737,8 @@ class BrandUpdatesList extends StatelessWidget {
       children: [
         Container(
           width: 60,
-          height: brands.length * (AppConstants.cardHeight + AppConstants.cardMargin),
+          height: brands.length *
+              (AppConstants.cardHeight + AppConstants.cardMargin),
           color: ColorManager.anotherTabBackGround,
           padding: const EdgeInsets.only(top: 15),
           child: NumberStepper(
@@ -1636,9 +1787,9 @@ class BrandUpdateItem extends StatelessWidget {
     final update = provider.allBrandUpdates[index];
     final filteredImage = brand.images.isNotEmpty
         ? brand.images.firstWhere(
-          (img) => img.conditionId == null,
-      orElse: () => ImagesModel(image: '', conditionId: '', type: ''),
-    )
+            (img) => img.conditionId == null,
+            orElse: () => ImagesModel(image: '', conditionId: '', type: ''),
+          )
         : null;
 
     return Card(
@@ -1684,30 +1835,40 @@ class BrandUpdateItem extends StatelessWidget {
                             width: 160,
                             child: Text(
                               brand.brandName,
-                              style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                                fontSize: 15,
-                                fontFamily: StringConstant.fontName,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .displayLarge
+                                  ?.copyWith(
+                                    fontSize: 15,
+                                    fontFamily: StringConstant.fontName,
+                                  ),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 2,
                             ),
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            convertStateBrandNumberToString(brand.currentStatus),
-                            style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                              color: Colors.grey.withValues(alpha: 0.9),
-                              fontSize: 14,
-                              fontFamily: StringConstant.fontName,
-                            ),
+                            convertStateBrandNumberToString(
+                                brand.currentStatus),
+                            style: Theme.of(context)
+                                .textTheme
+                                .displayLarge
+                                ?.copyWith(
+                                  color: Colors.grey.withValues(alpha: 0.9),
+                                  fontSize: 14,
+                                  fontFamily: StringConstant.fontName,
+                                ),
                           ),
                           Text(
                             "${s.DateFormat('EEEE').format(DateTime.parse(update.date))} الموافق: ${s.DateFormat('yyyy-MM-dd').format(DateTime.parse(update.date))}",
-                            style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                              color: Colors.grey.withValues(alpha: 0.9),
-                              fontSize: 12,
-                              fontFamily: StringConstant.fontName,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .displayLarge
+                                ?.copyWith(
+                                  color: Colors.grey.withValues(alpha: 0.9),
+                                  fontSize: 12,
+                                  fontFamily: StringConstant.fontName,
+                                ),
                           ),
                         ],
                       ),
@@ -1721,8 +1882,8 @@ class BrandUpdateItem extends StatelessWidget {
                   brand.currentStatus == 2
                       ? "assets/images/accept.svg"
                       : brand.currentStatus == 3
-                      ? "assets/images/refused.svg"
-                      : "assets/images/proccessing.svg",
+                          ? "assets/images/refused.svg"
+                          : "assets/images/proccessing.svg",
                   width: 25,
                   height: 25,
                   color: ColorManager.primaryByOpacity,
@@ -1749,7 +1910,8 @@ class _NoDataView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Lottie.asset(ImagesConstants.noData, width: 150, height: 150, fit: BoxFit.contain),
+            Lottie.asset(ImagesConstants.noData,
+                width: 150, height: 150, fit: BoxFit.contain),
             const SizedBox(height: 16),
             Text(
               message ?? 'no_data'.tr(),
@@ -1776,7 +1938,8 @@ class MobileLoadingShimmer extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       child: Container(
         color: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: AppConstants.paddingHorizontal),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppConstants.paddingHorizontal),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1886,7 +2049,7 @@ class _MobileShimmerStack extends StatelessWidget {
         Column(
           children: List.generate(
             isSecond ? 2 : 3,
-                (index) => Padding(
+            (index) => Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
               child: Row(
                 children: [
