@@ -14,8 +14,9 @@ class IssuesDataModel extends IssuesDataEntity {
       status: json['status'] as int? ?? 0,
       message: (json['message'] as String?) ?? '',
       data: (json['data'] as List<dynamic>?)
-          ?.map((e) => IssueModel.fromJson(e as Map<String, dynamic>))
-          .toList() ?? [],
+              ?.map((e) => IssueModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
       meta: MetaModel.fromJson((json['meta'] as Map<String, dynamic>?) ?? {}),
     );
   }
@@ -50,7 +51,8 @@ class IssuesSummaryDataModel extends IssuesSummaryDataEntity {
     return IssuesSummaryDataModel(
       status: json['status'] as int? ?? 0,
       message: (json['message'] as String?) ?? '',
-      data: IssuesSummaryModel.fromJson((json['data'] as Map<String, dynamic>?) ?? {}),
+      data: IssuesSummaryModel.fromJson(
+          (json['data'] as Map<String, dynamic>?) ?? {}),
     );
   }
 }
@@ -99,12 +101,16 @@ class IssueModel extends IssueEntity {
       refusedType: (json['refused_type'] as String?) ?? '',
       createdAt: (json['created_at'] as String?) ?? '',
       updatedAt: (json['updated_at'] as String?) ?? '',
-      customer: CustomerModel.fromJson((json['customer'] as Map<String, dynamic>?) ?? {}),
-      company: CompanyModel.fromJson((json['company'] as Map<String, dynamic>?) ?? {}),
-      brand: BrandModel.fromJson((json['brand'] as Map<String, dynamic>?) ?? {}),
-      refusedDetails: RefusedDetailsModel.fromJson((json['refused_details'] as Map<String, dynamic>?) ?? {}),
+      customer: CustomerModel.fromJson(
+          (json['customer'] as Map<String, dynamic>?) ?? {}),
+      company: CompanyModel.fromJson(
+          (json['company'] as Map<String, dynamic>?) ?? {}),
+      brand:
+          BrandModel.fromJson((json['brand'] as Map<String, dynamic>?) ?? {}),
+      refusedDetails: RefusedDetailsModel.fromJson(
+          (json['refused_details'] as Map<String, dynamic>?) ?? {}),
       sessions: (json['sessions'] as List<dynamic>?) ?? [],
-      reminders: (json['reminders'] as List<dynamic>?) ?? [],
+      reminders: _parseReminders(json['reminders']),
       sessionsCount: json['sessions_count'] as int? ?? 0,
       remindersCount: json['reminders_count'] as int? ?? 0,
     );
@@ -133,13 +139,80 @@ class IssueDetailsModel extends IssueDetailsEntity {
       refusedType: json['refused_type'] as String,
       createdAt: json['created_at'] as String,
       updatedAt: json['updated_at'] as String,
-      customer: CustomerDetailsModel.fromJson(json['customer'] as Map<String, dynamic>),
+      customer: CustomerDetailsModel.fromJson(
+          json['customer'] as Map<String, dynamic>),
       company: CompanyModel.fromJson(json['company'] as Map<String, dynamic>),
       brand: BrandDetailsModel.fromJson(json['brand'] as Map<String, dynamic>),
-      refusedDetails: RefusedDetailsModel.fromJson(json['refused_details'] as Map<String, dynamic>),
+      refusedDetails: RefusedDetailsModel.fromJson(
+          json['refused_details'] as Map<String, dynamic>),
       sessions: json['sessions'] as List<dynamic>,
-      reminders: json['reminders'] as List<dynamic>,
-      statistics: StatisticsModel.fromJson(json['statistics'] as Map<String, dynamic>),
+      reminders: _parseReminders(json['reminders']),
+      statistics:
+          StatisticsModel.fromJson(json['statistics'] as Map<String, dynamic>),
+    );
+  }
+}
+
+List<ReminderModel> _parseReminders(dynamic value) {
+  if (value is! List) return const [];
+  return value
+      .whereType<Map>()
+      .map((item) => ReminderModel.fromJson(Map<String, dynamic>.from(item)))
+      .toList();
+}
+
+class ReminderModel extends ReminderEntity {
+  const ReminderModel({
+    required super.id,
+    required super.title,
+    required super.description,
+    required super.reminderAt,
+    required super.status,
+    required super.emailEnabled,
+    required super.notificationEnabled,
+  });
+
+  factory ReminderModel.fromJson(Map<String, dynamic> json) {
+    String text(List<String> keys) {
+      for (final key in keys) {
+        final value = json[key];
+        if (value != null && value.toString().trim().isNotEmpty) {
+          return value.toString();
+        }
+      }
+      return '';
+    }
+
+    bool flag(List<String> keys, {bool fallback = true}) {
+      for (final key in keys) {
+        final value = json[key];
+        if (value is bool) return value;
+        if (value is num) return value != 0;
+        if (value is String) {
+          return ['1', 'true', 'yes'].contains(value.toLowerCase());
+        }
+      }
+      return fallback;
+    }
+
+    return ReminderModel(
+      id: int.tryParse('${json['id'] ?? 0}') ?? 0,
+      title: text(['title', 'name', 'subject', 'reminder_title']),
+      description: text(['description', 'content', 'message', 'notes']),
+      reminderAt: text([
+        'reminder_at',
+        'remind_at',
+        'scheduled_at',
+        'reminder_date',
+        'date',
+      ]),
+      status: text(['status', 'send_status', 'state']),
+      emailEnabled: flag(['email_enabled', 'send_email', 'email']),
+      notificationEnabled: flag([
+        'notification_enabled',
+        'send_notification',
+        'push_notification',
+      ]),
     );
   }
 }
@@ -276,17 +349,27 @@ class RefusedDetailsModel extends RefusedDetailsEntity {
       appealNumber: json['appeal_number'] as String?,
       refusedDate: json['refused_date'] as String?,
       expertOpinion: json['expert_opinion'] as String?,
-      dateOfThePublicAuthorityResponseNote: json['date_of_the_public_authority_response_note'] as String?,
-      dateOfACommentNoteOnTheAuthorityResponse: json['date_of_a_comment_note_on_the_authority_response'] as String?,
+      dateOfThePublicAuthorityResponseNote:
+          json['date_of_the_public_authority_response_note'] as String?,
+      dateOfACommentNoteOnTheAuthorityResponse:
+          json['date_of_a_comment_note_on_the_authority_response'] as String?,
       appealDateOpposition: json['appeal_date_opposition'] as String?,
       appealNumberOpposition: json['appeal_number_opposition'] as String?,
       refusedDateOpposition: json['refused_date_opposition'] as String?,
-      reasonsOfTheAppealOpposition: json['reasons_of_the_appeal_opposition'] as String?,
+      reasonsOfTheAppealOpposition:
+          json['reasons_of_the_appeal_opposition'] as String?,
       dateOfLegalDocuments: json['date_of_legal_documents'] as String?,
-      submissionOfTheFirstDefenseNoteForTheAppealOpposition: json['submission_of_the_first_defense_note_for_the_appeal_opposition'] as String?,
-      dateOfPublicAuthorityResponseNoteOpposition: json['date_of_public_authority_response_note_opposition'] as String?,
-      dateOfACommentNoteOnTheAuthorityResponseOpposition: json['date_of_a_comment_note_on_the_authority_response_opposition'] as String?,
-      dateOfAttendanceOfThePleadingSessionsOpposition: json['date_of_attendance_of_the_pleading_sessions_opposition'] as String?,
+      submissionOfTheFirstDefenseNoteForTheAppealOpposition:
+          json['submission_of_the_first_defense_note_for_the_appeal_opposition']
+              as String?,
+      dateOfPublicAuthorityResponseNoteOpposition:
+          json['date_of_public_authority_response_note_opposition'] as String?,
+      dateOfACommentNoteOnTheAuthorityResponseOpposition:
+          json['date_of_a_comment_note_on_the_authority_response_opposition']
+              as String?,
+      dateOfAttendanceOfThePleadingSessionsOpposition:
+          json['date_of_attendance_of_the_pleading_sessions_opposition']
+              as String?,
       dateOfJudgmentOpposition: json['date_of_judgment_opposition'] as String?,
     );
   }
@@ -344,11 +427,14 @@ class IssuesSummaryModel extends IssuesSummaryEntity {
 
   factory IssuesSummaryModel.fromJson(Map<String, dynamic> json) {
     return IssuesSummaryModel(
-      customerInfo: CustomerModel.fromJson((json['customer_info'] as Map<String, dynamic>?) ?? {}),
-      statistics: SummaryStatisticsModel.fromJson((json['statistics'] as Map<String, dynamic>?) ?? {}),
+      customerInfo: CustomerModel.fromJson(
+          (json['customer_info'] as Map<String, dynamic>?) ?? {}),
+      statistics: SummaryStatisticsModel.fromJson(
+          (json['statistics'] as Map<String, dynamic>?) ?? {}),
       recentIssues: (json['recent_issues'] as List<dynamic>?)
-          ?.map((e) => RecentIssueModel.fromJson(e as Map<String, dynamic>))
-          .toList() ?? [],
+              ?.map((e) => RecentIssueModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 }
@@ -435,4 +521,4 @@ class SearchMetaModel extends SearchMetaEntity {
       refusedTypeFilter: json['refused_type_filter'] as String?,
     );
   }
-} 
+}

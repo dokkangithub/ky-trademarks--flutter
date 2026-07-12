@@ -79,7 +79,7 @@ class IssueEntity extends Equatable {
   final BrandEntity brand;
   final RefusedDetailsEntity refusedDetails;
   final List<dynamic> sessions;
-  final List<dynamic> reminders;
+  final List<ReminderEntity> reminders;
   final int sessionsCount;
   final int remindersCount;
 
@@ -126,7 +126,7 @@ class IssueDetailsEntity extends Equatable {
   final BrandDetailsEntity brand;
   final RefusedDetailsEntity refusedDetails;
   final List<dynamic> sessions;
-  final List<dynamic> reminders;
+  final List<ReminderEntity> reminders;
   final StatisticsEntity statistics;
 
   const IssueDetailsEntity({
@@ -156,6 +156,37 @@ class IssueDetailsEntity extends Equatable {
         sessions,
         reminders,
         statistics,
+      ];
+}
+
+class ReminderEntity extends Equatable {
+  final int id;
+  final String title;
+  final String description;
+  final String reminderAt;
+  final String status;
+  final bool emailEnabled;
+  final bool notificationEnabled;
+
+  const ReminderEntity({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.reminderAt,
+    required this.status,
+    required this.emailEnabled,
+    required this.notificationEnabled,
+  });
+
+  @override
+  List<Object?> get props => [
+        id,
+        title,
+        description,
+        reminderAt,
+        status,
+        emailEnabled,
+        notificationEnabled,
       ];
 }
 
@@ -248,7 +279,8 @@ class BrandDetailsEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, brandName, brandNumber, brandDescription, brandDetails];
+  List<Object?> get props =>
+      [id, brandName, brandNumber, brandDescription, brandDetails];
 }
 
 // Refused Details Entity
@@ -257,7 +289,7 @@ class RefusedDetailsEntity extends Equatable {
   final int issueId;
   final String createdAt;
   final String updatedAt;
-  
+
   // Normal issue fields
   final String? appealDate;
   final String? appealNumber;
@@ -265,7 +297,7 @@ class RefusedDetailsEntity extends Equatable {
   final String? expertOpinion;
   final String? dateOfThePublicAuthorityResponseNote;
   final String? dateOfACommentNoteOnTheAuthorityResponse;
-  
+
   // Opposition issue fields
   final String? appealDateOpposition;
   final String? appealNumberOpposition;
@@ -363,7 +395,8 @@ class StatisticsEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [sessionsCount, remindersCount, completedSessions, pendingSessions];
+  List<Object?> get props =>
+      [sessionsCount, remindersCount, completedSessions, pendingSessions];
 }
 
 // Issues Summary Entity
@@ -415,7 +448,8 @@ class RecentIssueEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, refusedType, companyName, brandName, createdAt];
+  List<Object?> get props =>
+      [id, refusedType, companyName, brandName, createdAt];
 }
 
 // Issue Search Entity
@@ -437,7 +471,8 @@ class IssueSearchEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, refusedType, companyName, brandName, brandNumber, createdAt];
+  List<Object?> get props =>
+      [id, refusedType, companyName, brandName, brandNumber, createdAt];
 }
 
 // Search Meta Entity
@@ -459,5 +494,6 @@ class SearchMetaEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [currentPage, perPage, total, lastPage, searchQuery, refusedTypeFilter];
-} 
+  List<Object?> get props =>
+      [currentPage, perPage, total, lastPage, searchQuery, refusedTypeFilter];
+}
