@@ -44,7 +44,10 @@ class _NotificationState extends State<NotificationScreen> {
         ),
         title: Text(
           "notification".tr(),
-          style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 18,fontFamily:StringConstant.fontName),
+          style: Theme.of(context)
+              .textTheme
+              .displayLarge
+              ?.copyWith(fontSize: 18, fontFamily: StringConstant.fontName),
         ),
       ),
       body: Consumer<NotificationProvider>(
@@ -100,61 +103,51 @@ class _NotificationState extends State<NotificationScreen> {
             );
           }
           if (model.state == RequestState.failed) {
-            return Text("something_wrong".tr(),style: TextStyle(fontFamily:StringConstant.fontName),);
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("something_wrong".tr(),
+                      style: TextStyle(fontFamily: StringConstant.fontName)),
+                  const SizedBox(height: 12),
+                  ElevatedButton.icon(
+                    onPressed: model.getUserNotification,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('إعادة المحاولة'),
+                  ),
+                ],
+              ),
+            );
           }
           if (model.state == RequestState.loaded) {
-            return model.notification!.length == 0
+            return model.notification.isEmpty
                 ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Column(
-                        children: [
-                          const SizedBox(
-                            height: 40,
-                          ),
-                          Lottie.asset(ImagesConstants.noData,
-                              width: 380, height: 410, fit: BoxFit.contain),
-                          Text(
-                            StringConstant.noDataFound,
-                            style: TextStyle(
-                              fontFamily:StringConstant.fontName,
-                              color: ColorManager.primary,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 22,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          const SizedBox(
-                            height: 40,
-                          ),
-                          Lottie.asset(ImagesConstants.noData,
-                              width: 380, height: 410, fit: BoxFit.contain),
-                          Text(
-                            StringConstant.noDataFound,
-                            style: TextStyle(
-                              fontFamily:StringConstant.fontName,
-                              color: ColorManager.primary,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 22,
-                            ),
-                          ),
-                        ],
+                      Lottie.asset(ImagesConstants.noData,
+                          width: 300, height: 300, fit: BoxFit.contain),
+                      Text(
+                        StringConstant.noDataFound,
+                        style: TextStyle(
+                          fontFamily: StringConstant.fontName,
+                          color: ColorManager.primary,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 22,
+                        ),
                       ),
                     ],
                   )
                 : ListView.builder(
                     padding: EdgeInsets.only(top: 10, left: 14, right: 14),
-                    itemCount: model.notification!.length,
+                    itemCount: model.notification.length,
                     itemBuilder: (context, index) => InkWell(
                           highlightColor: Colors.transparent,
                           splashColor: Colors.transparent,
                           onTap: () {
-                            if (model.notification![index].id != 0) {
+                            if (model.notification[index].id != 0) {
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => BranDetails(
-                                        brandId: model.notification![index].id,
+                                        brandId: model.notification[index].id,
                                       )));
                             }
                           },
@@ -185,26 +178,29 @@ class _NotificationState extends State<NotificationScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        model.notification![index].title,
+                                        model.notification[index].title,
                                         style: Theme.of(context)
                                             .textTheme
                                             .displayLarge
                                             ?.copyWith(
                                                 fontSize: 17,
-                                                color: Colors.black,fontFamily:StringConstant.fontName),
+                                                color: Colors.black,
+                                                fontFamily:
+                                                    StringConstant.fontName),
                                       ),
                                       Container(
                                         width:
                                             MediaQuery.of(context).size.width -
                                                 90,
                                         child: Text(
-                                          model.notification![index].content,
+                                          model.notification[index].content,
                                           style: Theme.of(context)
                                               .textTheme
                                               .displayLarge
                                               ?.copyWith(
                                                   fontSize: 14,
-                                              fontFamily:StringConstant.fontName,
+                                                  fontFamily:
+                                                      StringConstant.fontName,
                                                   color: ColorManager.accent),
                                           maxLines: 2,
                                         ),
