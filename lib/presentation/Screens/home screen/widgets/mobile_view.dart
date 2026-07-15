@@ -1295,6 +1295,7 @@ class MobileDownloadButton extends StatelessWidget {
           context: context,
           label: 'تحميل PDF كامل',
           icon: Icons.picture_as_pdf_outlined,
+          backgroundColor: ColorManager.primary,
           onTap: () {
             final url =
                 "${ApiConstant.baseUrl}pdfAll/${globalAccountData.getId()}?download=pdf";
@@ -1316,6 +1317,7 @@ class MobileDownloadButton extends StatelessWidget {
           context: context,
           label: 'تحميل Excel كامل',
           icon: Icons.table_view_outlined,
+          backgroundColor: const Color(0xFF217346),
           onTap: () {
             final fileName =
                 'all_brands_${DateTime.now().millisecondsSinceEpoch}.xlsx';
@@ -1337,6 +1339,7 @@ class MobileDownloadButton extends StatelessWidget {
     required BuildContext context,
     required String label,
     required IconData icon,
+    required Color backgroundColor,
     required VoidCallback onTap,
   }) {
     return InkWell(
@@ -1345,7 +1348,7 @@ class MobileDownloadButton extends StatelessWidget {
       child: Container(
         height: 42,
         decoration: BoxDecoration(
-          color: ColorManager.primary,
+          color: backgroundColor,
           borderRadius: BorderRadius.circular(45),
         ),
         child: Row(
